@@ -23,102 +23,91 @@ export default function FAQSection() {
           >
             <AccordionItem
               value="item-1"
-              className="border border-blue-300 rounded-xl "
+              className="border border-[#F54900] rounded-xl "
             >
               <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                How do I get a quote for my delivery?
+                How does the restaurant management SaaS system work?
               </AccordionTrigger>
 
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p className="m-0">
-                  Visit the courier service’s website and enter your pickup and
-                  delivery details to get an instant quote.
+                  It helps you manage orders, tables, menus, billing, and staff
+                  from a single dashboard in real time.
                 </p>
-                {/* <p className="m-0">
-      Key features include advanced processing capabilities, a user-friendly
-      interface, and smart integrations designed for both beginners and experts.
-    </p> */}
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem
               value="item-2"
-              className="border-2 border-[#B2DDFF] rounded-[12px]"
+              className="border-2 border-[#F54900] rounded-[12px]"
             >
               <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Can I track my delivery in real time?
+                Can I manage online orders and dine-in orders together?
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p>
-                  Yes, most courier services offer real-time tracking on their
-                  website. Just enter your tracking number to view your parcel’s
-                  live status and location.
+                  Yes, the system allows you to handle dine-in, takeaway, and
+                  online delivery orders in one unified panel.
                 </p>
               </AccordionContent>
             </AccordionItem>
+
             <AccordionItem
               value="item-3"
-              className="border-2 border-[#B2DDFF] rounded-[12px]"
+              className="border-2 border-[#F54900] rounded-[12px]"
             >
               <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                What happens if I need to change my delivery address after
-                placing the order?
+                Can I update my restaurant menu anytime?
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p>
-                  Contact the courier’s customer support through their website
-                  as soon as possible. Some services allow changes before
-                  dispatch, but extra charges or delays may apply.
+                  Yes, you can easily add, edit, or remove menu items including
+                  price, availability, and descriptions in real time.
                 </p>
               </AccordionContent>
             </AccordionItem>
+
             <AccordionItem
               value="item-4"
-              className="border-2 border-[#B2DDFF] rounded-[12px]"
+              className="border-2 border-[#F54900] rounded-[12px]"
             >
               <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                How do I pay for my order?
+                Does the system support online payments?
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p>
-                  Payments can be made securely through the courier’s website
-                  using credit/debit cards or other supported online payment
-                  methods.
+                  Yes, it supports secure online payments through multiple
+                  gateways including cards and mobile payment systems.
                 </p>
               </AccordionContent>
             </AccordionItem>
+
             <AccordionItem
               value="item-5"
-              className="border-2 border-[#B2DDFF] rounded-[12px]"
+              className="border-2 border-[#F54900] rounded-[12px]"
             >
               <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Are there any size or weight restrictions for deliveries?
+                Can I manage staff roles and permissions?
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p>
-                  Yes, courier services typically have size and weight limits.
-                  Check the delivery guidelines on their website before placing
-                  your order.
+                  Yes, you can assign roles like admin, manager, cashier, or
+                  waiter with specific permissions for secure operations.
                 </p>
               </AccordionContent>
             </AccordionItem>
+
             <AccordionItem
               value="item-6"
-              className="border-2 border-b border-[#B2DDFF] rounded-[12px]"
+              className="border-2 border-[#F54900] rounded-[12px]"
             >
               <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Return Policy
+                Does it provide reports and analytics?
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p>
-                  We stand behind our products with a comprehensive 30-day
-                  return policy. If you&apos;re not completely satisfied, simply
-                  return the item in its original condition.
-                </p>
-                <p>
-                  Our hassle-free return process includes free return shipping
-                  and full refunds processed within 48 hours of receiving the
-                  returned item.
+                  Yes, you can view sales reports, order history, revenue
+                  tracking, and performance analytics in real time.
                 </p>
               </AccordionContent>
             </AccordionItem>
