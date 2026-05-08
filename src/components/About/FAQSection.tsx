@@ -5,117 +5,79 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { motion } from "framer-motion";
+
+const faqs = [
+  {
+    q: "How does the restaurant management SaaS system work?",
+    a: "It helps you manage orders, tables, cooking, menus, billing, staff and everything from a single dashboard in real time.",
+  },
+  {
+    q: "Can I manage online orders and dine-in orders together?",
+    a: "Yes, you can handle dine-in, takeaway, and online delivery orders in one unified system.",
+  },
+  {
+    q: "Can I update my restaurant menu anytime?",
+    a: "Yes, you can add, edit, or remove menu items including price, availability, and descriptions instantly.",
+  },
+  {
+    q: "Does the system support online payments?",
+    a: "Yes, it supports secure online payments via cards and mobile payment systems.",
+  },
+  {
+    q: "Can I manage staff roles and permissions?",
+    a: "Yes, you can assign roles like admin, manager, cashier, waiter with specific permissions.",
+  },
+  {
+    q: "Does it provide reports and analytics?",
+    a: "Yes, you can track sales, revenue, orders, and performance analytics in real time.",
+  },
+];
 
 const FAQSection = () => {
   return (
-    <div className="text-center bg-[#FAFAFA]">
+    <section className="bg-[#FAFAFA]">
       <CommonWrapper>
-        <h2 className="text-2xl md:text-3xl font-bold text-[#373A41] mb-10">
-          Frequently Asked your Question
-        </h2>
+        {/* Title */}
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-2xl md:text-3xl font-bold text-[#373A41] text-center mb-10"
+        >
+          Frequently Asked Questions
+        </motion.h2>
 
-        <div>
-          <Accordion
-            type="single"
-            collapsible
-            className="w-full space-y-5"
-            defaultValue="item-1"
-          >
-            <AccordionItem
-              value="item-1"
-              className="border border-[#F54900] rounded-xl "
+        {/* Accordion */}
+        <Accordion type="single" collapsible className="w-full space-y-4">
+          {faqs.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+              viewport={{ once: true }}
             >
-              <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                How does the restaurant management SaaS system work?
-              </AccordionTrigger>
+              <AccordionItem
+                value={`item-${i}`}
+                className="border border-[#F54900] rounded-xl px-2"
+              >
+                {/* Question */}
+                <AccordionTrigger className="px-4 py-5 text-left text-base md:text-lg font-medium text-gray-700 hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
 
-              <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
-                <p className="m-0">
-                  It helps you manage orders, tables, cooking , menus, billing,
-                  staff and all maintain smoothly from individual dashboard in
-                  real time.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="item-2"
-              className="border-2 border-[#F54900] rounded-[12px]"
-            >
-              <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Can I manage online orders and dine-in orders together?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
-                <p>
-                  Yes, the system allows you to handle dine-in, takeaway, and
-                  online delivery orders in one unified panel.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="item-3"
-              className="border-2 border-[#F54900] rounded-[12px]"
-            >
-              <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Can I update my restaurant menu anytime?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
-                <p>
-                  Yes, you can easily add, edit, or remove menu items including
-                  price, availability, and descriptions in real time.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="item-4"
-              className="border-2 border-[#F54900] rounded-[12px]"
-            >
-              <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Does the system support online payments?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
-                <p>
-                  Yes, it supports secure online payments through multiple
-                  gateways including cards and mobile payment systems.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="item-5"
-              className="border-2 border-[#F54900] rounded-[12px]"
-            >
-              <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Can I manage staff roles and permissions?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
-                <p>
-                  Yes, you can assign roles like admin, manager, cashier, or
-                  waiter with specific permissions for secure operations.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="item-6"
-              className="border-2 border-[#F54900] rounded-[12px]"
-            >
-              <AccordionTrigger className="px-6 py-5 text-left text-gray-700 text-base md:text-lg font-medium hover:no-underline cursor-pointer">
-                Does it provide reports and analytics?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
-                <p>
-                  Yes, you can view sales reports, order history, revenue
-                  tracking, and performance analytics in real time.
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
+                {/* Answer (Smooth built-in animation) */}
+                <AccordionContent className="px-4 pb-5 text-gray-600 text-sm md:text-base leading-relaxed data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            </motion.div>
+          ))}
+        </Accordion>
       </CommonWrapper>
-    </div>
+    </section>
   );
 };
 

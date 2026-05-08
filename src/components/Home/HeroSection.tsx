@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from "react";
 import heroImage from "../../assets/sas/photo/photo1.jpg";
 import backgroundPhoto from "../../assets/sas/photo/bacground.jpeg";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function HeroSection() {
   const words = ["smarter,", "effortlessly,", "and profitably."];
@@ -12,42 +12,58 @@ export default function HeroSection() {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % words.length);
     }, 1800);
+
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="relative overflow-hidden mt-[70px]">
-      
-      {/* 🌆 Background Image */}
+      {/* 🌆 Background */}
       <div
         className="absolute inset-0 bg-cover bg-center scale-105"
         style={{ backgroundImage: `url(${backgroundPhoto})` }}
       />
 
-      {/* 🌑 Dark Overlay */}
+      {/* 🌑 Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#020617]/90 via-[#0F172A]/85 to-[#020617]/90" />
 
-      {/* 🔥 Glow Effects */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/20 blur-[120px] rounded-full" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-purple-500/20 blur-[120px] rounded-full" />
+      {/* 🔥 Glow */}
+      <motion.div
+        animate={{ y: [0, 20, 0] }}
+        transition={{ duration: 6, repeat: Infinity }}
+        className="absolute top-20 left-10 w-72 h-72 bg-orange-500/20 blur-[120px] rounded-full"
+      />
+      <motion.div
+        animate={{ y: [0, -20, 0] }}
+        transition={{ duration: 7, repeat: Infinity }}
+        className="absolute bottom-10 right-10 w-72 h-72 bg-purple-500/20 blur-[120px] rounded-full"
+      />
 
-      {/* Content */}
       <div className="relative max-w-[1200px] mx-auto px-4 md:px-10 xl:px-0">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
-
           {/* Left Content */}
-          <div className="text-white space-y-6 pt-10 lg:pb-20">
-            
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-white space-y-6 pt-10 lg:pb-20"
+          >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
               Run your restaurant
               <br />
-
               <span className="relative inline-block text-orange-400">
-                <span className="transition-all duration-500 ease-in-out">
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="inline-block"
+                >
                   {words[index]}
-                </span>
+                </motion.span>
 
-                {/* Curved underline */}
+                {/* underline */}
                 <svg
                   className="absolute -bottom-2 left-0 w-full h-3"
                   viewBox="0 0 300 12"
@@ -64,45 +80,59 @@ export default function HeroSection() {
             </h1>
 
             <p className="text-lg md:text-xl text-gray-300 max-w-md">
-              Manage orders, deliveries, and customers in one powerful platform. 
+              Manage orders, deliveries, and customers in one powerful platform.
               Built for modern restaurants that move fast.
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA */}
             <div className="flex gap-4">
               <Link to="/signup">
-                <button className="bg-orange-500 cursor-pointer hover:bg-orange-600 transition px-8 py-3 rounded-2xl text-lg font-semibold shadow-lg shadow-orange-500/30">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-orange-500 cursor-pointer hover:bg-orange-600 transition px-8 py-3 rounded-2xl text-lg font-semibold shadow-lg shadow-orange-500/30"
+                >
                   Get Started
-                </button>
+                </motion.button>
               </Link>
 
-              <button className="border border-gray-500 cursor-pointer hover:bg-[#F54900] hover:border-orange-400 hover:text-white px-8 py-3 rounded-2xl text-lg font-semibold transition">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="border border-gray-500 cursor-pointer hover:bg-[#F54900] hover:border-orange-400 hover:text-white px-8 py-3 rounded-2xl text-lg font-semibold transition"
+              >
                 Live Demo
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Image */}
-          <div className="hidden lg:block relative">
-            
-            {/* Glass Card Effect */}
+          <motion.div
+            initial={{ opacity: 0, x: 80, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="hidden lg:block relative"
+          >
+            {/* Glass */}
             <div className="absolute inset-0 bg-[#192037]/70 backdrop-blur-xl rounded-3xl border border-white/10" />
-            
-            <img
+
+            <motion.img
               src={heroImage}
               alt="hero"
               className="relative z-10 rounded-3xl shadow-2xl"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 5, repeat: Infinity }}
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
   );
 }
-// import { useEffect, useState } from "react";
-// import heroImage from "../../assets/sas/photo/hero.png";
-// import bacgroundPhoto from "../../assets/sas/photo/bacground.jpeg";
 
+// import { useEffect, useState } from "react";
+// import heroImage from "../../assets/sas/photo/photo1.jpg";
+// import backgroundPhoto from "../../assets/sas/photo/bacground.jpeg";
 // import { Link } from "react-router-dom";
 
 // export default function HeroSection() {
@@ -118,20 +148,27 @@ export default function HeroSection() {
 
 //   return (
 //     <div className="relative overflow-hidden mt-[70px]">
-      
-//       {/* 🌈 Background Gradient */}
-//       <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#020617]" />
+
+//       {/* 🌆 Background Image */}
+//       <div
+//         className="absolute inset-0 bg-cover bg-center scale-105"
+//         style={{ backgroundImage: `url(${backgroundPhoto})` }}
+//       />
+
+//       {/* 🌑 Dark Overlay */}
+//       <div className="absolute inset-0 bg-gradient-to-br from-[#020617]/90 via-[#0F172A]/85 to-[#020617]/90" />
 
 //       {/* 🔥 Glow Effects */}
 //       <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/20 blur-[120px] rounded-full" />
 //       <div className="absolute bottom-10 right-10 w-72 h-72 bg-purple-500/20 blur-[120px] rounded-full" />
 
+//       {/* Content */}
 //       <div className="relative max-w-[1200px] mx-auto px-4 md:px-10 xl:px-0">
 //         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
 
 //           {/* Left Content */}
 //           <div className="text-white space-y-6 pt-10 lg:pb-20">
-            
+
 //             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
 //               Run your restaurant
 //               <br />
@@ -158,7 +195,8 @@ export default function HeroSection() {
 //             </h1>
 
 //             <p className="text-lg md:text-xl text-gray-300 max-w-md">
-//               One SaaS platform powering 5 critical roles — Super Admin, Manager, Kitchen, Server & Cashier — all in perfect real-time sync.
+//               Manage orders, deliveries, and customers in one powerful platform.
+//               Built for modern restaurants that move fast.
 //             </p>
 
 //             {/* CTA Buttons */}
@@ -177,10 +215,10 @@ export default function HeroSection() {
 
 //           {/* Right Image */}
 //           <div className="hidden lg:block relative">
-            
+
 //             {/* Glass Card Effect */}
-//             <div className="absolute inset-0 bg-[#192037] backdrop-blur-xl rounded-3xl border border-white/10" />
-            
+//             <div className="absolute inset-0 bg-[#192037]/70 backdrop-blur-xl rounded-3xl border border-white/10" />
+
 //             <img
 //               src={heroImage}
 //               alt="hero"
@@ -192,4 +230,3 @@ export default function HeroSection() {
 //     </div>
 //   );
 // }
-
