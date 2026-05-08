@@ -11,7 +11,7 @@ export default function FAQSection() {
     <section className="text-center bg-[#FAFAFA]">
       <CommonWrapper>
         <h2 className="text-2xl md:text-3xl font-bold text-[#373A41] mb-10">
-          Frequently Asked Questions
+          Frequently Asked your Question
         </h2>
 
         <div>
@@ -31,8 +31,9 @@ export default function FAQSection() {
 
               <AccordionContent className="px-6 pb-5 pt-0 text-left text-gray-600 text-sm md:text-base leading-relaxed space-y-3 cursor-pointer">
                 <p className="m-0">
-                  It helps you manage orders, tables, menus, billing, and staff
-                  from a single dashboard in real time.
+                  It helps you manage orders, tables, cooking , menus, billing,
+                  staff and all maintain smoothly from individual dashboard in
+                  real time.
                 </p>
               </AccordionContent>
             </AccordionItem>
