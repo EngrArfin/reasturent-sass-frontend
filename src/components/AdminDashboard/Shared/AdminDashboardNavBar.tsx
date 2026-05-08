@@ -1,243 +1,102 @@
-import { useState, useEffect, useRef } from "react";
-import { Bell, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import logo from "@/assets/icons/logo.svg";
-import searchIcon from "@/assets/icons/search.svg";
-import messageIcon from "@/assets/icons/message.svg";
-import togglebarIcon from "@/assets/icons/togglebar.svg";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
-import { logOut } from "@/redux/features/auth/authSlice";
-import { useAppDispatch } from "@/redux/hooks/redux-hook";
-import Cookies from "js-cookie";
-import { toast } from "sonner";
 
-interface MerchantDashboardNavbarProps {
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import user from "@/assets/Photo/Group (3).png";
+import { Link } from "react-router-dom";
+
+export interface NavbarProps {
   onMobileMenuToggle: () => void;
+  notificationCount?: number;
+  userName?: string;
+  isSidebarOpen: boolean;
 }
 
-const navLinks = [
-  { label: "Dashboard", href: "/admin-dashboard" },
-  { label: "Order & Delivery", href: "/admin-dashboard/orders-delivery" },
-  { label: "Rider management", href: "/admin-dashboard/rider-management" },
-];
-
-const AdminDashboardNavBar = ({
+const AdminDashboardNavBar: React.FC<NavbarProps> = ({
   onMobileMenuToggle,
-}: MerchantDashboardNavbarProps) => {
-  const location = useLocation();
-  const [openSheet, setOpenSheet] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const dispatch = useAppDispatch();
 
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    // Clear both cookies and localStorage
-    Cookies.remove("token");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user"); // if applicable
-    localStorage.removeItem("refreshToken"); // if applicable
-
-    dispatch(logOut());
-    toast.success("Admin logged out successfully!");
-    navigate("/");
-  };
-
-  useEffect(() => {
-    if (showSearch && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [showSearch]);
-
-  const getActive = (path: string) => location.pathname === path;
-
+  userName = "Gemini Chachi",
+  isSidebarOpen,
+}) => {
   return (
-    <div className="w-full max-w-[1560px] mx-auto px-4 md:px-8 py-3 bg-white shadow-lg rounded-2xl">
-      <div className="flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          <Link to="/">
-            <img src={logo} alt="Logo" className="w-28 h-auto drop-shadow-md" />
-          </Link>
-        </div>
+    <div className="bg-[#EBE8E3] border-b border-[#C9C6C3]">
+      <header
+        className={`flex items-center justify-between h-16 px-4 md:px-8 mb-2 ${
+          isSidebarOpen ? "max-w-[1400px] mx-auto" : ""
+        }`}
+      >
+        {/* Left Section */}
+        <div className="flex items-center space-x-4">
+          {/* Mobile Menu */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden text-black cursor-pointer"
+            onClick={onMobileMenuToggle}
+          >
+            <Menu className="w-6 h-6" />
+          </Button>
 
-        {/* Desktop Center Nav (only 3 links) */}
-        <nav className="hidden md:flex items-center space-x-8 justify-center flex-1">
-          {navLinks.slice(0, 3).map((link) => {
-            const isActive = getActive(link.href);
-            return (
-              <Link
-                key={link.label}
-                to={link.href}
-                className={`relative group pb-1 transition-all duration-300 ${
-                  isActive
-                    ? "text-[#414651] font-bold font-sans text-xl"
-                    : "text-[#414651] hover:text-black font-sans text-xl"
-                }`}
-              >
-                {link.label}
-                <span
-                  className={`absolute left-0 -bottom-0.5 h-[3px] w-full rounded-full transition-all duration-300 ${
-                    isActive
-                      ? "bg-black scale-x-100"
-                      : "bg-transparent scale-x-0 group-hover:bg-black group-hover:scale-x-100"
-                  } origin-left`}
-                />
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Right Icons */}
-        <div className="flex items-center space-x-4 cursor-pointer">
-          {/* Search - Hidden on mobile */}
-          {showSearch ? (
-            <div className="hidden md:flex items-center bg-white rounded-lg shadow-sm border border-gray-200 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary w-64">
-              <Input
-                ref={searchInputRef}
-                placeholder="Search orders, riders..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="border-0 focus-visible:ring-0 shadow-none"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-primary"
-                onClick={() => {
-                  setShowSearch(false);
-                  setSearchQuery("");
-                }}
-              >
-                <X className="w-5 h-5" />
-              </Button>
+          {/* Logo + Dashboard text */}
+          <div className="flex items-center space-x-2 pl-0 md:pl-2 lg:pl-70">
+            <div className="flex flex-col leading-tight">
+              <span className="text-xs text-black">Dashboard</span>
+              <span className="text-sm md:text-base font-medium text-black">
+                HELLO, {userName}
+              </span>
             </div>
-          ) : (
-            <>
-              <div
-                onClick={() => setShowSearch(true)}
-                className="hidden md:flex text-gray-600 hover:text-black hover:bg-gray-100 p-1 rounded"
-              >
-                <img src={searchIcon} alt="Search" className="w-5 h-5" />
-              </div>
-              <div className="text-gray-600 hover:text-black hover:bg-gray-100 p-1 rounded">
-                <Link to="/admin-dashboard/message">
-                  <img src={messageIcon} alt="Messages" className="w-5 h-5" />
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-                </Link>
-              </div>
+          </div>
+        </div>
 
-              <Dialog
-                open={notificationOpen}
-                onOpenChange={setNotificationOpen}
-              >
-                <DialogTrigger asChild>
-                  <div
-                    className="relative text-gray-600 hover:text-black hover:bg-gray-100 p-1 rounded cursor-pointer"
-                    onClick={() => setNotificationOpen(true)}
-                  >
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-                  </div>
-                </DialogTrigger>
+        {/* Right Section */}
+        <div className="flex items-center space-x-4">
+          {/* Dashboard Icon */}
 
-                <DialogContent
-                  className="p-0 bg-transparent border-none 
-               fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                ></DialogContent>
-              </Dialog>
-            </>
-          )}
-
-          {/* Toggle Menu for ALL devices */}
-          <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-            <SheetTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-600 hover:text-black hover:bg-gray-100 p-1 rounded"
-                onClick={() => {
-                  setOpenSheet(true);
-                  onMobileMenuToggle();
-                }}
+                className="text-white cursor-pointer"
               >
-                <img
-                  src={togglebarIcon}
-                  alt="Toggle menu"
-                  className="w-6 h-6"
-                />
+                <img src={user} alt="User" className="w-6 h-6 rounded-full" />
               </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-72 bg-white shadow-lg border-l border-gray-200"
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              align="end"
+              className="bg-[#346778] text-white w-60 shadow-2xl rounded-3xl border border-[#3A5CFF]/40 backdrop-blur-md overflow-hidden animate-fadeIn"
             >
-              <div className="flex flex-col h-full">
-                <div className="py-4 border-b border-gray-100">
-                  <img
-                    src={logo}
-                    alt="Logo"
-                    className="w-32 h-auto object-contain mx-auto"
-                  />
-                </div>
-                <div className="px-4 py-3">
-                  <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-                    <Input
-                      placeholder="Search..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="border-0 focus-visible:ring-0 shadow-none"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-primary"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      <X className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
+              <Link to="/admin-dashboard/settings">
+                <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-[#FEF7ED] hover:text-black transition-colors cursor-pointer">
+                  {/* <IoMdSettings className="text-white hover:text-black transition-colors duration-300 cursor-pointer" /> */}
+                  <span className="font-medium">Settings</span>
+                </DropdownMenuItem>
+              </Link>
 
-                {/* Mobile + Desktop Sheet Nav */}
-                <nav className="flex-1 flex flex-col mt-2 space-y-2 px-4">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      onClick={() => setOpenSheet(false)}
-                      className={`px-4 py-3 rounded-lg transition-colors ${
-                        getActive(link.href)
-                          ? "bg-black text-white font-medium"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
+              <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-[#FEF7ED] hover:text-black transition-colors cursor-pointer">
+                {/* <RiFileList3Fill className="text-white hover:text-black" /> */}
+                <span className="font-medium">Terms & Conditions</span>
+              </DropdownMenuItem>
 
-                <div className="pt-4 px-4">
-                  <Button
-                    className="w-full text-red-600 border-none hover:bg-gray-200 hover:text-red-700 cursor-pointer mb-2"
-                    onClick={() => {
-                      handleLogout();
-                    }}
-                  >
-                    LogOut
-                  </Button>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-[#FEF7ED] hover:text-black transition-colors cursor-pointer">
+                {/* <MdPrivacyTip className="text-white hover:text-black" /> */}
+                <span className="font-medium">Privacy Policy</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-red-600 hover:text-black transition-colors cursor-pointer">
+                {/* <RiLogoutBoxRLine className="text-red-500" /> */}
+                <span className="font-medium">Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
+      </header>
     </div>
   );
 };

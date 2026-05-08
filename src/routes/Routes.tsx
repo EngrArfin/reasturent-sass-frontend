@@ -4,7 +4,7 @@ import About from "../pages/About";
 import Contact from "../pages/Contact";
 import NotFound from "../pages/NotFound";
 import Home from "../pages/Home";
-import AdminRoute from "./AdminRoutes";
+// import AdminRoute from "./AdminRoutes";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import Services from "@/pages/Services";
@@ -57,9 +57,9 @@ const routes = createBrowserRouter([
   {
     path: "/admin-dashboard",
     element: (
-      <AdminRoute>
+      // <AdminRoute>
         <AdminLayout />
-      </AdminRoute>
+      // </AdminRoute>
     ),
     children: [
       { index: true, element: <AdminDashboardPage /> },
