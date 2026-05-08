@@ -6,9 +6,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-export default function FAQSection() {
+const FAQSection = () => {
   return (
-    <section className="text-center bg-[#FAFAFA]">
+    <div className="text-center bg-[#FAFAFA]">
       <CommonWrapper>
         <h2 className="text-2xl md:text-3xl font-bold text-[#373A41] mb-10">
           Frequently Asked your Question
@@ -115,6 +115,8 @@ export default function FAQSection() {
           </Accordion>
         </div>
       </CommonWrapper>
-    </section>
+    </div>
   );
-}
+};
+
+export default FAQSection;
