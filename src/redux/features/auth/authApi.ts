@@ -1,29 +1,58 @@
+// src/redux/features/auth/authApi.ts
 import { baseApi } from "@/redux/hooks/baseApi";
 import {
   LoginRequest,
   LoginResponse,
-  RegisterRequest,
-  RegisterResponse,
-} from "@/redux/types/auth.type";
+  PinLoginRequest,
+  PinLoginResponse,
+  SignupRequest,
+  SignupResponse,
+} from "@/redux/features/auth/auth.type";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // Updated to match Swagger endpoint: /api/auth/login
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
-        url: "/auth/login",
+        url: "/auth/login", // Changed from /admin/login to /auth/login
         method: "POST",
-        body: credentials,
+        body: credentials, // Now sends { email, pin }
       }),
       invalidatesTags: ["User"],
     }),
-    register: builder.mutation<RegisterResponse, RegisterRequest>({
-      query: (userData) => ({
-        url: "/auth/create-user",
+
+    signup: builder.mutation<SignupResponse, SignupRequest>({
+      query: (payload) => ({
+        url: "/admin/signup",
         method: "POST",
-        body: userData,
+        body: payload,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    /* Pin Login */
+    pinLogin: builder.mutation<PinLoginResponse, PinLoginRequest>({
+      query: (body) => ({
+        url: "/auth/pin-login",
+        method: "POST",
+        body,
       }),
     }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: "/admin/logout",
+        method: "POST",
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
+  overrideExisting: false,
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApi;
+export const {
+  useLoginMutation,
+  useSignupMutation,
+  useLogoutMutation,
+  usePinLoginMutation,
+} = authApi;
