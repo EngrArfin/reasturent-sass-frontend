@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import loginphoto from "@/assets/photo/signup.svg";
+import loginphoto from "@/assets/photo/bannerImg.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { setUser } from "@/redux/features/auth/authSlice";
@@ -33,7 +33,7 @@ const Login: React.FC = () => {
       KITCHEN: "/kitchen-dashboard",
       CASHIER: "/cashier-dashboard",
     };
-    navigate(roleRoutes[role] || "/dashboard");
+    navigate(roleRoutes[role] || "/login");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,6 +64,7 @@ const Login: React.FC = () => {
 
       // Redirect based on role from response
       redirectBasedOnRole(result.user.role.toUpperCase());
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Login failed:", err);
       setError(

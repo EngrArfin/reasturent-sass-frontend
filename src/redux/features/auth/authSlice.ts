@@ -1,37 +1,19 @@
+// src/redux/features/auth/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
-import { User, TAuth, LoginResponse } from "@/redux/types/auth.type";
 import { authApi } from "./authApi";
-import { AppRootState } from "@/redux/store";
+import { LoginResponse, SignupResponse, User } from "./auth.type";
 
-interface DecodedToken {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "marchant";
-  exp: number;
-  iat: number;
-}
-
-const initialState: TAuth = {
-  user: null,
-  token: null,
+type AuthState = {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
 };
 
-const decodeToken = (token: string): User | null => {
-  try {
-    const decoded = jwtDecode<DecodedToken>(token);
-    return {
-      id: decoded.id,
-      name: decoded.name,
-      email: decoded.email,
-      role: decoded.role,
-    };
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    return null;
-  }
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  isLoading: false,
 };
 
 const authSlice = createSlice({
@@ -41,49 +23,130 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<{ user: User; token: string }>) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
-      Cookies.set("token", action.payload.token, { expires: 1 });
+      Cookies.set("token", action.payload.token, {
+        expires: 1,
+        secure: true,
+        sameSite: "strict",
+      });
+      localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
     logOut: (state) => {
       state.user = null;
       state.token = null;
+      state.isLoading = false;
       Cookies.remove("token");
       localStorage.removeItem("user");
     },
-    loadUserFromToken: (state) => {
+    loadUserFromStorage: (state) => {
       const token = Cookies.get("token");
       if (token) {
-        const user = decodeToken(token);
-        if (user) {
-          state.user = user;
-          state.token = token;
+        state.token = token;
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          try {
+            state.user = JSON.parse(userStr);
+          } catch (error) {
+            console.error("Failed to parse user from localStorage", error);
+          }
         }
       }
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
   },
   extraReducers: (builder) => {
+    // Handle Login - Updated for Swagger response
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled,
       (state, { payload }: PayloadAction<LoginResponse>) => {
-        const user = decodeToken(payload.data.accessToken);
-        if (user) {
-          state.user = user;
-          state.token = payload.data.accessToken;
-          Cookies.set("token", payload.data.accessToken, { expires: 1 });
-          localStorage.setItem("user", JSON.stringify(user));
-        }
-      }
+        state.token = payload.accessToken;
+        state.user = {
+          id: payload.user.sub,
+          email: payload.user.email,
+          name: payload.user.email.split("@")[0],
+          role: payload.user.role.toUpperCase(),
+          tenantId: payload.user.tenantId,
+        };
+        Cookies.set("token", payload.accessToken, {
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
+        });
+        localStorage.setItem("user", JSON.stringify(state.user));
+        state.isLoading = false;
+      },
     );
+
+    // Handle Signup
     builder.addMatcher(
-      authApi.endpoints.register.matchFulfilled,
+      authApi.endpoints.signup.matchFulfilled,
+      (state, { payload }: PayloadAction<SignupResponse>) => {
+        state.token = payload.accessToken;
+        state.user = {
+          id: payload.admin.id,
+          email: payload.admin.email,
+          name: payload.admin.name,
+          role: "ADMIN",
+          status: payload.admin.status,
+          createdAt: payload.admin.createdAt,
+        };
+        Cookies.set("token", payload.accessToken, {
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
+        });
+        localStorage.setItem("user", JSON.stringify(state.user));
+        state.isLoading = false;
+      },
+    );
+
+    // Handle loading states
+    builder.addMatcher(
+      (action) =>
+        action.type.endsWith("/pending") &&
+        (action.type.includes("login") || action.type.includes("signup")),
+      (state) => {
+        state.isLoading = true;
+      },
+    );
+
+    builder.addMatcher(
+      (action) =>
+        action.type.endsWith("/rejected") &&
+        (action.type.includes("login") || action.type.includes("signup")),
+      (state) => {
+        state.isLoading = false;
+      },
+    );
+
+    /* login by pin */
+    builder.addMatcher(
+      authApi.endpoints.pinLogin.matchFulfilled,
       (state, { payload }) => {
-        state.user = payload.data;
-      }
+        state.token = payload.accessToken;
+
+        state.user = {
+          id: payload.user.sub,
+          email: "", // no email in response
+          name: payload.user.name,
+          role: payload.user.role.toUpperCase(),
+          tenantId: payload.user.tenantId,
+        };
+
+        Cookies.set("token", payload.accessToken, {
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
+        });
+
+        localStorage.setItem("user", JSON.stringify(state.user));
+        state.isLoading = false;
+      },
     );
   },
 });
 
-export const { setUser, logOut, loadUserFromToken } = authSlice.actions;
+export const { setUser, logOut, loadUserFromStorage, setLoading } =
+  authSlice.actions;
 export default authSlice.reducer;
-
-export const useCurrentToken = (state: AppRootState) => state.auth.token;
-export const useCurrentUser = (state: AppRootState) => state.auth.user;

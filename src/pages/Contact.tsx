@@ -1,6 +1,6 @@
 import bannerImg from "../assets/Common/contactBanner.png";
 import CommonBanner from "@/common/CommonBanner";
-import GetInTouch from "@/components/Contact/GetInTouch";
+// import GetInTouch from "@/components/Contact/GetInTouch";
 import ContactUs from "@/components/Contact/ContactUs";
 import FAQSection from "@/components/About/FAQSection";
 
@@ -13,7 +13,7 @@ const Contact = () => {
         bgImage={bannerImg}
       />
 
-      <GetInTouch />
+      {/* <GetInTouch /> */}
       <ContactUs />
       <FAQSection />
     </div>
