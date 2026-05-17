@@ -1,4 +1,4 @@
-import bannerImg from "../assets/Common/contactBanner.png";
+import bannerImg from "@/assets/About/Frame (2).png";
 import CommonBanner from "@/common/CommonBanner";
 // import GetInTouch from "@/components/Contact/GetInTouch";
 import ContactUs from "@/components/Contact/ContactUs";

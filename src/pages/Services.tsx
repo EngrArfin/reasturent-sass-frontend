@@ -1,5 +1,5 @@
 import CommonBanner from "@/common/CommonBanner";
-import bannerImg from "../assets/service/serviceBanner.png";
+import bannerImg from "@/assets/About/Frame (2).png";
 import FAQSection from "@/components/About/FAQSection";
 
 const Services = () => {
