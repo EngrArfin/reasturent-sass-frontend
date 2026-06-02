@@ -15,6 +15,8 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { RiShareBoxLine } from "react-icons/ri";
 
 import { IconType } from "react-icons";
+import { useDispatch } from "react-redux";
+import { logOut } from "@/redux/features/auth/authSlice";
 
 // Types
 export interface SidebarItem {
@@ -70,17 +72,16 @@ const AdminSidebar: React.FC<SidebarProps> = ({
   onItemClick,
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const toggleMenu = (label: string) => {
     setOpenMenu(openMenu === label ? null : label);
   };
-
   const handleLogout = () => {
-    localStorage.removeItem("token"); // adjust based on your auth system
-    localStorage.removeItem("user");
-    navigate("/login");
+    dispatch(logOut());
+    navigate("/");
   };
 
   return (
