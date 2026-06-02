@@ -24,7 +24,7 @@ const AdminDashboardNavBar: React.FC<NavbarProps> = ({
   isSidebarOpen,
 }) => {
   return (
-    <div className="bg-[#EBE8E3] border-b border-[#C9C6C3]">
+    <div className="bg-[#1b2233] border-b border-[#FEF7ED] text-white">
       <header
         className={`flex items-center justify-between h-16 px-4 md:px-8 mb-2 ${
           isSidebarOpen ? "max-w-[1400px] mx-auto" : ""
@@ -45,8 +45,8 @@ const AdminDashboardNavBar: React.FC<NavbarProps> = ({
           {/* Logo + Dashboard text */}
           <div className="flex items-center space-x-2 pl-0 md:pl-2 lg:pl-70">
             <div className="flex flex-col leading-tight">
-              <span className="text-xs text-black">Dashboard</span>
-              <span className="text-sm md:text-base font-medium text-black">
+              <span className="text-xs text-white">Dashboard</span>
+              <span className="text-sm md:text-base font-medium text-white">
                 HELLO, {userName}
               </span>
             </div>

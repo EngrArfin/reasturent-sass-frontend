@@ -86,12 +86,12 @@ const AdminSidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className="flex flex-col h-full bg-[#29424C]"
-      style={{ boxShadow: "3px 4px 42.3px 0px #0000001A" }}
+      className="flex flex-col h-full bg-[#1b2233]"
+      style={{ boxShadow: "3px 4px 42.3px 0px #1b2233" }}
     >
       {/* Logo */}
       <Link to="/admin-dashboard/dashboard">
-        <div className="flex items-center justify-center p-2 sm:p-3 border-b border-[#C9C6C3] mt-1">
+        <div className="flex items-center justify-center p-2 sm:p-3 border-b border-[#1b2233] mt-1">
           <img src={logo} alt="Logo" className="h-8 w-35" />
         </div>
       </Link>
@@ -114,17 +114,13 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                     onClick={onItemClick}
                     className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 ${
                       isActive
-                        ? "text-[#F3AA4B] bg-[#FEF7ED] rounded-xl shadow-md"
-                        : "text-white hover:text-[#F3AA4B] hover:bg-[#FEF7ED] hover:rounded-xl hover:shadow-md"
+                        ? "text-white bg-orange-600 rounded-xl shadow-md"
+                        : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
                     }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
                       <item.icon
-                        className={`w-5 h-5 ${
-                          isActive
-                            ? "text-[#F3AA4B]"
-                            : "text-white group-hover:text-[#F3AA4B]"
-                        }`}
+                        className={`w-5 h-5 text-white`}
                       />
                       <span>{item.label}</span>
                     </div>
@@ -134,17 +130,13 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                     onClick={() => toggleMenu(item.label)}
                     className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${
                       isActive
-                        ? "text-[#3A5CFF] bg-[#1C1D28] rounded-xl shadow-md"
-                        : "text-white hover:text-[#3A5CFF] hover:bg-[#1C1D28]/80 hover:rounded-xl hover:shadow-md"
+                        ? "text-white bg-orange-600 rounded-xl shadow-md"
+                        : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
                     }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
                       <item.icon
-                        className={`w-5 h-5 ${
-                          isActive
-                            ? "text-[#3A5CFF]"
-                            : "text-white group-hover:text-[#3A5CFF]"
-                        }`}
+                        className={`w-5 h-5 text-white`}
                       />
                       <span>{item.label}</span>
                     </div>
@@ -158,7 +150,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                     )}
 
                     {item.badge && (
-                      <Badge className="text-xs bg-[#3A5CFF]/10 text-[#3A5CFF] border border-[#3A5CFF]/30">
+                      <Badge className={`text-xs transition-colors duration-300 ${isActive ? "bg-white text-orange-600" : "bg-orange-600 text-white group-hover:bg-white group-hover:text-orange-600"} border-none`}>
                         {item.badge}
                       </Badge>
                     )}
@@ -177,8 +169,8 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                           onClick={onItemClick}
                           className={`block px-3 py-2 text-sm rounded-lg transition-all ${
                             childActive
-                              ? "text-[#3A5CFF] bg-[#1C1D28]"
-                              : "text-gray-300 hover:text-[#3A5CFF] hover:bg-[#1C1D28]/70"
+                              ? "text-white bg-orange-600"
+                              : "text-gray-300 hover:text-white hover:bg-orange-600"
                           }`}
                         >
                           {child.label}
@@ -194,7 +186,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Logout Section */}
-      <div className="p-2 md:p-4 border-t border-[#C9C6C3]">
+      <div className="p-2 md:p-4 border-t border-[#1b2233]">
         <div className="flex justify-center mb-3">
           <img src={logo} alt="Logo" className="h-5 w-auto opacity-70" />
         </div>
