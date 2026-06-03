@@ -11,26 +11,37 @@ interface CardData {
   color: CardColor;
 }
 
-const colorStyles: Record<CardColor, { wrapper: string; icon: string; subtext: string }> = {
+const colorStyles: Record<
+  CardColor,
+  { iconBg: string; icon: string; badgeBg: string; badgeText: string; borderLeft: string }
+> = {
   green: {
-    wrapper: "bg-[#E6F8EA] border-[#C3E8D1] border-l-[#10B981]",
-    icon: "text-[#10B981]",
-    subtext: "text-[#10B981]",
+    borderLeft: "border-l-emerald-500",
+    iconBg: "bg-emerald-50 text-emerald-600",
+    icon: "text-emerald-600 w-5 h-5",
+    badgeBg: "bg-emerald-50",
+    badgeText: "text-emerald-700",
   },
   blue: {
-    wrapper: "bg-[#EBF4FE] border-[#BFDBFE] border-l-[#3B82F6]",
-    icon: "text-[#3B82F6]",
-    subtext: "text-[#3B82F6]",
+    borderLeft: "border-l-blue-500",
+    iconBg: "bg-blue-50 text-blue-600",
+    icon: "text-blue-600 w-5 h-5",
+    badgeBg: "bg-blue-50",
+    badgeText: "text-blue-700",
   },
   purple: {
-    wrapper: "bg-[#F3E8FF] border-[#E9D5FF] border-l-[#A855F7]",
-    icon: "text-[#A855F7]",
-    subtext: "text-[#A855F7]",
+    borderLeft: "border-l-purple-500",
+    iconBg: "bg-purple-50 text-purple-600",
+    icon: "text-purple-600 w-5 h-5",
+    badgeBg: "bg-purple-50",
+    badgeText: "text-purple-700",
   },
   red: {
-    wrapper: "bg-[#FEE2E2] border-[#FECACA] border-l-[#EF4444]",
-    icon: "text-[#EF4444]",
-    subtext: "text-[#EF4444]",
+    borderLeft: "border-l-red-500",
+    iconBg: "bg-red-50 text-red-600",
+    icon: "text-red-600 w-5 h-5",
+    badgeBg: "bg-red-50",
+    badgeText: "text-red-700",
   },
 };
 
@@ -39,54 +50,58 @@ const cardData: CardData[] = [
     title: "Total Tenants",
     value: "3",
     subtext: "100%",
-    icon: <TrendingUp />,
+    icon: <TrendingUp className="w-5 h-5" />,
     color: "green",
   },
   {
     title: "Active Tickets",
     value: "1",
     subtext: "0 closed",
-    icon: <UserCheck />,
+    icon: <UserCheck className="w-5 h-5" />,
     color: "blue",
   },
   {
     title: "Monthly Revenue",
     value: "$199.98",
     subtext: "100%",
-    icon: <Eye />,
+    icon: <Eye className="w-5 h-5" />,
     color: "purple",
   },
   {
     title: "System Insight",
     value: "0",
     subtext: "0 prev",
-    icon: <AlertTriangle />,
+    icon: <AlertTriangle className="w-5 h-5" />,
     color: "red",
   },
 ];
 
 const AdminCard: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
       {cardData.map((card, index) => {
         const styles = colorStyles[card.color];
 
         return (
           <div
             key={index}
-            className={`rounded-xl border border-l-4 p-5 flex flex-col justify-between shadow-sm min-h-[140px] ${styles.wrapper}`}
+            className={`group bg-white rounded-2xl border border-gray-200 border-l-4 p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 min-h-[145px] ${styles.borderLeft}`}
           >
-            <div className="flex items-center gap-3">
-              <div className={`text-xl ${styles.icon}`}>{card.icon}</div>
-              <span className="text-sm font-semibold text-gray-800">
-                {card.title}
-              </span>
+            <div className="flex items-start justify-between w-full">
+              <div className="flex flex-col gap-1">
+                <span className="text-base font-semibold text-gray-600 tracking-wider uppercase">
+                  {card.title}
+                </span>
+                <h3 className="text-3xl font-bold text-gray-800 tracking-tight mt-3">
+                  {card.value}
+                </h3>
+              </div>
+              <div className={`p-3 rounded-xl ${styles.iconBg} flex items-center justify-center transition-transform duration-300 group-hover:scale-105`}>
+                {card.icon}
+              </div>
             </div>
-            <div className="mt-4">
-              <h3 className="text-3xl font-bold text-black">{card.value}</h3>
-            </div>
-            <div className="mt-4">
-              <span className={`text-xs font-semibold ${styles.subtext}`}>
+            <div className="flex items-center mt-4 pt-3 border-t border-gray-50">
+              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${styles.badgeBg} ${styles.badgeText}`}>
                 {card.subtext}
               </span>
             </div>
