@@ -12,6 +12,7 @@ import MerchantLayout from "@/Layout/MerchantLayout";
 import MerchantDashboardPage from "@/pages/Merchant/MerchantDashboardPage";
 import AdminDashboardPage from "@/pages/Admin/AdminDashboardPage";
 import AdminLayout from "@/Layout/AdminLayout";
+import BusinessManagement from "@/components/AdminDashboard/Business/BusinessManagement";
 
 const routes = createBrowserRouter([
   {
@@ -64,6 +65,7 @@ const routes = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: "dashboard", element: <AdminDashboardPage /> },
+      { path: "business-management", element: <BusinessManagement /> },
     ],
   },
   {

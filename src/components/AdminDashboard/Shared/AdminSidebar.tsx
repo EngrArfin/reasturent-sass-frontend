@@ -37,8 +37,8 @@ const defaultSidebarItems: SidebarItem[] = [
   { icon: RxDashboard, label: "Dashboard", href: "/admin-dashboard/dashboard" },
   {
     icon: FaUsers,
-    label: "User Management",
-    href: "/admin-dashboard/user-management",
+    label: "Business Management",
+    href: "/admin-dashboard/business-management",
   },
   {
     icon: HiOutlineUserMinus,

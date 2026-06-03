@@ -1,9 +1,11 @@
+import BusinessManagement from "../Business/BusinessManagement";
 import AdminCard from "./AdminCard";
 
 const AdminDashboard = () => {
   return (
-    <div>
+    <div className="space-y-6">
       <AdminCard/>
+      <BusinessManagement/>
     </div>
   );
 };
