@@ -138,6 +138,7 @@ export const CreateBusinessUserModal = ({
 
     setIsSubmitting(true);
     // Simulate API call
+    console.log("Creating user for business:", businessId);
     setTimeout(() => {
       setIsSubmitting(false);
       toast.success(`✨ User "${formData.name.trim()}" created successfully`);
@@ -149,24 +150,24 @@ export const CreateBusinessUserModal = ({
   const availableRoles = roles.filter((role) => role.isActive);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[0.2px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[0.5px]">
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
-          <div className="px-6 py-0 space-y-8 bg-white">
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden border border-[#1F2E4D] shadow-2xl rounded-2xl bg-[#131b2e]">
+          <div className="px-6 py-0 space-y-8 bg-[#131b2e]">
             <div className="space-y-6">
               <div className="relative pt-4">
                 <button
                   onClick={onClose}
-                  className="absolute right-4 top-4 text-black hover:text-gray-800 cursor-pointer transition-colors rounded-full p-1 hover:bg-gray-100"
+                  className="absolute right-4 top-4 text-slate-400 hover:text-white cursor-pointer transition-colors rounded-full p-1 hover:bg-[#1a243d]"
                 >
                   <X className="h-5 w-5" />
                 </button>
                 <div className="flex items-center gap-3">
                   <div>
-                    <DialogTitle className="text-xl font-semibold text-black">
+                    <DialogTitle className="text-xl font-semibold text-white">
                       Add New User
                     </DialogTitle>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-slate-400 mt-1">
                       Create a new user for this business
                     </p>
                   </div>
@@ -175,8 +176,8 @@ export const CreateBusinessUserModal = ({
               <div className="space-y-4">
                 {/* Name Field */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    Full Name <span className="text-red-500">*</span>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                    Full Name <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -187,16 +188,16 @@ export const CreateBusinessUserModal = ({
                       }
                       onBlur={() => handleBlur("name")}
                       placeholder="e.g., John Doe"
-                      className={`w-full border rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400
-                  focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#052350]
+                      className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d]
+                  focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D]
                   transition-all duration-200 ${
                     errors.name && touched.name
                       ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                      : "border-gray-300 hover:border-gray-400"
+                      : "border-[#1F2E4D] hover:border-[#26354D]"
                   }`}
                     />
                     {errors.name && touched.name && (
-                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-xs">
+                      <div className="flex items-center gap-1 mt-1.5 text-red-400 text-xs">
                         <AlertCircle className="h-3 w-3" />
                         <span>{errors.name}</span>
                       </div>
@@ -206,8 +207,8 @@ export const CreateBusinessUserModal = ({
 
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    Email Address <span className="text-red-500">*</span>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                    Email Address <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -218,16 +219,16 @@ export const CreateBusinessUserModal = ({
                       }
                       onBlur={() => handleBlur("email")}
                       placeholder="user@example.com"
-                      className={`w-full border rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400
-                  focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#052350]
+                      className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d]
+                  focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D]
                   transition-all duration-200 ${
                     errors.email && touched.email
                       ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                      : "border-gray-300 hover:border-gray-400"
+                      : "border-[#1F2E4D] hover:border-[#26354D]"
                   }`}
                     />
                     {errors.email && touched.email && (
-                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-xs">
+                      <div className="flex items-center gap-1 mt-1.5 text-red-400 text-xs">
                         <AlertCircle className="h-3 w-3" />
                         <span>{errors.email}</span>
                       </div>
@@ -237,8 +238,8 @@ export const CreateBusinessUserModal = ({
 
                 {/* PIN Field */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    4-Digit PIN <span className="text-red-500">*</span>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                    4-Digit PIN <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -253,51 +254,51 @@ export const CreateBusinessUserModal = ({
                       }}
                       onBlur={() => handleBlur("pin")}
                       placeholder="Enter 4-digit PIN"
-                      className={`w-full border rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400
-                  focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#052350]
+                      className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d]
+                  focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D]
                   transition-all duration-200 font-mono text-lg tracking-wider ${
                     errors.pin && touched.pin
                       ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                      : "border-gray-300 hover:border-gray-400"
+                      : "border-[#1F2E4D] hover:border-[#26354D]"
                   }`}
                     />
                     {errors.pin && touched.pin && (
-                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-xs">
+                      <div className="flex items-center gap-1 mt-1.5 text-red-400 text-xs">
                         <span>{errors.pin}</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500">
                     Secure 4-digit numeric PIN for user authentication
                   </p>
                 </div>
 
                 {/* Role Field */}
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    Role <span className="text-red-500">*</span>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                    Role <span className="text-red-400">*</span>
                   </label>
                   <Select
                     value={formData.role}
                     onValueChange={(value) => handleFieldChange("role", value)}
                   >
                     <SelectTrigger
-                      className={`w-full rounded-xl px-4 py-2.5 h-auto cursor-pointer ${
+                      className={`w-full rounded-xl px-4 py-2.5 h-auto cursor-pointer bg-[#1a243d] border-[#1F2E4D] text-white hover:border-[#26354D] focus:ring-[#052350]/20 ${
                         errors.role && touched.role
                           ? "border-red-500 focus:ring-red-500/20"
-                          : "border-gray-300 hover:border-gray-400"
+                          : ""
                       }`}
                     >
                       <SelectValue placeholder="Select a role for the user" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl bg-white border-none cursor-pointer">
+                    <SelectContent className="rounded-xl bg-[#131b2e] border border-[#1F2E4D] text-white cursor-pointer">
                       {availableRoles.length === 0 ? (
-                        <div className="px-3 py-8 text-center">
-                          <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-500">
+                        <div className="px-3 py-8 text-center bg-[#131b2e]">
+                          <AlertCircle className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                          <p className="text-sm text-slate-300">
                             No roles available
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-xs text-slate-400 mt-1">
                             Please enable roles for this business first
                           </p>
                         </div>
@@ -306,10 +307,10 @@ export const CreateBusinessUserModal = ({
                           <SelectItem
                             key={role.id}
                             value={role.name}
-                            className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                            className="cursor-pointer text-white hover:bg-[#1a243d] focus:bg-[#1a243d] focus:text-white"
                           >
                             <div className="flex flex-col">
-                              <span className="font-medium text-gray-900 capitalize">
+                              <span className="font-medium capitalize">
                                 {role.name}
                               </span>
                             </div>
@@ -319,7 +320,7 @@ export const CreateBusinessUserModal = ({
                     </SelectContent>
                   </Select>
                   {errors.role && touched.role && (
-                    <div className="flex items-center gap-1 mt-1.5 text-red-500 text-xs">
+                    <div className="flex items-center gap-1 mt-1.5 text-red-400 text-xs">
                       <AlertCircle className="h-3 w-3" />
                       <span>{errors.role}</span>
                     </div>
@@ -327,23 +328,23 @@ export const CreateBusinessUserModal = ({
                 </div>
               </div>
 
-              <div className="flex pb-4 pt-4 justify-end gap-3 border-t border-gray-100">
+              <div className="flex pb-4 pt-4 justify-end gap-3 border-t border-[#1F2E4D]/50">
                 <button
                   onClick={onClose}
-                  className="px-5 py-2.5 cursor-pointer text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200
+                  className="px-5 py-2.5 cursor-pointer text-slate-300 bg-[#1a243d] border border-[#1F2E4D] hover:bg-[#232f4c] hover:text-white rounded-full
               transition-all duration-200 font-medium focus:outline-none focus:ring-2
-              focus:ring-gray-300 focus:ring-offset-1"
+              focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-transparent"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 cursor-pointer text-white bg-gradient-to-r from-[#052350] to-[#0a3a6e]
+                  className="px-6 py-2.5 cursor-pointer text-white bg-gradient-to-r from-[#052350] to-[#0a3a6e] border border-[#1F2E4D]
               rounded-full hover:from-[#061E49] hover:to-[#052350] transition-all duration-200
               font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg
               hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#052350]/50
-              focus:ring-offset-2"
+              focus:ring-offset-2 focus:ring-offset-transparent"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">

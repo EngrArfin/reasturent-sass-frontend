@@ -24,7 +24,7 @@ const AdminDashboardNavBar: React.FC<NavbarProps> = ({
   isSidebarOpen,
 }) => {
   return (
-    <div className="bg-[#1b2233] border-b border-[#FEF7ED] text-white">
+    <div className="bg-[#131b2e] border-b border-[#1F2E4D] text-white">
       <header
         className={`flex items-center justify-between h-16 px-4 md:px-8 mb-2 ${
           isSidebarOpen ? "max-w-[1400px] mx-auto" : ""

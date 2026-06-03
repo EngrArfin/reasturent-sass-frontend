@@ -81,19 +81,19 @@ const RolesManagementModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[0.2px]">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[0.5px]">
+      <div className="bg-[#131b2e] border border-[#1F2E4D] rounded-2xl shadow-xl w-full max-w-xl mx-4 text-white">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-[#1F2E4D]">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-white">
               Manage Roles
             </h2>
-            <p className="text-sm text-gray-500 mt-1">{business.name}</p>
+            <p className="text-sm text-slate-400 mt-1">{business.name}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition cursor-pointer"
+            className="text-slate-400 hover:text-white transition cursor-pointer p-1 hover:bg-[#1a243d] rounded-full"
           >
             <FaTimes className="w-5 h-5" />
           </button>
@@ -102,95 +102,95 @@ const RolesManagementModal = ({
         {/* Content */}
         <div className="p-6">
           <div className="space-y-4">
-            <div className="bg-blue-50 p-3 rounded-lg mb-4">
-              <p className="text-sm text-blue-800">
+            <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-4">
+              <p className="text-sm text-blue-300">
                 Enable or disable roles for this business. Changes will take
                 effect immediately.
               </p>
             </div>
 
             {/* Server Role */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
               <div className="flex-1">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={rolesState.server}
                     onChange={() => handleRoleChange("server")}
-                    className="w-5 h-5 rounded border-gray-300 text-[#052350] focus:ring-[#052350]"
+                    className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350]"
                   />
                   <div>
-                    <span className="font-medium text-gray-900">Server</span>
-                    <p className="text-sm text-gray-500">
+                    <span className="font-medium text-white">Server</span>
+                    <p className="text-sm text-slate-400">
                       Order taking and table management
                     </p>
                   </div>
                 </label>
               </div>
               {getRoleDetails("server") && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-400">
                   ID: {getRoleDetails("server")?.id.slice(0, 8)}...
                 </span>
               )}
             </div>
 
             {/* Kitchen Role */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
               <div className="flex-1">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={rolesState.kitchen}
                     onChange={() => handleRoleChange("kitchen")}
-                    className="w-5 h-5 rounded border-gray-300 text-[#052350] focus:ring-[#052350]"
+                    className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350]"
                   />
                   <div>
-                    <span className="font-medium text-gray-900">Kitchen</span>
-                    <p className="text-sm text-gray-500">
+                    <span className="font-medium text-white">Kitchen</span>
+                    <p className="text-sm text-slate-400">
                       Order preparation and status updates
                     </p>
                   </div>
                 </label>
               </div>
               {getRoleDetails("kitchen") && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-400">
                   ID: {getRoleDetails("kitchen")?.id.slice(0, 8)}...
                 </span>
               )}
             </div>
 
             {/* Cashier Role */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
               <div className="flex-1">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={rolesState.cashier}
                     onChange={() => handleRoleChange("cashier")}
-                    className="w-5 h-5 rounded border-gray-300 text-[#052350] focus:ring-[#052350]"
+                    className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350]"
                   />
                   <div>
-                    <span className="font-medium text-gray-900">Cashier</span>
-                    <p className="text-sm text-gray-500">
+                    <span className="font-medium text-white">Cashier</span>
+                    <p className="text-sm text-slate-400">
                       Payment processing and billing
                     </p>
                   </div>
                 </label>
               </div>
               {getRoleDetails("cashier") && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-400">
                   ID: {getRoleDetails("cashier")?.id.slice(0, 8)}...
                 </span>
               )}
             </div>
 
             {/* Manager Role Info */}
-            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+            <div className="mt-4 p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
               <div className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-green-500"></div>
+                <div className="w-5 h-5 rounded-full bg-emerald-500"></div>
                 <div>
-                  <span className="font-medium text-gray-900">Manager</span>
-                  <p className="text-sm text-gray-600">
+                  <span className="font-medium text-white">Manager</span>
+                  <p className="text-sm text-slate-400">
                     This role is always enabled for all businesses
                   </p>
                 </div>
@@ -200,17 +200,17 @@ const RolesManagementModal = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-[#1F2E4D]">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition cursor-pointer"
+            className="px-4 py-2 text-sm font-medium text-slate-300 bg-[#1a243d] border border-[#1F2E4D] rounded-lg hover:bg-[#232f4c] hover:text-white transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isUpdating}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg hover:bg-[#041a3d] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] border border-[#1F2E4D] rounded-lg hover:bg-[#061E49] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isUpdating ? (
               <>

@@ -124,7 +124,7 @@ const initialUsers: Record<string, BusinessUser[]> = {
 };
 
 const BusinessManagement = () => {
-  const [businesses, setBusinesses] = useState<Business[]>(initialBusinesses);
+  const [businesses] = useState<Business[]>(initialBusinesses);
   const [roles, setRoles] = useState<Record<string, Role[]>>(initialRoles);
   const [users, setUsers] = useState<Record<string, BusinessUser[]>>(initialUsers);
 
@@ -265,24 +265,24 @@ const BusinessManagement = () => {
   const getStatusBadge = (status: string) => {
     switch (status?.toUpperCase()) {
       case "ACTIVE":
-        return "bg-[#EDE6F4] text-[#6D2C93]";
+        return "bg-emerald-500/10 text-emerald-400";
       case "INACTIVE":
-        return "bg-gray-100 text-gray-700";
+        return "bg-slate-500/10 text-slate-400";
       case "SUSPENDED":
-        return "bg-red-100 text-red-700";
+        return "bg-red-500/10 text-red-400";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-slate-500/10 text-slate-400";
     }
   };
 
   const getUserStatusBadge = (status: string) => {
     switch (status?.toUpperCase()) {
       case "ACTIVE":
-        return "bg-green-100 text-green-700";
+        return "bg-emerald-500/10 text-emerald-400";
       case "INACTIVE":
-        return "bg-gray-100 text-gray-500";
+        return "bg-slate-500/10 text-slate-400";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-slate-500/10 text-slate-400";
     }
   };
 
@@ -327,7 +327,7 @@ const BusinessManagement = () => {
 
   return (
     <>
-      <div className="p-6 shadow-2xl rounded-3xl bg-white text-black">
+      <div className="p-6 rounded-3xl bg-[#131b2e] border border-[#1F2E4D] text-slate-300">
         {/* Search Row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="flex-1 w-full sm:max-w-md">
@@ -338,46 +338,46 @@ const BusinessManagement = () => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="w-full pl-10 pr-3 py-3 shadow-sm rounded-full outline-none focus:ring-2 focus:ring-[#052350] border border-gray-200"
+                className="w-full pl-10 pr-3 py-3 rounded-full outline-none focus:ring-2 focus:ring-[#052350] bg-[#1a243d] border border-[#1F2E4D] text-white placeholder-slate-400"
               />
               <CiSearch
                 onClick={handleSearch}
-                className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer hover:text-[#052350]"
+                className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer hover:text-white"
               />
             </div>
           </div>
 
-          <div className="text-sm text-gray-600">
-            Total Businesses: <span className="font-semibold">{total}</span>
+          <div className="text-sm text-slate-400">
+            Total Businesses: <span className="font-semibold text-white">{total}</span>
           </div>
         </div>
 
         {/* Businesses Table */}
         <div className="grid grid-cols-1 gap-5">
           <div className="w-full">
-            <div className="w-full overflow-x-auto bg-white rounded-xl border border-gray-100">
-              <table className="min-w-[1000px] w-full text-sm text-black">
-                <thead className="border-b border-[#DBE0E5] bg-[#F8F8F8]">
+            <div className="w-full overflow-x-auto bg-[#131b2e] rounded-xl border border-[#1F2E4D]">
+              <table className="min-w-[1000px] w-full text-sm text-slate-300">
+                <thead className="border-b border-[#1F2E4D] bg-[#1a243d]">
                   <tr>
-                    <th className="px-6 py-4 text-left whitespace-nowrap text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-left whitespace-nowrap text-slate-300 text-base font-semibold">
                       Business Name
                     </th>
-                    <th className="px-6 py-4 text-left text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-left text-slate-300 text-base font-semibold">
                       Industry
                     </th>
-                    <th className="px-6 py-4 text-left text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-left text-slate-300 text-base font-semibold">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-left whitespace-nowrap text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-left whitespace-nowrap text-slate-300 text-base font-semibold">
                       Subscription Fee
                     </th>
-                    <th className="px-6 py-4 text-left whitespace-nowrap text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-left whitespace-nowrap text-slate-300 text-base font-semibold">
                       Last Sync
                     </th>
-                    <th className="px-6 py-4 text-left text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-left text-slate-300 text-base font-semibold">
                       Created At
                     </th>
-                    <th className="px-6 py-4 text-center text-[#6A6A65] text-base font-semibold">
+                    <th className="px-6 py-4 text-center text-slate-300 text-base font-semibold">
                       Actions
                     </th>
                   </tr>
@@ -387,16 +387,16 @@ const BusinessManagement = () => {
                   {paginatedBusinesses.map((business: Business) => (
                     <tr
                       key={business.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition cursor-pointer"
+                      className="border-b border-[#1F2E4D]/60 hover:bg-[#1a243d]/45 transition cursor-pointer"
                       onClick={() => setSelectedBusinessForUsers(business)}
                     >
                       <td className="px-6 py-5">
-                        <div className="font-semibold text-gray-900 whitespace-nowrap">
+                        <div className="font-semibold text-white whitespace-nowrap">
                           {business.name}
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="capitalize px-2 py-1 bg-gray-100 rounded-full text-xs">
+                        <span className="capitalize px-2 py-1 bg-[#1a243d] rounded-full text-xs text-slate-300">
                           {business.industry}
                         </span>
                       </td>
@@ -409,22 +409,22 @@ const BusinessManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="font-semibold text-[#052350]">
+                        <span className="font-semibold text-white">
                           ${business.subscriptionFee}
                         </span>
                         /mo
                       </td>
-                      <td className="px-6 py-5 text-gray-600">
+                      <td className="px-6 py-5 text-slate-400">
                         {formatDate(business.lastSync)}
                       </td>
-                      <td className="px-6 py-5 text-gray-600">
+                      <td className="px-6 py-5 text-slate-400">
                         {formatDate(business.createdAt)}
                       </td>
                       <td className="px-6 py-5" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleAddUser(business)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg cursor-pointer whitespace-nowrap hover:bg-[#041a3d] transition duration-200 shadow-sm"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg cursor-pointer whitespace-nowrap hover:bg-[#041a3d] border border-[#1F2E4D] transition duration-200 shadow-sm"
                             title="Add User"
                           >
                             <FaUserPlus className="text-white" />
@@ -432,7 +432,7 @@ const BusinessManagement = () => {
                           </button>
                           <button
                             onClick={() => handleManageRoles(business)}
-                            className="p-2 text-sm font-medium text-[#052350] bg-[#EDE6F4] rounded-lg cursor-pointer hover:bg-[#e0d5ec] transition duration-200"
+                            className="p-2 text-sm font-medium text-slate-300 bg-[#1a243d] hover:bg-[#232f4c] rounded-lg cursor-pointer transition duration-200 border border-[#1F2E4D]"
                             title="Manage Roles"
                           >
                             <FaUsersCog className="w-4 h-4" />
@@ -445,7 +445,7 @@ const BusinessManagement = () => {
                     <tr>
                       <td
                         colSpan={7}
-                        className="px-6 py-12 text-center text-gray-500"
+                        className="px-6 py-12 text-center text-slate-400"
                       >
                         <div className="flex flex-col items-center gap-2">
                           <p>No businesses found</p>
@@ -455,7 +455,7 @@ const BusinessManagement = () => {
                                 setSearchInput("");
                                 setSearchTerm("");
                               }}
-                              className="text-[#052350] underline"
+                              className="text-[#10B981] underline"
                             >
                               Clear search
                             </button>
@@ -473,26 +473,26 @@ const BusinessManagement = () => {
         {/* Pagination */}
         {totalPages > 0 && (
           <div className="mt-6 flex items-center justify-between px-2 sm:px-4 py-3 flex-wrap gap-3">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-slate-400">
               Showing{" "}
-              <span className="font-medium">{paginatedBusinesses.length}</span> of{" "}
-              <span className="font-medium">{total}</span> businesses
+              <span className="font-medium text-white">{paginatedBusinesses.length}</span> of{" "}
+              <span className="font-medium text-white">{total}</span> businesses
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="cursor-pointer rounded-lg border border-[#1F2E4D] bg-[#1a243d] px-3 py-1.5 text-sm font-medium text-slate-300 hover:bg-[#232f4c] disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 Previous
               </button>
-              <div className="min-w-[50px] rounded-md border border-[#E3E3E4] bg-gray-50 px-3 py-1.5 text-center text-sm font-medium text-gray-700 shadow-sm">
+              <div className="min-w-[50px] rounded-md border border-[#1F2E4D] bg-[#1a243d] px-3 py-1.5 text-center text-sm font-medium text-white shadow-sm">
                 {page} / {totalPages}
               </div>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="cursor-pointer rounded-lg border border-[#1F2E4D] bg-[#1a243d] px-3 py-1.5 text-sm font-medium text-slate-300 hover:bg-[#232f4c] disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 Next
               </button>
@@ -503,13 +503,13 @@ const BusinessManagement = () => {
 
       {/* Users List Section (when a business is selected for user management) */}
       {selectedBusinessForUsers && (
-        <div className="mt-6 p-6 shadow-2xl rounded-3xl bg-white text-black animate-fadeIn">
+        <div className="mt-6 p-6 rounded-3xl bg-[#131b2e] border border-[#1F2E4D] text-slate-300 animate-fadeIn">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-white">
                 Users - {selectedBusinessForUsers.name}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 Manage users for this business
               </p>
             </div>
@@ -519,38 +519,36 @@ const BusinessManagement = () => {
                 setShowCreateUserModal(false);
                 setShowEditUserModal(false);
               }}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-200 transition cursor-pointer"
+              className="px-4 py-2 text-sm text-slate-300 hover:text-white bg-[#1a243d] hover:bg-[#232f4c] rounded-lg border border-[#1F2E4D] transition cursor-pointer"
             >
               Close
             </button>
           </div>
 
           {/* Users Table */}
-           <div className="grid grid-cols-1 gap-5">
-          <div className="w-full">
-            <div className="w-full overflow-x-auto bg-white rounded-xl border border-gray-100">
-              <table className="min-w-[1000px] w-full text-sm text-black">
-                <thead className="border-b border-[#DBE0E5] bg-[#F8F8F8]">
+          <div className="overflow-x-auto border border-[#1F2E4D] rounded-xl bg-[#131b2e]">
+            <table className="w-full text-sm text-slate-300">
+              <thead className="bg-[#1a243d] border-b border-[#1F2E4D]">
                 <tr>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-left text-slate-300 font-semibold">
                     Name
                   </th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-left text-slate-300 font-semibold">
                     Email
                   </th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-left text-slate-300 font-semibold">
                     Role
                   </th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-left text-slate-300 font-semibold">
                     PIN
                   </th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-left text-slate-300 font-semibold">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-left text-slate-300 font-semibold">
                     Created At
                   </th>
-                  <th className="px-4 py-3 text-center text-gray-600 font-semibold">
+                  <th className="px-4 py-3 text-center text-slate-300 font-semibold">
                     Actions
                   </th>
                 </tr>
@@ -560,18 +558,18 @@ const BusinessManagement = () => {
                   activeBusinessUsers.map((user) => (
                     <tr
                       key={user.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition"
+                      className="border-b border-[#1F2E4D]/60 hover:bg-[#1a243d]/45 transition"
                     >
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                      <td className="px-4 py-3 font-medium text-white">
                         {user.name}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{user.email}</td>
+                      <td className="px-4 py-3 text-slate-400">{user.email}</td>
                       <td className="px-4 py-3">
-                        <span className="capitalize px-2 py-1 bg-[#EDE6F4] text-[#6D2C93] rounded-full text-xs">
+                        <span className="capitalize px-2 py-1 bg-[#1a243d] text-slate-300 rounded-full text-xs border border-[#1F2E4D]">
                           {user.role?.name || "N/A"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-mono text-gray-600">
+                      <td className="px-4 py-3 font-mono text-slate-400">
                         ••••
                       </td>
                       <td className="px-4 py-3">
@@ -581,7 +579,7 @@ const BusinessManagement = () => {
                           {user.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">
+                      <td className="px-4 py-3 text-slate-400 text-xs">
                         {formatDateTime(user.createdAt)}
                       </td>
                       <td className="px-4 py-3">
@@ -590,7 +588,7 @@ const BusinessManagement = () => {
                             onClick={() =>
                               handleEditUser(user, selectedBusinessForUsers)
                             }
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
+                            className="p-1.5 text-blue-400 hover:bg-[#1a243d] rounded-lg transition cursor-pointer"
                             title="Edit User"
                           >
                             <FaEdit className="w-4 h-4" />
@@ -603,7 +601,7 @@ const BusinessManagement = () => {
                                 user.name,
                               )
                             }
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                            className="p-1.5 text-red-400 hover:bg-[#1a243d] rounded-lg transition cursor-pointer"
                             title="Delete User"
                           >
                             <FaTrash className="w-4 h-4" />
@@ -616,13 +614,13 @@ const BusinessManagement = () => {
                   <tr>
                     <td
                       colSpan={7}
-                      className="px-4 py-8 text-center text-gray-500"
+                      className="px-4 py-8 text-center text-slate-400"
                     >
                       <div className="flex flex-col items-center gap-2">
                         <p>No users found for this business</p>
                         <button
                           onClick={() => handleAddUser(selectedBusinessForUsers)}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg hover:bg-[#041a3d] transition cursor-pointer"
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg hover:bg-[#041a3d] border border-[#1F2E4D] transition cursor-pointer"
                         >
                           <FaUserPlus className="w-4 h-4" />
                           Add First User
@@ -634,8 +632,6 @@ const BusinessManagement = () => {
               </tbody>
             </table>
           </div>
-           </div>
-            </div>
         </div>
       )}
 

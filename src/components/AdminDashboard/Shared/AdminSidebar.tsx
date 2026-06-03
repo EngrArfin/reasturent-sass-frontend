@@ -86,12 +86,12 @@ const AdminSidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className="flex flex-col h-full bg-[#1b2233]"
-      style={{ boxShadow: "3px 4px 42.3px 0px #1b2233" }}
+      className="flex flex-col h-full bg-[#131b2e]"
+      style={{ boxShadow: "3px 4px 42.3px 0px #131b2e" }}
     >
       {/* Logo */}
       <Link to="/admin-dashboard/dashboard">
-        <div className="flex items-center justify-center p-2 sm:p-3 border-b border-[#1b2233] mt-1">
+        <div className="flex items-center justify-center p-2 sm:p-3 border-b border-[#1F2E4D] mt-3.5">
           <img src={logo} alt="Logo" className="h-8 w-35" />
         </div>
       </Link>
