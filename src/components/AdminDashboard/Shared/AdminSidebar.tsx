@@ -7,11 +7,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import { RxDashboard } from "react-icons/rx";
-import { FaUserPlus, FaUsers } from "react-icons/fa";
-import { TbCalendarUser } from "react-icons/tb";
-import { BiSolidUserBadge } from "react-icons/bi";
-import { HiOutlineUserMinus } from "react-icons/hi2";
-import { IoSettingsOutline } from "react-icons/io5";
+import { FaUserPlus, FaUsers, FaCreditCard } from "react-icons/fa";
+import { IoTicketOutline } from "react-icons/io5";
 import { RiShareBoxLine } from "react-icons/ri";
 
 import { IconType } from "react-icons";
@@ -34,36 +31,26 @@ export interface SidebarProps {
 
 // Sidebar Items
 const defaultSidebarItems: SidebarItem[] = [
-  { icon: RxDashboard, label: "Dashboard", href: "/admin-dashboard/dashboard" },
+  { icon: RxDashboard, label: "Overview", href: "/admin-dashboard/dashboard" },
   {
     icon: FaUsers,
-    label: "Business Management",
+    label: "All Business",
     href: "/admin-dashboard/business-management",
   },
   {
-    icon: HiOutlineUserMinus,
-    label: "Patients",
-    href: "/admin-dashboard/patients",
+    icon: FaCreditCard,
+    label: "Subscription",
+    href: "/admin-dashboard/subscription",
+  },
+  {
+    icon: IoTicketOutline,
+    label: "Ticket Quote",
+    href: "/admin-dashboard/ticket-quote",
   },
   {
     icon: FaUserPlus,
-    label: "Patient Assignment",
-    href: "/admin-dashboard/patient-assignment",
-  },
-  {
-    icon: BiSolidUserBadge,
-    label: "Protocol Management",
-    href: "/admin-dashboard/protocol-management",
-  },
-  {
-    icon: TbCalendarUser,
-    label: "Audit Log",
-    href: "/admin-dashboard/audit-log",
-  },
-  {
-    icon: IoSettingsOutline,
-    label: "Settings",
-    href: "/admin-dashboard/settings",
+    label: "Business Create",
+    href: "/admin-dashboard/business-create",
   },
 ];
 

@@ -63,6 +63,7 @@ const Login: React.FC = () => {
 
       // Redirect based on role from response
       redirectBasedOnRole(result.user.role.toUpperCase());
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Login failed:", err);
       setError(
