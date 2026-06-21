@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import loginphoto from "@/assets/photo/bannerImg.png";
+import loginphoto from "@/assets/Photo/heroImage.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { setUser } from "@/redux/features/auth/authSlice";
