@@ -1,7 +1,11 @@
+import BusinessManagement from "../Business/BusinessManagement";
+import AdminCard from "./AdminCard";
+
 const AdminDashboard = () => {
   return (
-    <div>
-      <h1>AdminDashboard</h1>
+    <div className="space-y-6">
+      <AdminCard/>
+      <BusinessManagement/>
     </div>
   );
 };
