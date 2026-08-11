@@ -23,29 +23,29 @@ export default function ContactUs() {
                     Visit us in person at:
                   </p>
                   <h3 className="text-base md:text-lg text-[#717680] font-bold">
-                    123, Courier Street, Brisbane, QLD 4000 Australia
+                    Dhaka, Bangladesh
                   </h3>
                 </div>
               </div>
               <div className="flex gap-6 py-2 justify-center items-center lg:justify-start">
-                <img src={icon2} alt="locationIcon" />
+                <img src={icon2} alt="phoneIcon" />
                 <div className="text-start">
                   <p className="text-lg font-normal text-[#717680]">
-                    Visit us in person at:
+                    Call us at:
                   </p>
                   <h3 className="text-base md:text-lg text-[#717680] font-bold">
-                    123, Courier Street, Brisbane, QLD 4000 Australia
+                    (319) 555-0115
                   </h3>
                 </div>
               </div>
               <div className="flex gap-6 py-2 justify-center items-center lg:justify-start">
-                <img src={icon3} alt="locationIcon" />
+                <img src={icon3} alt="emailIcon" />
                 <div className="text-start">
                   <p className="text-lg font-normal text-[#717680]">
-                    Visit us in person at:
+                    Email us at:
                   </p>
                   <h3 className="text-base md:text-lg text-[#717680] font-bold">
-                    123, Courier Street, Brisbane, QLD 4000 Australia
+                    felicia.reid@example.com
                   </h3>
                 </div>
               </div>
