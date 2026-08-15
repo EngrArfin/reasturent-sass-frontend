@@ -1,8 +1,9 @@
 import CommonBanner from "@/common/CommonBanner";
 import bannerImg from "@/assets/About/saasbanner2.jpg";
 import FAQSection from "@/components/About/FAQSection";
+import Services from "../components/Services/Services";
 
-const Services = () => {
+const ServicesPage = () => {
   return (
     <div className="mt-[70px]">
       <CommonBanner
@@ -10,10 +11,11 @@ const Services = () => {
         route="Home / services"
         bgImage={bannerImg}
       />
+      <Services />
 
       <FAQSection />
     </div>
   );
 };
 
-export default Services;
+export default ServicesPage;

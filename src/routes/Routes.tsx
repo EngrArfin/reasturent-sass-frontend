@@ -7,7 +7,7 @@ import Home from "../pages/Home";
 // import AdminRoute from "./AdminRoutes";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
-import Services from "@/pages/Services";
+import ServicesPage from "@/pages/ServicesPage";
 import MerchantLayout from "@/Layout/MerchantLayout";
 import MerchantDashboardPage from "@/pages/Merchant/MerchantDashboardPage";
 import AdminDashboardPage from "@/pages/Admin/AdminDashboardPage";
@@ -33,7 +33,7 @@ const routes = createBrowserRouter([
       },
       {
         path: "/services",
-        element: <Services />,
+        element: <ServicesPage />,
       },
       {
         path: "/login",
