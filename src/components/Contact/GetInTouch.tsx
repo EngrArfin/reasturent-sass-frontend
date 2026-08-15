@@ -11,10 +11,9 @@ import {
   MessageSquare,
   Send,
   CheckCircle2,
-  Clock,
   Sparkles,
-  ShieldCheck,
   ArrowRight,
+  MapPin,
 } from "lucide-react";
 import CommonWrapper from "@/common/CommonWrapper";
 
@@ -60,21 +59,21 @@ const GetInTouch = () => {
     reset();
   };
 
-  const supportBenefits = [
+  const contactDetails = [
     {
-      icon: Clock,
-      title: "Fast Response Time",
-      desc: "Our dedicated support team typically replies to all inquiries within 2 hours.",
+      icon: MapPin,
+      title: "Visit us in person at:",
+      desc: "Dhaka, Bangladesh",
     },
     {
-      icon: Sparkles,
-      title: "Interactive Live Demo",
-      desc: "Schedule a personalized product tour tailored to your restaurant's unique flow.",
+      icon: Phone,
+      title: "Call us at:",
+      desc: "(319) 555-0115",
     },
     {
-      icon: ShieldCheck,
-      title: "Secure & Private",
-      desc: "Your data is fully encrypted and stored securely following global standards.",
+      icon: Mail,
+      title: "Email us at:",
+      desc: "felicia.reid@example.com",
     },
   ];
 
@@ -91,17 +90,17 @@ const GetInTouch = () => {
                 Get In Touch
               </span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-heading-blue leading-tight tracking-tight">
-                Let's Talk About Your Restaurant's Success
+                Contact Us For Your Needs
               </h2>
               <p className="text-base text-paragraph-gray leading-relaxed">
-                Have questions about our POS, inventory management, or subscription plans? Fill out the form and our SaaS experts will reach out to guide you.
+                Have questions about our POS, inventory management, or subscription plans?
               </p>
             </div>
 
-            {/* Support benefits cards */}
+            {/* Contact details cards */}
             <div className="space-y-5 pt-4">
-              {supportBenefits.map((benefit, idx) => {
-                const IconComponent = benefit.icon;
+              {contactDetails.map((detail, idx) => {
+                const IconComponent = detail.icon;
                 return (
                   <motion.div
                     key={idx}
@@ -114,11 +113,11 @@ const GetInTouch = () => {
                       <IconComponent className="size-6" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-gray-800 text-sm md:text-base">
-                        {benefit.title}
+                      <h4 className="font-semibold text-paragraph-gray text-xs md:text-sm uppercase tracking-wider">
+                        {detail.title}
                       </h4>
-                      <p className="text-xs md:text-sm text-paragraph-gray">
-                        {benefit.desc}
+                      <p className="text-base md:text-lg font-bold text-gray-800">
+                        {detail.desc}
                       </p>
                     </div>
                   </motion.div>
@@ -166,8 +165,8 @@ const GetInTouch = () => {
                             type="text"
                             placeholder="John Doe"
                             className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 ${errors.name
-                                ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                                : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
+                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
                               }`}
                           />
                         </div>
@@ -187,8 +186,8 @@ const GetInTouch = () => {
                             type="email"
                             placeholder="john@example.com"
                             className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 ${errors.email
-                                ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                                : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
+                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
                               }`}
                           />
                         </div>
@@ -210,8 +209,8 @@ const GetInTouch = () => {
                             type="tel"
                             placeholder="+1 (555) 000-0000"
                             className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 ${errors.phone
-                                ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                                : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
+                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
                               }`}
                           />
                         </div>
@@ -229,8 +228,8 @@ const GetInTouch = () => {
                           <select
                             {...register("subject")}
                             className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 appearance-none cursor-pointer ${errors.subject
-                                ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                                : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
+                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
+                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
                               }`}
                           >
                             <option value="">Select a topic</option>
@@ -264,8 +263,8 @@ const GetInTouch = () => {
                           rows={4}
                           placeholder="Tell us about your restaurant setup and how we can help you..."
                           className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 resize-none ${errors.message
-                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
+                            ? "border-red-400 focus:ring-2 focus:ring-red-100"
+                            : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
                             }`}
                         />
                       </div>

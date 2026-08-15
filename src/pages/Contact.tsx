@@ -1,7 +1,7 @@
 import bannerImg from "@/assets/About/saasbanner3.jpg";
 import CommonBanner from "@/common/CommonBanner";
 import GetInTouch from "@/components/Contact/GetInTouch";
-import ContactUs from "@/components/Contact/ContactUs";
+import { GoogleMapComponent } from "@/components/Contact/GoogleMapComponent";
 import FAQSection from "@/components/About/FAQSection";
 
 const Contact = () => {
@@ -14,8 +14,8 @@ const Contact = () => {
       />
 
       <GetInTouch />
-      <ContactUs />
       <FAQSection />
+      <GoogleMapComponent />
     </div>
   );
 };
