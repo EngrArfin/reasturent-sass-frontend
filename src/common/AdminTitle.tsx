@@ -5,7 +5,9 @@ interface IAdminTitleProp {
 export default function AdminTitle({ title }: IAdminTitleProp) {
   return (
     <div className="text-center">
-      <h2 className="text-2xl font-bold mb-8 text-[#373A41]">{title}</h2>
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-8 text-white">
+        {title}
+      </h2>
     </div>
   );
 }

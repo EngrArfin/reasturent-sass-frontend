@@ -108,7 +108,7 @@ const AdminLayout = () => {
 
         {/* Scrollable Page Content */}
         <main
-          className={`flex-1 overflow-y-auto mt-16 text-black bg-[#121826] ${
+          className={`flex-1 overflow-y-auto mt-16 text-white bg-[#121826] ${
             isSidebarOpen ? "pt-4 md:pt-10" : "p-4 md:p-10"
           }`}
         >

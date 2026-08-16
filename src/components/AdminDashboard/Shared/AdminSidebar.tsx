@@ -44,8 +44,8 @@ const defaultSidebarItems: SidebarItem[] = [
   },
   {
     icon: IoTicketOutline,
-    label: "Ticket Quote",
-    href: "/admin-dashboard/ticket-quote",
+    label: "Submit Ticket",
+    href: "/admin-dashboard/submit-ticket",
   },
   {
     icon: FaUserPlus,

@@ -12,6 +12,8 @@ import AdminDashboardPage from "@/pages/Admin/AdminDashboardPage";
 import AdminLayout from "@/Layout/AdminLayout";
 import SubscriptionPage from "@/pages/Admin/SubscriptionPage";
 import AllBusinessPage from "@/pages/Admin/AllBusinessPage";
+import SubmitTicketPage from "@/pages/Admin/SubmitTicketPage";
+import BusinessCreatePage from "@/pages/Admin/BusinessCreatePage";
 
 const routes = createBrowserRouter([
   {
@@ -66,6 +68,8 @@ const routes = createBrowserRouter([
       { path: "dashboard", element: <AdminDashboardPage /> },
       { path: "all-business", element: <AllBusinessPage /> },
       { path: "subscription", element: <SubscriptionPage /> },
+      { path: "submit-ticket", element: <SubmitTicketPage /> },
+      { path: "business-create", element: <BusinessCreatePage /> },
     ],
   },
   {
