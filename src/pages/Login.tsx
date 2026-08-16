@@ -3,7 +3,6 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import loginphoto from "@/assets/sas/photo/bacground.jpeg";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
-import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { setUser } from "@/redux/features/auth/authSlice";
 
 const Login: React.FC = () => {
@@ -14,7 +13,7 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [login, { isLoading }] = useLoginMutation();
+  const isLoading = false;
   const { user } = useAppSelector((state) => state.auth);
 
   // Redirect if already logged in
@@ -35,7 +34,7 @@ const Login: React.FC = () => {
     navigate(roleRoutes[role] || "/login");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -44,34 +43,20 @@ const Login: React.FC = () => {
       return;
     }
 
-    try {
-      // Send login request with email and pin (matching Swagger)
-      const result = await login({ email, pin }).unwrap();
+    // Statically set user as ADMIN and redirect to admin dashboard
+    dispatch(
+      setUser({
+        user: {
+          id: "static-admin-id",
+          email: email,
+          name: email.split("@")[0], // Extract name from email
+          role: "ADMIN",
+        },
+        token: "static-admin-token",
+      }),
+    );
 
-      // Dispatch user data based on Swagger response
-      dispatch(
-        setUser({
-          user: {
-            id: result.user.sub,
-            email: result.user.email,
-            name: result.user.email.split("@")[0], // Extract name from email
-            role: result.user.role.toUpperCase(),
-          },
-          token: result.accessToken,
-        }),
-      );
-
-      // Redirect based on role from response
-      redirectBasedOnRole(result.user.role.toUpperCase());
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error("Login failed:", err);
-      setError(
-        err?.data?.message ||
-          err?.error ||
-          "Login failed. Please check your email and password.",
-      );
-    }
+    redirectBasedOnRole("ADMIN");
   };
 
   return (

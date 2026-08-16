@@ -35,7 +35,7 @@ const defaultSidebarItems: SidebarItem[] = [
   {
     icon: FaUsers,
     label: "All Business",
-    href: "/admin-dashboard/business-management",
+    href: "/admin-dashboard/all-business",
   },
   {
     icon: FaCreditCard,
@@ -106,9 +106,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
-                      <item.icon
-                        className={`w-5 h-5 text-white`}
-                      />
+                      <item.icon className={`w-5 h-5 text-white`} />
                       <span>{item.label}</span>
                     </div>
                   </Link>
@@ -122,9 +120,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
-                      <item.icon
-                        className={`w-5 h-5 text-white`}
-                      />
+                      <item.icon className={`w-5 h-5 text-white`} />
                       <span>{item.label}</span>
                     </div>
 
@@ -137,7 +133,9 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                     )}
 
                     {item.badge && (
-                      <Badge className={`text-xs transition-colors duration-300 ${isActive ? "bg-white text-orange-600" : "bg-orange-600 text-white group-hover:bg-white group-hover:text-orange-600"} border-none`}>
+                      <Badge
+                        className={`text-xs transition-colors duration-300 ${isActive ? "bg-white text-orange-600" : "bg-orange-600 text-white group-hover:bg-white group-hover:text-orange-600"} border-none`}
+                      >
                         {item.badge}
                       </Badge>
                     )}
