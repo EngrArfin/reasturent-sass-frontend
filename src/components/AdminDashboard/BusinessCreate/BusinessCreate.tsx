@@ -131,9 +131,8 @@ const BusinessCreate: React.FC = () => {
                   {roleType || "Select role"}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -199,36 +198,33 @@ const BusinessCreate: React.FC = () => {
                 <div
                   key={role.id}
                   onClick={() => handleToggleRole(role.id, isRequired)}
-                  className={`w-full px-5 py-3 rounded-full border flex items-center gap-3 transition-all select-none ${
-                    isRequired
+                  className={`w-full px-5 py-3 rounded-full border flex items-center gap-3 transition-all select-none ${isRequired
                       ? "bg-[#0b1220]/60 border-[#1F2E4D]/60 cursor-default opacity-85"
                       : isChecked
-                      ? "bg-[#0b1220] border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer shadow-sm ring-1 ring-blue-500/20"
-                      : "bg-[#0b1220]/70 border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer hover:border-slate-600"
-                  }`}
+                        ? "bg-[#0b1220] border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer shadow-sm ring-1 ring-blue-500/20"
+                        : "bg-[#0b1220]/70 border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer hover:border-slate-600"
+                    }`}
                 >
                   {/* Custom Checkbox */}
                   <div
-                    className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
-                      isRequired
+                    className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${isRequired
                         ? "bg-[#1a243d] text-slate-400"
                         : isChecked
-                        ? "bg-[#052350] border border-blue-500/50 text-blue-400 shadow-sm"
-                        : "border-2 border-slate-600 bg-transparent"
-                    }`}
+                          ? "bg-[#052350] border border-blue-500/50 text-blue-400 shadow-sm"
+                          : "border-2 border-slate-600 bg-transparent"
+                      }`}
                   >
                     {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                   </div>
 
                   {/* Role Label */}
                   <span
-                    className={`text-sm font-medium ${
-                      isRequired
+                    className={`text-sm font-medium ${isRequired
                         ? "text-slate-400"
                         : isChecked
-                        ? "text-white"
-                        : "text-slate-300"
-                    }`}
+                          ? "text-white"
+                          : "text-slate-300"
+                      }`}
                   >
                     {role.label}
                   </span>
