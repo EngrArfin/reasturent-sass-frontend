@@ -202,43 +202,43 @@ const SubmitTicket: React.FC = () => {
   const closedCount = tickets.filter((t) => t.status === "CLOSED").length;
 
   return (
-    <div className="w-full bg-black min-h-[calc(100vh-100px)] text-white p-3 sm:p-5 md:p-7 rounded-3xl border border-white/10 shadow-2xl">
+    <div className="w-full bg-[#131b2e] min-h-[calc(100vh-120px)] text-white p-4 sm:p-6 lg:p-8 rounded-2xl border border-[#1F2E4D] shadow-sm">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 min-h-[760px]">
         {/* ================= LEFT SIDEBAR: ADMIN QUEUE ================= */}
         <div className="lg:col-span-4 xl:col-span-4 flex flex-col gap-4">
           {/* Header */}
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-3">
-              {/* Vertical Accent Pill */}
-              <div className="w-1.5 h-6 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.9)]" />
+              {/* Vertical Accent Bar */}
+              <div className="w-1.5 h-6 bg-[#3b82f6] rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
               <h2 className="text-xl font-bold tracking-tight text-white">
                 Admin Queue
               </h2>
             </div>
             {/* Counter Badge */}
-            <div className="w-7 h-7 rounded-full bg-[#0B1528] border border-blue-500/40 text-blue-400 flex items-center justify-center text-xs font-bold shadow-inner">
+            <div className="w-7 h-7 rounded-full bg-[#052350] border border-[#1F2E4D] text-blue-400 flex items-center justify-center text-xs font-bold shadow-inner">
               {activeTab === "OPEN" ? openCount : closedCount}
             </div>
           </div>
 
           {/* Segmented Switch: OPEN / CLOSED */}
-          <div className="bg-[#111726] p-1.5 rounded-2xl border border-white/10 grid grid-cols-2 gap-1 shadow-md">
+          <div className="bg-[#0b1220] p-1.5 rounded-xl border border-[#1F2E4D] grid grid-cols-2 gap-1 shadow-inner">
             <button
               onClick={() => setActiveTab("OPEN")}
-              className={`py-2.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-300 ${
+              className={`py-2 rounded-lg text-xs font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
                 activeTab === "OPEN"
-                  ? "bg-white text-black shadow-lg scale-[1.01]"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
+                  : "text-slate-400 hover:text-white"
               }`}
             >
               OPEN
             </button>
             <button
               onClick={() => setActiveTab("CLOSED")}
-              className={`py-2.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-300 ${
+              className={`py-2 rounded-lg text-xs font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
                 activeTab === "CLOSED"
-                  ? "bg-white text-black shadow-lg scale-[1.01]"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
+                  : "text-slate-400 hover:text-white"
               }`}
             >
               CLOSED
@@ -253,14 +253,14 @@ const SubmitTicket: React.FC = () => {
               placeholder="Search tickets..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0E1524] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 transition-all"
+              className="w-full bg-[#0b1220] border border-[#1F2E4D] rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#052350] focus:ring-1 focus:ring-[#052350] transition-all"
             />
           </div>
 
           {/* Tickets List */}
           <div className="flex flex-col gap-3 overflow-y-auto max-h-[580px] pr-1">
             {filteredTickets.length === 0 ? (
-              <div className="bg-[#0E1524]/60 border border-white/5 rounded-2xl p-8 text-center flex flex-col items-center justify-center gap-2 text-slate-400">
+              <div className="bg-[#0b1220] border border-[#1F2E4D] rounded-xl p-8 text-center flex flex-col items-center justify-center gap-2 text-slate-400">
                 <Inbox className="w-8 h-8 text-slate-600" />
                 <p className="text-xs font-medium">No tickets found</p>
               </div>
@@ -272,10 +272,10 @@ const SubmitTicket: React.FC = () => {
                   <div
                     key={ticket.id}
                     onClick={() => setSelectedTicketId(ticket.id)}
-                    className={`cursor-pointer rounded-2xl p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between min-h-[120px] border ${
+                    className={`cursor-pointer rounded-xl p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between min-h-[120px] border ${
                       isSelected
-                        ? "bg-[#0B1528] border-blue-500/70 shadow-[0_4px_20px_rgba(30,58,138,0.35)] ring-1 ring-blue-500/30"
-                        : "bg-[#0E1524]/80 hover:bg-[#131c30] border-white/10 hover:border-white/20"
+                        ? "bg-[#052350] border-blue-500/60 shadow-md ring-1 ring-blue-500/30"
+                        : "bg-[#0b1220] hover:bg-[#0e172a] border-[#1F2E4D] hover:border-slate-600"
                     }`}
                   >
                     {/* Top: Title + Status Pill */}
@@ -290,8 +290,8 @@ const SubmitTicket: React.FC = () => {
                       <span
                         className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border tracking-wide flex-shrink-0 ${
                           ticket.status === "OPEN"
-                            ? "border-emerald-500/80 text-emerald-400 bg-emerald-500/10"
-                            : "border-slate-500/80 text-slate-400 bg-slate-500/10"
+                            ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+                            : "border-slate-500/40 text-slate-400 bg-slate-500/10"
                         }`}
                       >
                         {ticket.status}
@@ -299,12 +299,12 @@ const SubmitTicket: React.FC = () => {
                     </div>
 
                     {/* Middle: snippet */}
-                    <p className="text-xs text-slate-400 line-clamp-1 my-1.5">
+                    <p className="text-xs text-slate-300 line-clamp-1 my-1.5">
                       {ticket.description}
                     </p>
 
                     {/* Bottom: Meta Row */}
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-white/5">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-[#1F2E4D]/40">
                       <div className="flex items-center gap-1.5 truncate">
                         <MessageSquare className="w-3.5 h-3.5 text-slate-400 stroke-[2.2]" />
                         <span className="font-semibold">{ticket.messagesCount}</span>
@@ -313,7 +313,7 @@ const SubmitTicket: React.FC = () => {
                           {ticket.businessName}
                         </span>
                       </div>
-                      <span className="text-slate-500 font-medium whitespace-nowrap pl-2">
+                      <span className="text-slate-400 font-medium whitespace-nowrap pl-2">
                         {ticket.time}
                       </span>
                     </div>
@@ -325,11 +325,11 @@ const SubmitTicket: React.FC = () => {
         </div>
 
         {/* ================= RIGHT PANEL: CHAT AREA ================= */}
-        <div className="lg:col-span-8 xl:col-span-8 flex flex-col bg-[#080D17] rounded-3xl border border-white/10 overflow-hidden shadow-2xl min-h-[680px]">
+        <div className="lg:col-span-8 xl:col-span-8 flex flex-col bg-[#0b1220] rounded-2xl border border-[#1F2E4D] overflow-hidden shadow-sm min-h-[680px]">
           {selectedTicket ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 sm:p-6 bg-[#0B1220]/90 backdrop-blur-md border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+              <div className="p-4 sm:p-6 bg-[#131b2e] border-b border-[#1F2E4D] flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                     {selectedTicket.title}
@@ -346,10 +346,10 @@ const SubmitTicket: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleToggleStatus}
-                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer ${
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer ${
                       selectedTicket.status === "OPEN"
-                        ? "border-rose-500/50 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400"
-                        : "border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-400"
+                        ? "border-red-500/30 text-red-400 bg-red-500/10 hover:bg-red-500/20 hover:border-red-400"
+                        : "border-emerald-500/30 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-400"
                     }`}
                   >
                     {selectedTicket.status === "OPEN" ? (
@@ -366,10 +366,10 @@ const SubmitTicket: React.FC = () => {
                   </button>
 
                   <span
-                    className={`text-xs font-extrabold uppercase px-3.5 py-1.5 rounded-xl border tracking-wide ${
+                    className={`text-xs font-extrabold uppercase px-3.5 py-1.5 rounded-lg border tracking-wide ${
                       selectedTicket.status === "OPEN"
-                        ? "border-emerald-500/80 text-emerald-400 bg-emerald-500/10"
-                        : "border-slate-600 text-slate-400 bg-slate-600/10"
+                        ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+                        : "border-slate-500/40 text-slate-400 bg-slate-500/10"
                     }`}
                   >
                     {selectedTicket.status}
@@ -377,12 +377,12 @@ const SubmitTicket: React.FC = () => {
                 </div>
               </div>
 
-              {/* Chat Conversation Body with Dotted Background Pattern */}
+              {/* Chat Conversation Body */}
               <div
                 className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-start"
                 style={{
                   backgroundImage:
-                    "radial-gradient(rgba(255, 255, 255, 0.08) 1.2px, transparent 1.2px)",
+                    "radial-gradient(rgba(255, 255, 255, 0.05) 1.2px, transparent 1.2px)",
                   backgroundSize: "22px 22px",
                 }}
               >
@@ -398,10 +398,10 @@ const SubmitTicket: React.FC = () => {
                     >
                       {/* Bubble */}
                       <div
-                        className={`p-3.5 sm:p-4 rounded-2xl max-w-[85%] sm:max-w-md shadow-md text-sm leading-relaxed transition-all ${
+                        className={`p-3.5 sm:p-4 rounded-2xl max-w-[85%] sm:max-w-md shadow-sm text-sm leading-relaxed transition-all ${
                           isUser
-                            ? "bg-[#141E30] text-slate-100 border border-white/10 rounded-tl-sm"
-                            : "bg-[#0B1528] text-white border border-blue-500/50 rounded-tr-sm shadow-[0_4px_16px_rgba(15,23,42,0.6)]"
+                            ? "bg-[#1a243d] text-slate-100 border border-[#1F2E4D] rounded-tl-sm"
+                            : "bg-[#052350] text-white border border-blue-500/40 rounded-tr-sm shadow-sm"
                         }`}
                       >
                         <p className="font-normal">{message.text}</p>
@@ -411,7 +411,7 @@ const SubmitTicket: React.FC = () => {
                       <div className="flex items-center gap-2 text-[11px] px-1">
                         {isUser ? (
                           <>
-                            <span className="font-bold text-slate-200">
+                            <span className="font-bold text-slate-300">
                               {message.senderName}
                             </span>
                             <span className="text-slate-500 font-medium">
@@ -436,10 +436,10 @@ const SubmitTicket: React.FC = () => {
               </div>
 
               {/* Chat Input */}
-              <div className="p-4 sm:p-6 bg-[#0B1220]/90 backdrop-blur-md border-t border-white/10">
+              <div className="p-4 sm:p-6 bg-[#131b2e] border-t border-[#1F2E4D]">
                 <form
                   onSubmit={handleSendResponse}
-                  className="flex items-center gap-3 bg-[#11192A] border border-white/15 focus-within:border-blue-500/80 rounded-2xl p-2 pl-5 transition-all shadow-inner"
+                  className="flex items-center gap-3 bg-[#0b1220] border border-[#1F2E4D] focus-within:border-[#052350] focus-within:ring-1 focus-within:ring-[#052350] rounded-xl p-2 pl-4 transition-all shadow-inner"
                 >
                   <input
                     type="text"
@@ -451,7 +451,7 @@ const SubmitTicket: React.FC = () => {
                   <button
                     type="submit"
                     disabled={!responseText.trim()}
-                    className="p-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:hover:bg-blue-600 text-white transition-all duration-200 shadow-md flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+                    className="p-2.5 rounded-lg bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] disabled:opacity-30 text-white transition-all duration-200 shadow-sm flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4 stroke-[2.2]" />
                   </button>
