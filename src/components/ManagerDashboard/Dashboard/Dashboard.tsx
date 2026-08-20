@@ -1,9 +1,12 @@
+import DashboardCard from "./DashboardCard";
+
 const Dashboard = () => {
   return (
-    <div>
-      <h1>Hello, Dashboard!</h1>
+    <div className="space-y-6">
+      <DashboardCard />
     </div>
   );
 };
 
 export default Dashboard;
+

@@ -1,9 +1,12 @@
+import Dashboard from "@/components/ManagerDashboard/Dashboard/Dashboard";
+
 const ManagerDashboardPage = () => {
   return (
-    <div>
-      <h1>Hello, ManagerDashboardPage!</h1>
+    <div className="w-full">
+      <Dashboard />
     </div>
   );
 };
 
 export default ManagerDashboardPage;
+
