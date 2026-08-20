@@ -3,9 +3,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { baseApi } from "./hooks/baseApi";
 import authReducer from "@/redux/features/auth/authSlice";
 import userReducer from "@/redux/features/auth/userSlice";
-import addressReducer from "@/redux/features/marchant/addressSlice";
-import merchantCustomerReducer from "@/redux/features/marchant/merchantCustomerSlice";
-import merchantAddParcelReducer from "@/redux/features/marchant/merchantAddParcelSlice"; // Add this import
 
 import {
   persistReducer,
@@ -33,9 +30,6 @@ export const store = configureStore({
     [baseApi.reducerPath]: baseApi.reducer,
     auth: persistedReducer,
     user: userReducer,
-    address: addressReducer,
-    merchantCustomer: merchantCustomerReducer,
-    merchantParcels: merchantAddParcelReducer, // Add the parcel reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

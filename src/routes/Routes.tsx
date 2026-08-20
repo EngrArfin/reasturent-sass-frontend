@@ -14,6 +14,15 @@ import SubscriptionPage from "@/pages/Admin/SubscriptionPage";
 import AllBusinessPage from "@/pages/Admin/AllBusinessPage";
 import SubmitTicketPage from "@/pages/Admin/SubmitTicketPage";
 import BusinessCreatePage from "@/pages/Admin/BusinessCreatePage";
+import ManagerLayout from "@/Layout/ManagerLayout";
+import ManagerDashboardPage from "@/pages/Manager/ManagerDashboardPage";
+import InventoryPage from "@/pages/Manager/InventoryPage";
+import EmployeesPage from "@/pages/Manager/EmployeesPage";
+import ManageFoodPage from "@/pages/Manager/ManageFoodPage";
+import ApprovalsPage from "@/pages/Manager/ApprovalsPage";
+import ScanPage from "@/pages/Manager/ScanPage";
+import SupportPage from "@/pages/Manager/SupportPage";
+import SettingsPage from "@/pages/Manager/SettingsPage";
 
 const routes = createBrowserRouter([
   {
@@ -46,15 +55,23 @@ const routes = createBrowserRouter([
       },
     ],
   },
-  /* Merchant Dashboard */
-  // {
-  //   path: "/merchant-dashboard",
-  //   element: <MerchantLayout />,
-  //   children: [
-  //     { index: true, element: <MerchantDashboardPage /> },
-  //     { path: "dashboard", element: <MerchantDashboardPage /> },
-  //   ],
-  // },
+  /* Manager Dashboard */
+  {
+    path: "/manager-dashboard",
+    element: <ManagerLayout />,
+    children: [
+      { index: true, element: <ManagerDashboardPage /> },
+      { path: "dashboard", element: <ManagerDashboardPage /> },
+      { path: "inventory", element: <InventoryPage /> },
+      { path: "employees", element: <EmployeesPage /> },
+      { path: "manage-food", element: <ManageFoodPage /> },
+      { path: "approvals", element: <ApprovalsPage /> },
+      { path: "scan", element: <ScanPage /> },
+      { path: "support", element: <SupportPage /> },
+      { path: "settings", element: <SettingsPage /> },
+    ],
+  },
+
   /* Admin Dashboard */
   {
     path: "/admin-dashboard",
