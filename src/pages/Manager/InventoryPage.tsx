@@ -1,9 +1,7 @@
+import InventoryTable from "@/components/ManagerDashboard/Inventory/InventoryTable";
+
 const InventoryPage = () => {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Inventory</h1>
-    </div>
-  );
+  return <InventoryTable />;
 };
 
 export default InventoryPage;

@@ -83,7 +83,7 @@ const Footer: React.FC = () => {
               <div className="flex items-start gap-3">
                 <MapPin className="w-6 h-6 text-[#717680]" />
                 <p className="text-lg text-[#717680]">
-                  1901 Thornridge Cir. Shiloh, Hawaii 81063
+                  Mirpur-10, Dhaka-1260
                 </p>
               </div>
 
@@ -96,7 +96,7 @@ const Footer: React.FC = () => {
 
               <div className="flex items-start gap-3">
                 <Phone className="w-6 h-6 text-[#717680]" />
-                <p className="text-lg text-[#717680]">(319) 555-0115</p>
+                <p className="text-lg text-[#717680]">(+880) 1923434574</p>
               </div>
             </div>
           </motion.div>

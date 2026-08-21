@@ -172,13 +172,13 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => 
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl border border-[#1F2E4D] bg-[#1a243b] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+            className="px-5 py-2.5 rounded-full border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
+            className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
             <span>Add Employee</span>

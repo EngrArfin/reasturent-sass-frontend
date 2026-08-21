@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Edit3, X, Save, UserCheck } from "lucide-react";
+import { Plus, Trash2, Edit3, X, Save } from "lucide-react";
 import { toast } from "sonner";
 import NewEmployee, { Employee, EmployeeRole } from "./NewEmployee";
 
@@ -149,22 +149,17 @@ const Employees = () => {
       {/* Top Header / Action Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-            <UserCheck className="w-5 h-5" />
-          </div>
           <div>
             <h1 className="text-xl font-bold text-white tracking-wide">
               Employees Management
             </h1>
-            <p className="text-xs text-slate-400">
-              Total staff members: {employees.length}
-            </p>
+
           </div>
         </div>
 
         <button
           onClick={() => setShowNewEmployeeForm(!showNewEmployeeForm)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all duration-200"
+          className="px-5 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
         >
           {showNewEmployeeForm ? (
             <>
@@ -238,9 +233,9 @@ const Employees = () => {
                 <button
                   type="button"
                   onClick={() => setEditingEmployee(emp)}
-                  className="px-3 py-1.5 rounded-xl bg-[#17223b] hover:bg-[#1f2d4e] border border-[#1F2E4D] text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-1.5 rounded-full bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.98]"
                 >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                  <Edit3 className="w-3.5 h-3.5 text-slate-300" />
                   <span>Edit Profile</span>
                 </button>
               </div>
@@ -260,7 +255,7 @@ const Employees = () => {
               <button
                 type="button"
                 onClick={() => setEditingEmployee(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a243b] transition-colors"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a243b] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -326,13 +321,13 @@ const Employees = () => {
                 <button
                   type="button"
                   onClick={() => setEditingEmployee(null)}
-                  className="px-5 py-2.5 rounded-xl border border-[#1F2E4D] bg-[#1a243b] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+                  className="px-5 py-2.5 rounded-full border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+                  className="px-5 py-2.5 rounded-full bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs font-semibold flex items-center gap-2 transition-all duration-200 shadow-sm cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
