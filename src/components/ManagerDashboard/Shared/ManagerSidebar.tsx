@@ -57,6 +57,11 @@ const defaultSidebarItems: SidebarItem[] = [
   },
   {
     icon: Ticket,
+    label: "Vouchers",
+    href: "/manager-dashboard/voucher",
+  },
+  {
+    icon: Ticket,
     label: "Approvals",
     href: "/manager-dashboard/approvals",
   },

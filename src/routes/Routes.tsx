@@ -23,6 +23,7 @@ import ApprovalsPage from "@/pages/Manager/ApprovalsPage";
 import ScanPage from "@/pages/Manager/ScanPage";
 import SupportPage from "@/pages/Manager/SupportPage";
 import SettingsPage from "@/pages/Manager/SettingsPage";
+import VoucherPage from "@/pages/Manager/VoucherPage";
 
 const routes = createBrowserRouter([
   {
@@ -65,6 +66,8 @@ const routes = createBrowserRouter([
       { path: "inventory", element: <InventoryPage /> },
       { path: "employees", element: <EmployeesPage /> },
       { path: "manage-food", element: <ManageFoodPage /> },
+      { path: "voucher", element: <VoucherPage /> },
+      { path: "vouchers", element: <VoucherPage /> },
       { path: "approvals", element: <ApprovalsPage /> },
       { path: "scan", element: <ScanPage /> },
       { path: "support", element: <SupportPage /> },
