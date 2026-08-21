@@ -1,9 +1,7 @@
+import Settings from "@/components/AdminDashboard/Settings/Settings";
+
 const SettingsPage = () => {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Settings</h1>
-    </div>
-  );
+  return <Settings />;
 };
 
 export default SettingsPage;

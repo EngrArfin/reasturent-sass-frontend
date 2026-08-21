@@ -38,7 +38,7 @@ const initialVouchersData: VoucherItem[] = [
 
 const VoucherList = () => {
   const [vouchers, setVouchers] = useState<VoucherItem[]>(initialVouchersData);
-  const [showAddForm, setShowAddForm] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<VoucherItem | null>(null);
 
   const handleAddOrUpdateVoucher = (voucherData: Omit<VoucherItem, "id">) => {
@@ -74,7 +74,7 @@ const VoucherList = () => {
   return (
     <div className="w-full space-y-6">
       {/* Top Header / Add Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
           Vouchers & Discounts
         </h1>
@@ -89,14 +89,14 @@ const VoucherList = () => {
               setShowAddForm(true);
             }
           }}
-          title={showAddForm ? "Close Form" : "Add Voucher"}
-          className="w-10 h-10 rounded-full bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white flex items-center justify-center cursor-pointer shadow-sm transition-all active:scale-95"
+          className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
         >
           <Plus
-            className={`w-5 h-5 transition-transform duration-200 ${
+            className={`w-4 h-4 transition-transform duration-200 ${
               showAddForm ? "rotate-45" : ""
             }`}
           />
+          <span>{showAddForm ? "Close Form" : "Add Voucher"}</span>
         </button>
       </div>
 

@@ -60,19 +60,15 @@ const defaultSidebarItems: SidebarItem[] = [
     label: "Vouchers",
     href: "/manager-dashboard/voucher",
   },
-  {
-    icon: Ticket,
-    label: "Approvals",
-    href: "/manager-dashboard/approvals",
-  },
+
   {
     icon: ScanLine,
-    label: "Scan",
-    href: "/manager-dashboard/scan",
+    label: "QRScanner",
+    href: "/manager-dashboard/qrscanner",
   },
   {
     icon: LifeBuoy,
-    label: "Support",
+    label: "Manager Support",
     href: "/manager-dashboard/support",
   },
   {
@@ -127,11 +123,10 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
                   <Link
                     to={item.href}
                     onClick={onItemClick}
-                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 ${
-                      isActive
-                        ? "text-white bg-orange-600 rounded-xl shadow-md"
-                        : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
-                    }`}
+                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 ${isActive
+                      ? "text-white bg-orange-600 rounded-xl shadow-md"
+                      : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
+                      }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
                       <item.icon className={`w-5 h-5 text-white`} />
@@ -141,11 +136,10 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
                 ) : (
                   <button
                     onClick={() => toggleMenu(item.label)}
-                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${
-                      isActive
-                        ? "text-white bg-orange-600 rounded-xl shadow-md"
-                        : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
-                    }`}
+                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${isActive
+                      ? "text-white bg-orange-600 rounded-xl shadow-md"
+                      : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
+                      }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
                       <item.icon className={`w-5 h-5 text-white`} />
@@ -154,9 +148,8 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
 
                     {item.children && (
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""
+                          }`}
                       />
                     )}
 
@@ -180,11 +173,10 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
                           key={child.label}
                           to={child.href}
                           onClick={onItemClick}
-                          className={`block px-3 py-2 text-sm rounded-lg transition-all ${
-                            childActive
-                              ? "text-white bg-orange-600"
-                              : "text-gray-300 hover:text-white hover:bg-orange-600"
-                          }`}
+                          className={`block px-3 py-2 text-sm rounded-lg transition-all ${childActive
+                            ? "text-white bg-orange-600"
+                            : "text-gray-300 hover:text-white hover:bg-orange-600"
+                            }`}
                         >
                           {child.label}
                         </Link>

@@ -20,8 +20,8 @@ import InventoryPage from "@/pages/Manager/InventoryPage";
 import EmployeesPage from "@/pages/Manager/EmployeesPage";
 import ManageFoodPage from "@/pages/Manager/ManageFoodPage";
 import ApprovalsPage from "@/pages/Manager/ApprovalsPage";
-import ScanPage from "@/pages/Manager/ScanPage";
-import SupportPage from "@/pages/Manager/SupportPage";
+import QRScannerPage from "@/pages/Manager/QRScannerPage";
+import ManagerTicketPage from "@/pages/Manager/ManagerTicketPage";
 import SettingsPage from "@/pages/Manager/SettingsPage";
 import VoucherPage from "@/pages/Manager/VoucherPage";
 
@@ -69,8 +69,11 @@ const routes = createBrowserRouter([
       { path: "voucher", element: <VoucherPage /> },
       { path: "vouchers", element: <VoucherPage /> },
       { path: "approvals", element: <ApprovalsPage /> },
-      { path: "scan", element: <ScanPage /> },
-      { path: "support", element: <SupportPage /> },
+      { path: "qrscanner", element: <QRScannerPage /> },
+      { path: "scan", element: <QRScannerPage /> },
+      { path: "manager-ticket", element: <ManagerTicketPage /> },
+      { path: "support", element: <ManagerTicketPage /> },
+      { path: "managersupport", element: <ManagerTicketPage /> },
       { path: "settings", element: <SettingsPage /> },
     ],
   },
