@@ -69,82 +69,22 @@ const initialBusinesses: Business[] = [
 
 const initialRoles: Record<string, Role[]> = {
   "1": [
-    {
-      id: "r1",
-      name: "manager",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r2",
-      name: "server",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r3",
-      name: "kitchen",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r4",
-      name: "cashier",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
+    { id: "r1", name: "manager", isActive: true, createdAt: new Date().toISOString() },
+    { id: "r2", name: "server", isActive: true, createdAt: new Date().toISOString() },
+    { id: "r3", name: "kitchen", isActive: true, createdAt: new Date().toISOString() },
+    { id: "r4", name: "cashier", isActive: true, createdAt: new Date().toISOString() },
   ],
   "2": [
-    {
-      id: "r5",
-      name: "manager",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r6",
-      name: "server",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r7",
-      name: "kitchen",
-      isActive: false,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r8",
-      name: "cashier",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
+    { id: "r5", name: "manager", isActive: true, createdAt: new Date().toISOString() },
+    { id: "r6", name: "server", isActive: true, createdAt: new Date().toISOString() },
+    { id: "r7", name: "kitchen", isActive: false, createdAt: new Date().toISOString() },
+    { id: "r8", name: "cashier", isActive: true, createdAt: new Date().toISOString() },
   ],
   "3": [
-    {
-      id: "r9",
-      name: "manager",
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r10",
-      name: "server",
-      isActive: false,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r11",
-      name: "kitchen",
-      isActive: false,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "r12",
-      name: "cashier",
-      isActive: false,
-      createdAt: new Date().toISOString(),
-    },
+    { id: "r9", name: "manager", isActive: true, createdAt: new Date().toISOString() },
+    { id: "r10", name: "server", isActive: false, createdAt: new Date().toISOString() },
+    { id: "r11", name: "kitchen", isActive: false, createdAt: new Date().toISOString() },
+    { id: "r12", name: "cashier", isActive: false, createdAt: new Date().toISOString() },
   ],
 };
 
@@ -186,15 +126,12 @@ const initialUsers: Record<string, BusinessUser[]> = {
 const BusinessManagement = () => {
   const [businesses] = useState<Business[]>(initialBusinesses);
   const [roles, setRoles] = useState<Record<string, Role[]>>(initialRoles);
-  const [users, setUsers] =
-    useState<Record<string, BusinessUser[]>>(initialUsers);
+  const [users, setUsers] = useState<Record<string, BusinessUser[]>>(initialUsers);
 
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
-    null,
-  );
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [showRolesModal, setShowRolesModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
@@ -262,12 +199,7 @@ const BusinessManagement = () => {
   };
 
   // Callback from Create modal
-  const handleCreateUserSuccess = (data: {
-    name: string;
-    email: string;
-    pin: string;
-    role: string;
-  }) => {
+  const handleCreateUserSuccess = (data: { name: string; email: string; pin: string; role: string }) => {
     if (!selectedBusinessForUsers) return;
     const businessId = selectedBusinessForUsers.id;
     const businessUsers = users[businessId] || [];
@@ -288,14 +220,7 @@ const BusinessManagement = () => {
   };
 
   // Callback from Edit modal
-  const handleEditUserSuccess = (data: {
-    id: string;
-    name: string;
-    email: string;
-    pin: string;
-    role: string;
-    status: "ACTIVE" | "INACTIVE";
-  }) => {
+  const handleEditUserSuccess = (data: { id: string; name: string; email: string; pin: string; role: string; status: "ACTIVE" | "INACTIVE" }) => {
     if (!selectedBusinessForUsers) return;
     const businessId = selectedBusinessForUsers.id;
     const businessUsers = users[businessId] || [];
@@ -320,21 +245,14 @@ const BusinessManagement = () => {
   };
 
   // Callback from Roles modal
-  const handleRolesSuccess = (updatedRolesState: {
-    server: boolean;
-    kitchen: boolean;
-    cashier: boolean;
-  }) => {
+  const handleRolesSuccess = (updatedRolesState: { server: boolean; kitchen: boolean; cashier: boolean }) => {
     if (!selectedBusiness) return;
     const businessId = selectedBusiness.id;
     const currentRoles = roles[businessId] || [];
     const updated = currentRoles.map((r) => {
-      if (r.name === "server")
-        return { ...r, isActive: updatedRolesState.server };
-      if (r.name === "kitchen")
-        return { ...r, isActive: updatedRolesState.kitchen };
-      if (r.name === "cashier")
-        return { ...r, isActive: updatedRolesState.cashier };
+      if (r.name === "server") return { ...r, isActive: updatedRolesState.server };
+      if (r.name === "kitchen") return { ...r, isActive: updatedRolesState.kitchen };
+      if (r.name === "cashier") return { ...r, isActive: updatedRolesState.cashier };
       return r;
     });
 
@@ -396,15 +314,12 @@ const BusinessManagement = () => {
 
   // Filter and Paginate Businesses
   const filteredBusinesses = businesses.filter((b) =>
-    b.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    b.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const limit = 10;
   const total = filteredBusinesses.length;
   const totalPages = Math.ceil(total / limit);
-  const paginatedBusinesses = filteredBusinesses.slice(
-    (page - 1) * limit,
-    page * limit,
-  );
+  const paginatedBusinesses = filteredBusinesses.slice((page - 1) * limit, page * limit);
 
   const activeBusinessUsers = selectedBusinessForUsers
     ? users[selectedBusinessForUsers.id] || []
@@ -433,8 +348,7 @@ const BusinessManagement = () => {
           </div>
 
           <div className="text-sm text-slate-400">
-            Total Businesses:{" "}
-            <span className="font-semibold text-white">{total}</span>
+            Total Businesses: <span className="font-semibold text-white">{total}</span>
           </div>
         </div>
 
@@ -460,7 +374,7 @@ const BusinessManagement = () => {
                     <th className="px-6 py-4 text-left whitespace-nowrap text-slate-300 text-base font-semibold">
                       Last Sync
                     </th>
-                    <th className="px-6 py-4 text-left whitespace-nowrap text-slate-300 text-base font-semibold">
+                    <th className="px-6 py-4 text-left text-slate-300 text-base font-semibold">
                       Created At
                     </th>
                     <th className="px-6 py-4 text-center text-slate-300 text-base font-semibold">
@@ -477,39 +391,36 @@ const BusinessManagement = () => {
                       onClick={() => setSelectedBusinessForUsers(business)}
                     >
                       <td className="px-6 py-5">
-                        <div className="whitespace-nowrap font-semibold text-white">
+                        <div className="font-semibold text-white whitespace-nowrap">
                           {business.name}
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="whitespace-nowrap capitalize px-2 py-1 bg-[#1a243d] rounded-full text-xs text-slate-300">
+                        <span className="capitalize px-2 py-1 bg-[#1a243d] rounded-full text-xs text-slate-300">
                           {business.industry}
                         </span>
                       </td>
                       <td className="px-6 py-5">
                         <span
-                          className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(business.status)}`}
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(business.status)}`}
                         >
                           {business.status?.charAt(0).toUpperCase() +
                             business.status?.slice(1).toLowerCase()}
                         </span>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="whitespace-nowrap font-semibold text-white">
+                        <span className="font-semibold text-white">
                           ${business.subscriptionFee}
                         </span>
                         /mo
                       </td>
-                      <td className="whitespace-nowrap px-6 py-5 text-slate-400">
+                      <td className="px-6 py-5 text-slate-400">
                         {formatDate(business.lastSync)}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-5 text-slate-400">
+                      <td className="px-6 py-5 text-slate-400">
                         {formatDate(business.createdAt)}
                       </td>
-                      <td
-                        className="px-6 py-5"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <td className="px-6 py-5" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleAddUser(business)}
@@ -564,11 +475,8 @@ const BusinessManagement = () => {
           <div className="mt-6 flex items-center justify-between px-2 sm:px-4 py-3 flex-wrap gap-3">
             <div className="text-sm text-slate-400">
               Showing{" "}
-              <span className="font-medium text-white">
-                {paginatedBusinesses.length}
-              </span>{" "}
-              of <span className="font-medium text-white">{total}</span>{" "}
-              businesses
+              <span className="font-medium text-white">{paginatedBusinesses.length}</span> of{" "}
+              <span className="font-medium text-white">{total}</span> businesses
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -711,9 +619,7 @@ const BusinessManagement = () => {
                       <div className="flex flex-col items-center gap-2">
                         <p>No users found for this business</p>
                         <button
-                          onClick={() =>
-                            handleAddUser(selectedBusinessForUsers)
-                          }
+                          onClick={() => handleAddUser(selectedBusinessForUsers)}
                           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg hover:bg-[#041a3d] border border-[#1F2E4D] transition cursor-pointer"
                         >
                           <FaUserPlus className="w-4 h-4" />
