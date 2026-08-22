@@ -28,6 +28,8 @@ import TableMenuPage from "@/pages/Cashier/TableMenuPage";
 import CashierLayout from "@/Layout/CashierLayout";
 import KitchenDashboardPage from "@/pages/Kitchen/KitchenDashboardPage";
 import KitchenLayout from "@/Layout/KitchenLayout";
+import ServeLayout from "@/Layout/ServeLayout";
+import ServeDashboardPage from "@/pages/Serve/ServeDashboardPage";
 
 const routes = createBrowserRouter([
   {
@@ -100,6 +102,16 @@ const routes = createBrowserRouter([
     children: [
       { index: true, element: <KitchenDashboardPage /> },
       { path: "dashboard", element: <KitchenDashboardPage /> },
+    ],
+  },
+
+  /* Serve Dashboard */
+  {
+    path: "/serve-dashboard",
+    element: <ServeLayout />,
+    children: [
+      { index: true, element: <ServeDashboardPage /> },
+      { path: "dashboard", element: <ServeDashboardPage /> },
     ],
   },
 
