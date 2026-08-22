@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, User, LogOut, Clock, Sparkles } from "lucide-react";
+import { Menu, LogOut, Clock, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,16 +12,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { logOut } from "@/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
 
-export interface CashierNavbarProps {
+export interface KitchenNavbarProps {
   onMobileMenuToggle: () => void;
-  cashierName?: string;
+  stationName?: string;
   terminalName?: string;
 }
 
-const KitchenNavbar: React.FC<CashierNavbarProps> = ({
+const KitchenNavbar: React.FC<KitchenNavbarProps> = ({
   onMobileMenuToggle,
-  cashierName,
-  terminalName,
+  stationName = "Kitchen Station",
+  terminalName = "Main Kitchen Display (KDS 01)",
 }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const KitchenNavbar: React.FC<CashierNavbarProps> = ({
           weekday: "short",
           month: "short",
           day: "numeric",
-        }),
+        })
       );
     };
     updateDateTime();
@@ -46,13 +46,11 @@ const KitchenNavbar: React.FC<CashierNavbarProps> = ({
   }, []);
 
   const displayName =
-    cashierName ||
     authUser?.name ||
-    (authUser?.email ? authUser.email.split("@")[0] : "Cashier");
+    (authUser?.email ? authUser.email.split("@")[0] : "Head Chef");
 
-  const displayRole = authUser?.role ? `${authUser.role} POS` : "Cashier POS";
-  const displayEmail = authUser?.email || "cashier@restaurant.com";
-  const displayTerminal = terminalName || "Main POS Terminal 01";
+  const displayRole = authUser?.role ? `${authUser.role} Kitchen` : "Kitchen Chef";
+  const displayEmail = authUser?.email || "kitchen@restaurant.com";
 
   const handleLogout = () => {
     dispatch(logOut());
@@ -76,22 +74,23 @@ const KitchenNavbar: React.FC<CashierNavbarProps> = ({
           <div className="flex items-center space-x-3">
             <div className="flex flex-col leading-tight">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-orange-400 font-semibold uppercase tracking-wider">
-                  Cashier Station
+                <span className="text-xs text-orange-400 font-semibold uppercase tracking-wider flex items-center gap-1">
+                  <Flame className="w-3.5 h-3.5" />
+                  {stationName}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Live Shift
+                  Live Orders
                 </span>
               </div>
               <span className="text-sm md:text-base font-bold text-white">
-                {displayTerminal}
+                {terminalName}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right Section: Time & Cashier Profile */}
+        {/* Right Section: Time & Chef Profile */}
         <div className="flex items-center space-x-4">
           {/* Quick Date/Time Indicator */}
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1b253d] border border-[#26375c] text-xs text-slate-300">
@@ -140,17 +139,10 @@ const KitchenNavbar: React.FC<CashierNavbarProps> = ({
                 </p>
               </div>
 
-              <Link to="/cashier-dashboard/dashboard">
+              <Link to="/kitchen-dashboard">
                 <DropdownMenuItem className="flex items-center gap-2.5 px-3 py-2 text-xs rounded-xl hover:bg-white/10 transition-colors cursor-pointer text-slate-200">
-                  <Sparkles className="w-4 h-4 text-orange-400" />
-                  <span>Cashier POS Hub</span>
-                </DropdownMenuItem>
-              </Link>
-
-              <Link to="/cashier-dashboard/table-menu">
-                <DropdownMenuItem className="flex items-center gap-2.5 px-3 py-2 text-xs rounded-xl hover:bg-white/10 transition-colors cursor-pointer text-slate-200">
-                  <User className="w-4 h-4 text-orange-400" />
-                  <span>Order Menu</span>
+                  <Flame className="w-4 h-4 text-orange-400" />
+                  <span>Kitchen Production</span>
                 </DropdownMenuItem>
               </Link>
 

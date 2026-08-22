@@ -1,7 +1,10 @@
-const KitchenDashboardPage = () => {
+import React from "react";
+import KitchenDashboard from "@/components/Kitchen/KitchenDashboard/KitchenDashboard";
+
+const KitchenDashboardPage: React.FC = () => {
   return (
-    <div>
-      <h1>Hello, KitchenDashboardPage!</h1>
+    <div className="w-full">
+      <KitchenDashboard />
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import React from "react";
 import logo from "@/assets/icons/logoSAS.png";
 import {
+  Flame,
   LayoutGrid,
-  UtensilsCrossed,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -10,30 +10,30 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
 
-export interface CashierSidebarItem {
+export interface KitchenSidebarItem {
   icon: LucideIcon;
   label: string;
   href: string;
 }
 
-const defaultCashierSidebarItems: CashierSidebarItem[] = [
+const defaultKitchenSidebarItems: KitchenSidebarItem[] = [
   {
-    icon: LayoutGrid,
-    label: "POS Hub & Tables",
-    href: "/cashier-dashboard/dashboard",
+    icon: Flame,
+    label: "Kitchen Production",
+    href: "/kitchen-dashboard",
   },
   {
-    icon: UtensilsCrossed,
-    label: "Order Menu",
-    href: "/cashier-dashboard/table-menu",
+    icon: LayoutGrid,
+    label: "KDS Display Hub",
+    href: "/kitchen-dashboard/dashboard",
   },
 ];
 
-export interface CashierSidebarProps {
+export interface KitchenSidebarProps {
   onItemClick?: () => void;
 }
 
-const KitchenSidebar: React.FC<CashierSidebarProps> = ({ onItemClick }) => {
+const KitchenSidebar: React.FC<KitchenSidebarProps> = ({ onItemClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -49,7 +49,7 @@ const KitchenSidebar: React.FC<CashierSidebarProps> = ({ onItemClick }) => {
       style={{ boxShadow: "3px 4px 42.3px 0px #131b2e" }}
     >
       {/* Brand Logo */}
-      <Link to="/cashier-dashboard/dashboard" onClick={onItemClick}>
+      <Link to="/kitchen-dashboard" onClick={onItemClick}>
         <div className="flex items-center justify-center p-3 border-b border-[#1F2E4D] mt-2">
           <img src={logo} alt="Restaurant SaaS Logo" className="h-8 w-auto" />
         </div>
@@ -58,11 +58,11 @@ const KitchenSidebar: React.FC<CashierSidebarProps> = ({ onItemClick }) => {
       {/* Navigation */}
       <nav className="flex-1 p-2 md:p-4">
         <div className="space-y-3">
-          {defaultCashierSidebarItems.map((item) => {
+          {defaultKitchenSidebarItems.map((item) => {
             const isActive =
               location.pathname === item.href ||
-              (item.href === "/cashier-dashboard/dashboard" &&
-                location.pathname === "/cashier-dashboard");
+              (item.href === "/kitchen-dashboard" &&
+                location.pathname === "/kitchen-dashboard/dashboard");
 
             return (
               <Link

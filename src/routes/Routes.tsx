@@ -26,6 +26,8 @@ import VoucherPage from "@/pages/Manager/VoucherPage";
 import CashierDashboardPage from "@/pages/Cashier/CashierDashboardPage";
 import TableMenuPage from "@/pages/Cashier/TableMenuPage";
 import CashierLayout from "@/Layout/CashierLayout";
+import KitchenDashboardPage from "@/pages/Kitchen/KitchenDashboardPage";
+import KitchenLayout from "@/Layout/KitchenLayout";
 
 const routes = createBrowserRouter([
   {
@@ -88,6 +90,16 @@ const routes = createBrowserRouter([
       { index: true, element: <CashierDashboardPage /> },
       { path: "dashboard", element: <CashierDashboardPage /> },
       { path: "table-menu", element: <TableMenuPage /> },
+    ],
+  },
+
+  /* Kitchen Dashboard */
+  {
+    path: "/kitchen-dashboard",
+    element: <KitchenLayout />,
+    children: [
+      { index: true, element: <KitchenDashboardPage /> },
+      { path: "dashboard", element: <KitchenDashboardPage /> },
     ],
   },
 

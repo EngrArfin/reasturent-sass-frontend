@@ -1,13 +1,19 @@
+import React from "react";
 import KitchenCard from "./KitchenCard";
 import KitchenProduction from "./KitchenProduction";
 
-const KitchenDashboard = () => {
+const KitchenDashboard: React.FC = () => {
   return (
-    <div>
-      <div>
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 p-4 sm:p-6 md:p-8 space-y-8">
+      {/* Top Metric Cards & Station Alert Banner */}
+      <section>
         <KitchenCard />
-      </div>
-      <div><KitchenProduction /></div>
+      </section>
+
+      {/* Main Kitchen Production Ticket Stream */}
+      <section className="pt-2">
+        <KitchenProduction />
+      </section>
     </div>
   );
 };
