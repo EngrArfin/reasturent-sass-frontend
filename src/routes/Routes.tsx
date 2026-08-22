@@ -4,7 +4,6 @@ import About from "../pages/About";
 import Contact from "../pages/Contact";
 import NotFound from "../pages/NotFound";
 import Home from "../pages/Home";
-// import AdminRoute from "./AdminRoutes";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import ServicesPage from "@/pages/ServicesPage";
@@ -24,6 +23,9 @@ import QRScannerPage from "@/pages/Manager/QRScannerPage";
 import ManagerTicketPage from "@/pages/Manager/ManagerTicketPage";
 import SettingsPage from "@/pages/Manager/SettingsPage";
 import VoucherPage from "@/pages/Manager/VoucherPage";
+import CashierDashboardPage from "@/pages/Cashier/CashierDashboardPage";
+import TableMenuPage from "@/pages/Cashier/TableMenuPage";
+import CashierLayout from "@/Layout/CashierLayout";
 
 const routes = createBrowserRouter([
   {
@@ -75,6 +77,17 @@ const routes = createBrowserRouter([
       { path: "support", element: <ManagerTicketPage /> },
       { path: "managersupport", element: <ManagerTicketPage /> },
       { path: "settings", element: <SettingsPage /> },
+    ],
+  },
+
+  /* Cashier Dashboard */
+  {
+    path: "/cashier-dashboard",
+    element: <CashierLayout />,
+    children: [
+      { index: true, element: <CashierDashboardPage /> },
+      { path: "dashboard", element: <CashierDashboardPage /> },
+      { path: "table-menu", element: <TableMenuPage /> },
     ],
   },
 
