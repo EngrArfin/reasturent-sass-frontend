@@ -29,6 +29,7 @@ import CashierLayout from "@/Layout/CashierLayout";
 import KitchenDashboardPage from "@/pages/Kitchen/KitchenDashboardPage";
 import KitchenLayout from "@/Layout/KitchenLayout";
 import ServeLayout from "@/Layout/ServeLayout";
+import ServeOrderListPage from "@/pages/Serve/ServeOrderListPage";
 import ServeDashboardPage from "@/pages/Serve/ServeDashboardPage";
 
 const routes = createBrowserRouter([
@@ -112,6 +113,9 @@ const routes = createBrowserRouter([
     children: [
       { index: true, element: <ServeDashboardPage /> },
       { path: "dashboard", element: <ServeDashboardPage /> },
+      { path: "orders", element: <ServeOrderListPage /> },
+      { path: "order-status", element: <ServeOrderListPage /> },
+      { path: "table-orders", element: <ServeOrderListPage /> },
     ],
   },
 

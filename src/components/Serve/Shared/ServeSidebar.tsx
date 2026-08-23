@@ -1,34 +1,34 @@
 import React from "react";
 import logo from "@/assets/icons/logoSAS.png";
-import { Flame, LayoutGrid, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutGrid, ClipboardList, LogOut, type LucideIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
 
-export interface KitchenSidebarItem {
+export interface ServeSidebarItem {
   icon: LucideIcon;
   label: string;
   href: string;
 }
 
-const defaultKitchenSidebarItems: KitchenSidebarItem[] = [
-  {
-    icon: Flame,
-    label: "Kitchen Production",
-    href: "/kitchen-dashboard",
-  },
+const defaultServeSidebarItems: ServeSidebarItem[] = [
   {
     icon: LayoutGrid,
-    label: "KDS Display Hub",
-    href: "/kitchen-dashboard/dashboard",
+    label: "Table Map",
+    href: "/serve-dashboard",
+  },
+  {
+    icon: ClipboardList,
+    label: "Table Order Status",
+    href: "/serve-dashboard/orders",
   },
 ];
 
-export interface KitchenSidebarProps {
+export interface ServeSidebarProps {
   onItemClick?: () => void;
 }
 
-const ServeSidebar: React.FC<KitchenSidebarProps> = ({ onItemClick }) => {
+const ServeSidebar: React.FC<ServeSidebarProps> = ({ onItemClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const ServeSidebar: React.FC<KitchenSidebarProps> = ({ onItemClick }) => {
       style={{ boxShadow: "3px 4px 42.3px 0px #131b2e" }}
     >
       {/* Brand Logo */}
-      <Link to="/kitchen-dashboard" onClick={onItemClick}>
+      <Link to="/serve-dashboard" onClick={onItemClick}>
         <div className="flex items-center justify-center p-3 border-b border-[#1F2E4D] mt-2">
           <img src={logo} alt="Restaurant SaaS Logo" className="h-8 w-auto" />
         </div>
@@ -53,11 +53,11 @@ const ServeSidebar: React.FC<KitchenSidebarProps> = ({ onItemClick }) => {
       {/* Navigation */}
       <nav className="flex-1 p-2 md:p-4">
         <div className="space-y-3">
-          {defaultKitchenSidebarItems.map((item) => {
+          {defaultServeSidebarItems.map((item) => {
             const isActive =
               location.pathname === item.href ||
-              (item.href === "/kitchen-dashboard" &&
-                location.pathname === "/kitchen-dashboard/dashboard");
+              (item.href === "/serve-dashboard" &&
+                location.pathname === "/serve-dashboard/dashboard");
 
             return (
               <Link
