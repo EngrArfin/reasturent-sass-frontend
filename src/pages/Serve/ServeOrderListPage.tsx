@@ -1,9 +1,13 @@
-const ServeOrderListPage = () => {
+import React from "react";
+import TableOrderList from "@/components/Serve/TableOrderList/TableOrderList";
+
+const ServeOrderListPage: React.FC = () => {
   return (
-    <div>
-      <h1>Hello, ServeOrderListPage!</h1>
+    <div className="w-full">
+      <TableOrderList />
     </div>
   );
 };
 
 export default ServeOrderListPage;
+

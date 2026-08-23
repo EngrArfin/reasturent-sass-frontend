@@ -12,7 +12,7 @@ const KitchenLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
+    <div className="flex h-screen overflow-hidden bg-[#121826] text-white">
       {/* Sidebar - Fixed on Desktop */}
       <div className="hidden lg:flex w-64 flex-col fixed inset-y-0 z-30 bg-[#131b2e]">
         <KitchenSidebar />
@@ -39,7 +39,7 @@ const KitchenLayout: React.FC = () => {
         </Sheet>
 
         {/* Scrollable Page Outlet Content */}
-        <main className="flex-1 overflow-y-auto mt-16 bg-[#F8FAFC] text-slate-900 min-h-[calc(100vh-4rem)]">
+        <main className="flex-1 overflow-y-auto mt-16 bg-[#121826] text-white min-h-[calc(100vh-4rem)] p-4 md:p-8">
           <Outlet />
         </main>
       </div>

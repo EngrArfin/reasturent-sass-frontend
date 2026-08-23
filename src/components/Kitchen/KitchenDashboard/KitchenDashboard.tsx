@@ -4,7 +4,7 @@ import KitchenProduction from "./KitchenProduction";
 
 const KitchenDashboard: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 p-4 sm:p-6 md:p-8 space-y-8">
+    <div className="w-full text-white space-y-8 max-w-[1600px] mx-auto">
       {/* Top Metric Cards & Station Alert Banner */}
       <section>
         <KitchenCard />

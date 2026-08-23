@@ -1,9 +1,13 @@
-const ServeDashboardPage = () => {
+import React from "react";
+import ServeDashboard from "@/components/Serve/ServeDashboard/ServeDashboard";
+
+const ServeDashboardPage: React.FC = () => {
   return (
-    <div>
-      <h1>Hello, ServeDashboardPage!</h1>
+    <div className="w-full">
+      <ServeDashboard />
     </div>
   );
 };
 
 export default ServeDashboardPage;
+

@@ -236,14 +236,14 @@ const KitchenProduction: React.FC = () => {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full text-white">
       {/* Top Header Section with Title & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#111827] tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
             Kitchen Production
           </h1>
-          <p className="text-sm font-medium text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm font-medium text-slate-400 tracking-wider uppercase mt-1">
             Live Ticket Stream
           </p>
         </div>
@@ -252,13 +252,13 @@ const KitchenProduction: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3">
           {/* Quick Search */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search table, item..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-slate-300 w-36 sm:w-44 text-slate-800 shadow-xs"
+              className="pl-9 pr-3.5 py-2 text-xs font-medium bg-[#131b2e] border border-[#1F2E4D] rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500/30 w-36 sm:w-48 text-white placeholder-slate-500 shadow-sm"
             />
           </div>
 
@@ -267,7 +267,7 @@ const KitchenProduction: React.FC = () => {
             <button
               type="button"
               onClick={handleAddDemoTicket}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-full transition shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-full transition-all shadow-sm cursor-pointer active:scale-95"
               title="Simulate incoming order"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -277,7 +277,7 @@ const KitchenProduction: React.FC = () => {
             <button
               type="button"
               onClick={handleResetTickets}
-              className="p-1.5 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-full border border-slate-200 transition shadow-xs cursor-pointer"
+              className="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-white bg-[#131b2e] hover:bg-[#1a243d] rounded-full border border-[#1F2E4D] transition-all shadow-sm cursor-pointer active:scale-95"
               title="Reset orders"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -289,30 +289,30 @@ const KitchenProduction: React.FC = () => {
                 setSoundEnabled(!soundEnabled);
                 toast(soundEnabled ? "Audio chimes muted" : "Audio chimes enabled");
               }}
-              className={`p-1.5 rounded-full border transition shadow-xs cursor-pointer ${
+              className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all shadow-sm cursor-pointer active:scale-95 ${
                 soundEnabled
-                  ? "bg-white text-slate-800 border-slate-200 hover:bg-slate-100"
-                  : "bg-red-50 text-red-600 border-red-200"
+                  ? "bg-[#131b2e] text-slate-300 hover:text-white border-[#1F2E4D] hover:bg-[#1a243d]"
+                  : "bg-red-500/20 text-red-400 border-red-500/30"
               }`}
               title={soundEnabled ? "Mute chimes" : "Unmute chimes"}
             >
               {soundEnabled ? (
-                <Volume2 className="w-3.5 h-3.5 text-slate-700" />
+                <Volume2 className="w-4 h-4 text-slate-300" />
               ) : (
-                <VolumeX className="w-3.5 h-3.5" />
+                <VolumeX className="w-4 h-4 text-red-400" />
               )}
             </button>
           </div>
 
-          {/* Active / Completed Tab Pills (Exact Match to Screenshot) */}
-          <div className="bg-[#E5E9EE] p-1 rounded-full flex items-center gap-1 shadow-inner border border-slate-300/60">
+          {/* Active / Completed Tab Pills */}
+          <div className="bg-[#131b2e] p-1 rounded-full flex items-center gap-1 border border-[#1F2E4D] shadow-sm">
             <button
               type="button"
               onClick={() => setActiveTab("active")}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "active"
-                  ? "bg-[#B9C5D1] text-[#1E293B] shadow-xs border border-[#94A3B8]"
-                  : "text-slate-600 hover:text-slate-900 font-medium"
+                  ? "bg-orange-600 text-white shadow-md shadow-orange-600/30"
+                  : "text-slate-400 hover:text-white font-medium"
               }`}
             >
               Active
@@ -320,10 +320,10 @@ const KitchenProduction: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab("completed")}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "completed"
-                  ? "bg-[#B9C5D1] text-[#1E293B] shadow-xs border border-[#94A3B8]"
-                  : "text-slate-600 hover:text-slate-900 font-medium"
+                  ? "bg-orange-600 text-white shadow-md shadow-orange-600/30"
+                  : "text-slate-400 hover:text-white font-medium"
               }`}
             >
               Completed
@@ -334,12 +334,12 @@ const KitchenProduction: React.FC = () => {
 
       {/* Ticket Cards Stream Grid */}
       {filteredTickets.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs max-w-lg mx-auto my-8">
-          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400">
-            <CheckCircle2 className="w-7 h-7" />
+        <div className="bg-[#131b2e] rounded-3xl p-12 text-center border border-[#1F2E4D] shadow-sm max-w-lg mx-auto my-8">
+          <div className="w-14 h-14 bg-[#1a243d] border border-[#1F2E4D] rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400">
+            <CheckCircle2 className="w-7 h-7 text-emerald-400" />
           </div>
-          <h3 className="text-base font-bold text-slate-800">No {activeTab} tickets right now</h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+          <h3 className="text-base font-bold text-white">No {activeTab} tickets right now</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
             {activeTab === "active"
               ? "All kitchen orders are prepared and cleared! Click 'New Ticket' to simulate fresh orders."
               : "No tickets have been completed yet."}
@@ -355,63 +355,74 @@ const KitchenProduction: React.FC = () => {
             return (
               <div
                 key={ticket.id}
-                className="bg-[#E9ECEF] rounded-[24px] p-5 shadow-xs border border-[#DCE1E7] flex flex-col justify-between min-h-[420px] transition-all duration-200 hover:shadow-md"
+                className="bg-[#131b2e] rounded-2xl p-5 shadow-sm border border-[#1F2E4D] hover:border-slate-600/60 flex flex-col justify-between min-h-[420px] transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
               >
                 {/* Card Top Section */}
                 <div>
                   {/* Table Number Circle & Status Badge */}
                   <div className="flex items-center justify-between mb-3">
-                    <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center font-bold text-slate-700 text-xs shadow-xs border border-slate-200">
+                    <div className="w-8 h-8 rounded-full bg-[#1a243d] border border-[#1F2E4D] flex items-center justify-center font-bold text-white text-xs shadow-inner">
                       {ticket.tableNumber}
                     </div>
 
                     {/* Status Badge */}
                     {isPreparing && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FDF0E6] text-[#D97706] border border-[#FDE3C7]">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
                         Preparing
                       </span>
                     )}
 
                     {isReady && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F8F0] text-[#10B981] border border-[#D1F2DF]">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         Ready
                       </span>
                     )}
 
                     {isCompleted && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F8F0] text-[#10B981] border border-[#D1F2DF]">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
                         Completed
                       </span>
                     )}
                   </div>
 
                   {/* Time & Ticket ID */}
-                  <div className="text-xs text-slate-600 font-medium space-y-0.5">
-                    <div>IN: {ticket.inTime}</div>
-                    <div className="text-slate-500">Ticket ID: {ticket.ticketId}</div>
+                  <div className="text-xs text-slate-400 font-medium space-y-1">
+                    <div>
+                      IN: <span className="text-slate-200 font-semibold">{ticket.inTime}</span>
+                    </div>
+                    <div>
+                      Ticket ID: <span className="text-slate-300 font-mono">#{ticket.ticketId}</span>
+                    </div>
+                    {ticket.station && (
+                      <div className="text-[11px] text-orange-400 font-semibold">
+                        Station: {ticket.station}
+                      </div>
+                    )}
                   </div>
 
                   {/* Dotted separator line */}
-                  <div className="border-b border-dashed border-slate-300 my-3.5" />
+                  <div className="border-b border-[#1F2E4D] my-3.5" />
 
                   {/* Order Items List */}
                   <div className="space-y-3">
                     {ticket.items.map((item, idx) => (
                       <div key={idx} className="space-y-1">
-                        <div className="text-xs font-bold text-slate-900 uppercase tracking-tight flex items-start gap-1.5">
-                          <span className="font-extrabold text-slate-900">{item.quantity}</span>
-                          <span>{item.name}</span>
+                        <div className="text-xs font-bold text-slate-100 uppercase tracking-tight flex items-start gap-2">
+                          <span className="w-5 h-5 rounded bg-[#1a243d] border border-[#1F2E4D] text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0">
+                            {item.quantity}
+                          </span>
+                          <span className="mt-0.5 leading-snug">{item.name}</span>
                         </div>
 
                         {/* Modifiers / Notes */}
                         {item.notes && item.notes.length > 0 && (
-                          <div className="pl-4 space-y-0.5">
+                          <div className="pl-7 space-y-1">
                             {item.notes.map((note, noteIdx) => (
                               <div
                                 key={noteIdx}
-                                className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5"
+                                className="text-[11px] text-amber-300/90 font-medium bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md inline-flex items-center gap-1"
                               >
-                                <span className="text-slate-400">•</span>
+                                <span>•</span>
                                 <span>{note}</span>
                               </div>
                             ))}
@@ -426,21 +437,21 @@ const KitchenProduction: React.FC = () => {
                 <div className="mt-4">
                   {/* Server Waiting Banner (for Ready state) */}
                   {isReady && (
-                    <div className="text-center font-bold text-[#10B981] text-xs tracking-wider mb-2.5">
+                    <div className="text-center font-bold text-emerald-400 text-xs tracking-wider mb-2.5 animate-pulse">
                       WAITING FOR SERVER...
                     </div>
                   )}
 
                   {/* Dotted separator line */}
-                  <div className="border-b border-dashed border-slate-300 mb-3.5" />
+                  <div className="border-b border-[#1F2E4D] mb-3.5" />
 
                   {/* Action Buttons Row */}
                   <div className="flex items-center gap-2.5">
-                    {/* Print Button (Round tan bordered icon) */}
+                    {/* Print Button */}
                     <button
                       type="button"
                       onClick={() => handlePrint(ticket)}
-                      className="w-10 h-10 rounded-full border border-[#D4C3AB] bg-[#FDFBF7] text-[#8C6D42] flex items-center justify-center hover:bg-[#F5EEDB] transition-colors cursor-pointer shadow-xs shrink-0"
+                      className="w-10 h-10 rounded-full border border-[#1F2E4D] bg-[#1a243d] text-slate-300 hover:text-white hover:bg-[#232f4c] flex items-center justify-center transition-colors cursor-pointer shadow-sm shrink-0"
                       title="Print KOT Ticket"
                     >
                       <Printer className="w-4 h-4" />
@@ -451,7 +462,7 @@ const KitchenProduction: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleBumpToReady(ticket.id)}
-                        className="bg-[#0B1E38] hover:bg-[#162E52] active:scale-[0.98] text-white text-xs font-semibold px-4 py-2.5 rounded-full flex items-center justify-center gap-2 flex-1 transition-all cursor-pointer shadow-xs"
+                        className="bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white text-xs font-semibold px-4 py-2.5 rounded-full flex items-center justify-center gap-2 flex-1 transition-all cursor-pointer shadow-md shadow-orange-600/20"
                       >
                         <span>Bump To Ready</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -462,7 +473,7 @@ const KitchenProduction: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleCompleteOrder(ticket.id)}
-                        className="bg-[#0B1E38] hover:bg-[#162E52] active:scale-[0.98] text-white text-xs font-semibold px-4 py-2.5 rounded-full flex items-center justify-center gap-2 flex-1 transition-all cursor-pointer shadow-xs"
+                        className="bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-semibold px-4 py-2.5 rounded-full flex items-center justify-center gap-2 flex-1 transition-all cursor-pointer shadow-md shadow-emerald-600/20"
                       >
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                         <span>Complete</span>
@@ -470,7 +481,7 @@ const KitchenProduction: React.FC = () => {
                     )}
 
                     {isCompleted && (
-                      <div className="flex-1 flex items-center justify-center py-2 text-xs font-bold text-[#0B1E38]">
+                      <div className="flex-1 flex items-center justify-center py-2 text-xs font-bold text-slate-400 bg-[#1a243d]/60 rounded-full border border-[#1F2E4D]">
                         Completed
                       </div>
                     )}
@@ -484,59 +495,61 @@ const KitchenProduction: React.FC = () => {
 
       {/* Ticket Print Dialog / Modal */}
       <Dialog open={!!printingTicket} onOpenChange={(open) => !open && setPrintingTicket(null)}>
-        <DialogContent className="max-w-sm bg-white text-slate-900 border border-slate-200 p-6 rounded-2xl">
+        <DialogContent className="max-w-sm bg-[#131b2e] text-white border border-[#1F2E4D] p-6 rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-center font-bold text-base text-slate-800 border-b border-dashed pb-3">
+            <DialogTitle className="text-center font-bold text-base text-white border-b border-[#1F2E4D] pb-3">
               KITCHEN ORDER TICKET (KOT)
             </DialogTitle>
           </DialogHeader>
 
           {printingTicket && (
-            <div className="text-xs font-mono space-y-3 py-2">
-              <div className="flex justify-between text-slate-600">
-                <span>Table: <strong>#{printingTicket.tableNumber}</strong></span>
-                <span>Time: {printingTicket.inTime}</span>
-              </div>
-              <div className="flex justify-between text-slate-600">
-                <span>Ticket: #{printingTicket.ticketId}</span>
-                <span>Station: {printingTicket.station || "Main Line"}</span>
-              </div>
+            <div className="space-y-4 py-2">
+              <div className="bg-[#1a243d] border border-[#1F2E4D] rounded-xl p-4 text-xs font-mono space-y-2.5 text-slate-300">
+                <div className="flex justify-between">
+                  <span>Table: <strong className="text-white">#{printingTicket.tableNumber}</strong></span>
+                  <span>Time: <span className="text-white">{printingTicket.inTime}</span></span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Ticket: <span className="text-white">#{printingTicket.ticketId}</span></span>
+                  <span>Station: <span className="text-orange-400 font-semibold">{printingTicket.station || "Main Line"}</span></span>
+                </div>
 
-              <div className="border-b border-dashed border-slate-300 my-2" />
+                <div className="border-b border-dashed border-[#1F2E4D] my-2" />
 
-              <div className="space-y-2">
-                {printingTicket.items.map((item, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between font-bold text-slate-900">
-                      <span>{item.quantity}x {item.name}</span>
-                    </div>
-                    {item.notes?.map((n, ni) => (
-                      <div key={ni} className="text-[11px] text-slate-500 pl-4">
-                        * {n}
+                <div className="space-y-2">
+                  {printingTicket.items.map((item, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between font-bold text-white">
+                        <span>{item.quantity}x {item.name}</span>
                       </div>
-                    ))}
-                  </div>
-                ))}
+                      {item.notes?.map((n, ni) => (
+                        <div key={ni} className="text-[11px] text-amber-400 pl-4">
+                          * {n}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-b border-dashed border-[#1F2E4D] my-2" />
+
+                <div className="text-[10px] text-center text-slate-400">
+                  Printed: {new Date().toLocaleTimeString()}
+                </div>
               </div>
 
-              <div className="border-b border-dashed border-slate-300 my-2" />
-
-              <div className="text-[10px] text-center text-slate-400">
-                Printed: {new Date().toLocaleTimeString()}
-              </div>
-
-              <div className="flex items-center gap-2 pt-3">
+              <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setPrintingTicket(null)}
-                  className="flex-1 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition cursor-pointer"
+                  className="flex-1 py-2.5 text-xs font-semibold bg-[#1a243d] hover:bg-[#232f4c] border border-[#1F2E4D] rounded-xl text-slate-300 hover:text-white transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={executePrint}
-                  className="flex-1 py-2 text-xs font-semibold bg-[#0B1E38] hover:bg-[#162E52] text-white rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-orange-600/20"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print Slip</span>

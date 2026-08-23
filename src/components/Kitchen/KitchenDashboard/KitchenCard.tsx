@@ -41,68 +41,85 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
   return (
     <div className="w-full">
       {/* 3 Metric / Alert Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1: Completed Today */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 flex flex-col justify-between transition-all duration-200 hover:shadow-md">
-          <div className="flex items-start justify-between">
-            <span className="text-sm font-semibold text-slate-700">Completed Today</span>
-            <div className="p-1 rounded-md text-emerald-600 bg-emerald-50">
+        <div className="group bg-[#131b2e] rounded-2xl border border-[#1F2E4D] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 min-h-[145px]">
+          <div className="flex items-start justify-between w-full">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium text-slate-400 tracking-wider">
+                Completed Today
+              </span>
+              <h3 className="text-3xl font-bold text-emerald-400 tracking-tight mt-3">
+                {completedCount}
+              </h3>
+            </div>
+            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-4xl font-extrabold text-slate-900 tracking-tight">
-              {completedCount}
-            </div>
-            <p className="text-xs font-semibold text-emerald-600 mt-2 flex items-center gap-1">
+          <div className="flex items-center mt-4 pt-3 border-t border-[#1F2E4D]/50">
+            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">
               +12% from avg
-            </p>
+            </span>
           </div>
         </div>
 
         {/* Card 2: Avg. Prep Time */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-slate-900 flex flex-col justify-between transition-all duration-200 hover:shadow-md">
-          <div className="flex items-start justify-between">
-            <span className="text-sm font-semibold text-slate-700">Avg. Prep Time</span>
-            <div className="p-1 rounded-md text-slate-900">
+        <div className="group bg-[#131b2e] rounded-2xl border border-[#1F2E4D] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 min-h-[145px]">
+          <div className="flex items-start justify-between w-full">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium text-slate-400 tracking-wider">
+                Avg. Prep Time
+              </span>
+              <h3 className="text-3xl font-bold text-blue-400 tracking-tight mt-3">
+                {avgPrepTime}
+              </h3>
+            </div>
+            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
               <Timer className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-4xl font-extrabold text-slate-900 tracking-tight">
-              {avgPrepTime}
-            </div>
-            <p className="text-xs font-semibold text-slate-500 mt-2">
-              Target: 15m
-            </p>
+          <div className="flex items-center mt-4 pt-3 border-t border-[#1F2E4D]/50">
+            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400">
+              Target: 15m (Optimal)
+            </span>
           </div>
         </div>
 
         {/* Card 3: Station Alert Banner */}
-        <div className="bg-gradient-to-br from-[#0F1E36] via-[#0D182B] to-[#080E1A] rounded-2xl p-6 text-white shadow-md border border-[#1E2E4A] flex flex-col justify-between relative overflow-hidden group">
+        <div className="group bg-[#131b2e] rounded-2xl border border-[#1F2E4D] p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 min-h-[145px] relative overflow-hidden">
           {/* Subtle decorative glow */}
-          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-28 h-28 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-orange-500/10 rounded-full blur-xl pointer-events-none" />
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                STATION ALERT
-              </span>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-              </span>
+          <div className="flex items-start justify-between w-full">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Station Alert
+                </span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white tracking-tight mt-2 leading-snug">
+                {stationAlert.description}
+              </h3>
             </div>
-            <h3 className="text-lg font-bold text-white mt-2 leading-snug">
-              {stationAlert.description}
-            </h3>
+            <div className="p-3 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shrink-0">
+              <Flame className="w-5 h-5" />
+            </div>
           </div>
 
-          <div className="mt-4">
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#1F2E4D]/50">
+            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400">
+              {stationAlert.capacity}% Capacity
+            </span>
+
             <button
               type="button"
               onClick={() => setIsHeatmapOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-200 bg-[#243348] hover:bg-[#324560] hover:text-white rounded-lg border border-slate-600/40 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-200 bg-[#1a243d] hover:bg-[#232f4c] hover:text-white rounded-lg border border-[#1F2E4D] transition-colors cursor-pointer"
             >
               <Activity className="w-3.5 h-3.5 text-orange-400" />
               <span>View Heatmap</span>
@@ -113,9 +130,9 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
 
       {/* Station Capacity Heatmap Dialog */}
       <Dialog open={isHeatmapOpen} onOpenChange={setIsHeatmapOpen}>
-        <DialogContent className="max-w-2xl bg-[#0F172A] border border-slate-700 text-white p-6 rounded-2xl">
+        <DialogContent className="max-w-2xl bg-[#131b2e] border border-[#1F2E4D] text-white p-6 rounded-2xl">
           <DialogHeader>
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1F2E4D]">
               <div className="flex items-center gap-2">
                 <Flame className="w-5 h-5 text-orange-400" />
                 <DialogTitle className="text-lg font-bold text-white">
@@ -134,7 +151,7 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
               {stationData.map((station) => (
                 <div
                   key={station.name}
-                  className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between"
+                  className="p-3.5 rounded-xl bg-[#1a243d] border border-[#1F2E4D] flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-200">
@@ -154,7 +171,7 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
                   </div>
 
                   {/* Progress bar */}
-                  <div className="w-full bg-slate-800 h-2 rounded-full mt-2.5 overflow-hidden">
+                  <div className="w-full bg-[#131b2e] h-2 rounded-full mt-2.5 overflow-hidden border border-[#1F2E4D]">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${station.color}`}
                       style={{ width: `${station.load}%` }}
@@ -172,7 +189,7 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
             <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-xl flex items-start gap-2 text-xs text-red-300">
               <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <span>
-                <strong>Action Recommended:</strong> Rebalance cold side or assist Grill Line #1 to avoid ticket bottlenecks exceeding 15m.
+                <strong className="text-red-200">Action Recommended:</strong> Rebalance cold side or assist Grill Line #1 to avoid ticket bottlenecks exceeding 15m.
               </span>
             </div>
           </div>
