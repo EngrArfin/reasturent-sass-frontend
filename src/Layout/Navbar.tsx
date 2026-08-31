@@ -61,13 +61,13 @@ const NavBar: React.FC = () => {
         {/* Desktop Buttons */}
         <div className="hidden lg:flex gap-4">
           <Link to="/login">
-            <button className="px-5 py-2 text-lg font-medium border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <button className="cursor-pointer px-5 py-2 text-lg font-medium border border-gray-300 rounded-xl hover:bg-gray-100 transition">
               Sign In
             </button>
           </Link>
 
           <Link to="/signup">
-            <button className="px-5 py-2 text-lg font-semibold text-white rounded-xl bg-gradient-to-r from-orange-500 to-[#F54900] shadow-md hover:shadow-lg hover:scale-[1.03] transition">
+            <button className="cursor-pointer px-5 py-2 text-lg font-semibold text-white rounded-xl bg-gradient-to-r from-orange-500 to-[#F54900] shadow-md hover:shadow-lg hover:scale-[1.03] transition">
               Get Started
             </button>
           </Link>
@@ -132,7 +132,7 @@ const NavBar: React.FC = () => {
             <Link to="/join">
               <Button
                 variant="outline"
-                className="w-full border border-gray-300 text-gray-700"
+                className="cursor-pointer w-full border border-gray-300 text-gray-700"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Sign In
@@ -141,7 +141,7 @@ const NavBar: React.FC = () => {
 
             <Link to="/jobs">
               <Button
-                className="w-full bg-gradient-to-r from-orange-500 to-[#F54900] text-white"
+                className="cursor-pointer w-full bg-gradient-to-r from-orange-500 to-[#F54900] text-white"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Get Started

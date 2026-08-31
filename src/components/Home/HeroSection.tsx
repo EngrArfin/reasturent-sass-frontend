@@ -90,7 +90,7 @@ export default function HeroSection() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-orange-500 cursor-pointer hover:bg-orange-600 transition px-8 py-3 rounded-2xl text-lg font-semibold shadow-lg shadow-orange-500/30"
+                  className="cursor-pointer bg-orange-500 hover:bg-orange-600 transition px-8 py-3 rounded-2xl text-lg font-semibold shadow-lg shadow-orange-500/30"
                 >
                   Get Started
                 </motion.button>

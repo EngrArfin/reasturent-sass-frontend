@@ -10,7 +10,6 @@ import {
   AlertCircle,
   MapPin,
   Clock,
-  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
