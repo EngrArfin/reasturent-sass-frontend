@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Menu, User, LogOut, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,8 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
 
 export interface CashierNavbarProps {
   onMobileMenuToggle: () => void;
@@ -20,39 +20,11 @@ export interface CashierNavbarProps {
 
 const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
   onMobileMenuToggle,
-  cashierName,
-  terminalName,
+  terminalName = "Main POS Terminal 01",
 }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const authUser = useAppSelector((state) => state.auth.user);
 
-  const [currentDate, setCurrentDate] = useState<string>("");
-
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      setCurrentDate(
-        now.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        })
-      );
-    };
-    updateDateTime();
-    const timer = setInterval(updateDateTime, 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const displayName =
-    cashierName ||
-    authUser?.name ||
-    (authUser?.email ? authUser.email.split("@")[0] : "Cashier");
-
-  const displayRole = authUser?.role ? `${authUser.role} POS` : "Cashier POS";
-  const displayEmail = authUser?.email || "cashier@restaurant.com";
-  const displayTerminal = terminalName || "Main POS Terminal 01";
 
   const handleLogout = () => {
     dispatch(logOut());
@@ -85,7 +57,7 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
                 </span>
               </div>
               <span className="text-sm md:text-base font-bold text-white">
-                {displayTerminal}
+                {terminalName}
               </span>
             </div>
           </div>
@@ -97,12 +69,11 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1b253d] border border-[#26375c] text-xs text-slate-300">
             <Clock className="w-3.5 h-3.5 text-orange-400" />
             <span>
-              {currentDate ||
-                new Date().toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                })}
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}
             </span>
           </div>
 
@@ -114,13 +85,13 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
                 className="flex items-center gap-2 text-white hover:bg-[#1b253d] px-2.5 py-1.5 rounded-full border border-[#26375c] cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-full bg-orange-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
-                  {displayName.charAt(0).toUpperCase()}
+                  arfin.gmail.com
                 </div>
                 <div className="hidden md:flex flex-col text-left leading-tight">
                   <span className="text-xs font-semibold text-white">
-                    {displayName}
+                    Arfin
                   </span>
-                  <span className="text-[10px] text-slate-400">{displayRole}</span>
+                  <span className="text-[10px] text-slate-400">Cashier POS</span>
                 </div>
               </Button>
             </DropdownMenuTrigger>
@@ -130,9 +101,9 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
               className="bg-[#131b2e] text-white w-60 shadow-2xl rounded-2xl border border-[#3A5CFF]/30 backdrop-blur-md p-1.5 animate-fadeIn"
             >
               <div className="px-3 py-2 border-b border-[#1F2E4D]">
-                <p className="text-xs font-semibold text-white">{displayName}</p>
+                <p className="text-xs font-semibold text-white">Arfin</p>
                 <p className="text-[11px] text-slate-400 truncate">
-                  {displayEmail}
+                  {"cashier@restaurant.com"}
                 </p>
               </div>
 
@@ -168,4 +139,3 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
 };
 
 export default CashierDashboardNavBar;
-

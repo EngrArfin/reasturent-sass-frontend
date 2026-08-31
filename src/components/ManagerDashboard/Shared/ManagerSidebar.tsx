@@ -68,8 +68,8 @@ const defaultSidebarItems: SidebarItem[] = [
   },
   {
     icon: LifeBuoy,
-    label: "Manager Support",
-    href: "/manager-dashboard/support",
+    label: "Manager Ticket",
+    href: "/manager-dashboard/manager-ticket",
   },
   {
     icon: Settings,
