@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import {
   Plus,
-  Bell,
   Utensils,
   Search,
   Clock,
   Trash2,
   X,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import FootTable from "./FootTable";
@@ -187,6 +188,7 @@ const FoodManagement: React.FC = () => {
   const [orders, setOrders] = useState<LiveOrder[]>(initialLiveOrders);
   const [orderSearch, setOrderSearch] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("ALL");
+  const [orderTableFilter, setOrderTableFilter] = useState("ALL");
 
   // Dynamic Primary Action
   const handlePrimaryAction = () => {
@@ -194,8 +196,6 @@ const FoodManagement: React.FC = () => {
       setIsAddTableModalOpen(true);
     } else if (activeTab === "Menu") {
       setShowAddMenuModal(true);
-    } else if (activeTab === "Orders") {
-      toast.info("Select an active table to create an order.");
     }
   };
 
@@ -267,7 +267,10 @@ const FoodManagement: React.FC = () => {
       order.tableId.toString().includes(orderSearch);
     const matchesStatus =
       orderStatusFilter === "ALL" || order.status === orderStatusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesTable =
+      orderTableFilter === "ALL" ||
+      order.tableId.toString() === orderTableFilter;
+    return matchesSearch && matchesStatus && matchesTable;
   });
 
   return (
@@ -283,33 +286,19 @@ const FoodManagement: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Notification Button */}
-          <button
-            type="button"
-            onClick={() => toast.info("No unread alerts")}
-            className="w-10 h-10 rounded-full bg-[#131b2e] hover:bg-[#1a243d] border border-[#1F2E4D] text-slate-300 hover:text-white flex items-center justify-center relative transition-all cursor-pointer shadow-sm"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-emerald-400"></span>
-          </button>
-
-          {/* Primary Action Button */}
-          <button
-            type="button"
-            onClick={handlePrimaryAction}
-            className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>
-              {activeTab === "Tables"
-                ? "Add Table"
-                : activeTab === "Menu"
-                ? "Add Dish"
-                : "New Order"}
-            </span>
-          </button>
-        </div>
+        {activeTab !== "Orders" && (
+          <div className="flex items-center gap-3">
+            {/* Primary Action Button */}
+            <button
+              type="button"
+              onClick={handlePrimaryAction}
+              className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{activeTab === "Tables" ? "Add Table" : "Add Dish"}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ================= TABS SWITCHER ================= */}
@@ -317,11 +306,10 @@ const FoodManagement: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("Tables")}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${
-            activeTab === "Tables"
+          className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${activeTab === "Tables"
               ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
-          }`}
+            }`}
         >
           Tables Overview
         </button>
@@ -329,11 +317,10 @@ const FoodManagement: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("Menu")}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${
-            activeTab === "Menu"
+          className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${activeTab === "Menu"
               ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
-          }`}
+            }`}
         >
           Menu Catalog
         </button>
@@ -341,11 +328,10 @@ const FoodManagement: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("Orders")}
-          className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${
-            activeTab === "Orders"
+          className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${activeTab === "Orders"
               ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
-          }`}
+            }`}
         >
           Active Orders
         </button>
@@ -363,33 +349,46 @@ const FoodManagement: React.FC = () => {
       {/* ================= TAB 2: MENU VIEW ================= */}
       {activeTab === "Menu" && (
         <div className="w-full space-y-6 animate-in fade-in duration-200">
-          {/* Search & Categories */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#1F2E4D] shadow-sm">
+          {/* Search & Categories Filter Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#1F2E4D] shadow-sm">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search menu dishes..."
                 value={menuSearch}
                 onChange={(e) => setMenuSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] focus:border-blue-500/60 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
               />
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-              {["ALL", "Main Course", "Appetizer", "Dessert", "Beverage"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setMenuCategoryFilter(cat)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    menuCategoryFilter === cat
-                      ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-                      : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
-                  }`}
+            {/* Right Side Professional Dropdown Filters */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Category Filter Dropdown */}
+              <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-blue-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
+                <div className="flex items-center gap-2 pointer-events-none">
+                  <div className="w-5 h-5 rounded-md bg-[#052350] border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <Filter className="w-3 h-3" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Category:</span>
+                  <span className="text-xs font-bold text-white">
+                    {menuCategoryFilter === "ALL" ? "All Categories" : menuCategoryFilter}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors ml-1" />
+                </div>
+                <select
+                  value={menuCategoryFilter}
+                  onChange={(e) => setMenuCategoryFilter(e.target.value)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
                 >
-                  {cat}
-                </button>
-              ))}
+                  <option value="ALL" className="bg-[#131b2e] text-white">All Categories</option>
+                  <option value="Main Course" className="bg-[#131b2e] text-white">Main Course</option>
+                  <option value="Appetizer" className="bg-[#131b2e] text-white">Appetizer</option>
+                  <option value="Dessert" className="bg-[#131b2e] text-white">Dessert</option>
+                  <option value="Beverage" className="bg-[#131b2e] text-white">Beverage</option>
+                  <option value="Special" className="bg-[#131b2e] text-white">Special</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -440,11 +439,10 @@ const FoodManagement: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => toggleItemAvailability(item.id)}
-                            className={`px-3 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
-                              item.isAvailable
+                            className={`px-3 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${item.isAvailable
                                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                                 : "bg-red-500/10 text-red-400 border-red-500/20"
-                            }`}
+                              }`}
                           >
                             {item.isAvailable ? "In Stock" : "Out of Stock"}
                           </button>
@@ -481,33 +479,69 @@ const FoodManagement: React.FC = () => {
       {/* ================= TAB 3: ORDERS VIEW ================= */}
       {activeTab === "Orders" && (
         <div className="w-full space-y-6 animate-in fade-in duration-200">
-          {/* Order Search & Filters */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#1F2E4D] shadow-sm">
+          {/* Order Search & Professional Filter Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#1F2E4D] shadow-sm">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search orders by number, table..."
+                placeholder="Search orders by number, table, customer..."
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] focus:border-blue-500/60 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
               />
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-              {["ALL", "PENDING", "PREPARING", "SERVED", "COMPLETED"].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setOrderStatusFilter(st)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    orderStatusFilter === st
-                      ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-                      : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
-                  }`}
+            {/* Right Side Professional Dropdown Filters */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Status Dropdown Filter */}
+              <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-blue-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
+                <div className="flex items-center gap-2 pointer-events-none">
+                  <div className="w-5 h-5 rounded-md bg-[#052350] border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <Filter className="w-3 h-3" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status:</span>
+                  <span className="text-xs font-bold text-white capitalize">
+                    {orderStatusFilter === "ALL" ? "All Statuses" : orderStatusFilter.toLowerCase()}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors ml-1" />
+                </div>
+                <select
+                  value={orderStatusFilter}
+                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
                 >
-                  {st}
-                </button>
-              ))}
+                  <option value="ALL" className="bg-[#131b2e] text-white">All Statuses</option>
+                  <option value="PENDING" className="bg-[#131b2e] text-white">Pending</option>
+                  <option value="PREPARING" className="bg-[#131b2e] text-white">Preparing</option>
+                  <option value="SERVED" className="bg-[#131b2e] text-white">Served</option>
+                  <option value="COMPLETED" className="bg-[#131b2e] text-white">Completed</option>
+                </select>
+              </div>
+
+              {/* Table / Location Dropdown Filter */}
+              <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-blue-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
+                <div className="flex items-center gap-2 pointer-events-none">
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Table:</span>
+                  <span className="text-xs font-bold text-white">
+                    {orderTableFilter === "ALL" ? "All Tables" : orderTableFilter === "Takeaway" ? "Takeaway" : `Table #${orderTableFilter}`}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors ml-1" />
+                </div>
+                <select
+                  value={orderTableFilter}
+                  onChange={(e) => setOrderTableFilter(e.target.value)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
+                >
+                  <option value="ALL" className="bg-[#131b2e] text-white">All Tables</option>
+                  <option value="1" className="bg-[#131b2e] text-white">Table #1</option>
+                  <option value="2" className="bg-[#131b2e] text-white">Table #2</option>
+                  <option value="3" className="bg-[#131b2e] text-white">Table #3</option>
+                  <option value="4" className="bg-[#131b2e] text-white">Table #4</option>
+                  <option value="5" className="bg-[#131b2e] text-white">Table #5</option>
+                  <option value="Takeaway" className="bg-[#131b2e] text-white">Takeaway</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -527,15 +561,14 @@ const FoodManagement: React.FC = () => {
                       </span>
                     </div>
                     <span
-                      className={`px-3 py-0.5 rounded-full text-xs font-semibold border ${
-                        order.status === "SERVED"
+                      className={`px-3 py-0.5 rounded-full text-xs font-semibold border ${order.status === "SERVED"
                           ? "bg-orange-500/10 text-orange-400 border-orange-500/20"
                           : order.status === "PREPARING"
-                          ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                          : order.status === "COMPLETED"
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                      }`}
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                            : order.status === "COMPLETED"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                              : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                        }`}
                     >
                       {order.status}
                     </span>

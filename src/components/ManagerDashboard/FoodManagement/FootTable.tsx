@@ -10,6 +10,8 @@ import {
   AlertCircle,
   MapPin,
   Clock,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -141,6 +143,7 @@ export const FootTable: React.FC<FootTableProps> = ({
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [sectionFilter, setSectionFilter] = useState<string>("ALL");
 
   const showAddModal = isAddModalOpen || localAddModalOpen;
   const handleCloseAdd = () => {
@@ -262,7 +265,10 @@ export const FootTable: React.FC<FootTableProps> = ({
     const matchesStatus =
       statusFilter === "ALL" || table.status.toUpperCase() === statusFilter.toUpperCase();
 
-    return matchesSearch && matchesStatus;
+    const matchesSection =
+      sectionFilter === "ALL" || (table.section && table.section === sectionFilter);
+
+    return matchesSearch && matchesStatus && matchesSection;
   });
 
   const occupiedCount = tables.filter((t) => t.status === "OCCUPIED").length;
@@ -271,58 +277,67 @@ export const FootTable: React.FC<FootTableProps> = ({
 
   return (
     <div className="w-full space-y-6">
-      {/* Top Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#1F2E4D] shadow-sm">
+      {/* Top Search & Professional Filter Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131b2e] p-4 sm:p-5 rounded-2xl border border-[#1F2E4D] shadow-sm">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Search by table ID, capacity, section..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] focus:border-blue-500/60 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
           />
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          <button
-            onClick={() => setStatusFilter("ALL")}
-            className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${statusFilter === "ALL"
-              ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-              : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
-              }`}
-          >
-            All ({tables.length})
-          </button>
-          <button
-            onClick={() => setStatusFilter("OCCUPIED")}
-            className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${statusFilter === "OCCUPIED"
-              ? "bg-orange-500/20 text-orange-400 border border-orange-500/40 shadow-sm"
-              : "bg-[#1a243d] text-slate-400 hover:text-orange-300 border border-[#1F2E4D]/60"
-              }`}
-          >
-            Occupied ({occupiedCount})
-          </button>
-          <button
-            onClick={() => setStatusFilter("AVAILABLE")}
-            className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${statusFilter === "AVAILABLE"
-              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm"
-              : "bg-[#1a243d] text-slate-400 hover:text-emerald-300 border border-[#1F2E4D]/60"
-              }`}
-          >
-            Available ({availableCount})
-          </button>
-          <button
-            onClick={() => setStatusFilter("RESERVED")}
-            className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${statusFilter === "RESERVED"
-              ? "bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-sm"
-              : "bg-[#1a243d] text-slate-400 hover:text-blue-300 border border-[#1F2E4D]/60"
-              }`}
-          >
-            Reserved ({reservedCount})
-          </button>
+        {/* Right Side Professional Dropdown Filters */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Status Dropdown */}
+          <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-blue-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
+            <div className="flex items-center gap-2 pointer-events-none">
+              <div className="w-5 h-5 rounded-md bg-[#052350] border border-blue-500/30 flex items-center justify-center text-blue-400">
+                <Filter className="w-3 h-3" />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status:</span>
+              <span className="text-xs font-bold text-white capitalize">
+                {statusFilter === "ALL" ? `All (${tables.length})` : statusFilter.toLowerCase()}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors ml-1" />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
+            >
+              <option value="ALL" className="bg-[#131b2e] text-white">All Tables ({tables.length})</option>
+              <option value="OCCUPIED" className="bg-[#131b2e] text-white">Occupied ({occupiedCount})</option>
+              <option value="AVAILABLE" className="bg-[#131b2e] text-white">Available ({availableCount})</option>
+              <option value="RESERVED" className="bg-[#131b2e] text-white">Reserved ({reservedCount})</option>
+            </select>
+          </div>
+
+          {/* Section Dropdown */}
+          <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-blue-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
+            <div className="flex items-center gap-2 pointer-events-none">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Zone:</span>
+              <span className="text-xs font-bold text-white">
+                {sectionFilter === "ALL" ? "All Sections" : sectionFilter}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors ml-1" />
+            </div>
+            <select
+              value={sectionFilter}
+              onChange={(e) => setSectionFilter(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
+            >
+              <option value="ALL" className="bg-[#131b2e] text-white">All Sections</option>
+              <option value="Main Dining Hall" className="bg-[#131b2e] text-white">Main Dining Hall</option>
+              <option value="Patio Terrace" className="bg-[#131b2e] text-white">Patio Terrace</option>
+              <option value="Window Bay" className="bg-[#131b2e] text-white">Window Bay</option>
+              <option value="VIP Lounge" className="bg-[#131b2e] text-white">VIP Lounge</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -821,7 +836,7 @@ export const FootTable: React.FC<FootTableProps> = ({
 
               <button
                 onClick={() => setViewTable(null)}
-                className="px-5 py-2 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-xs font-semibold rounded-full shadow-sm transition-colors cursor-pointer"
+                className="px-5 py-2 bg-[#1a243d] hover:bg-[#1a243d]/80 border border-[#1F2E4D] text-slate-300 hover:text-white text-xs font-semibold rounded-full shadow-sm transition-colors cursor-pointer"
               >
                 Close
               </button>
