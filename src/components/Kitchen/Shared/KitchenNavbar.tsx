@@ -20,8 +20,8 @@ export interface KitchenNavbarProps {
 
 const KitchenNavbar: React.FC<KitchenNavbarProps> = ({
   onMobileMenuToggle,
-  stationName = "Kitchen Station",
-  terminalName = "Main Kitchen Display (KDS 01)",
+  stationName = "Kitchen",
+  terminalName = "Kitchen (KDS 01)",
 }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -78,10 +78,7 @@ const KitchenNavbar: React.FC<KitchenNavbarProps> = ({
                   <Flame className="w-3.5 h-3.5" />
                   {stationName}
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Live Orders
-                </span>
+
               </div>
               <span className="text-sm md:text-base font-bold text-white">
                 {terminalName}
@@ -110,19 +107,12 @@ const KitchenNavbar: React.FC<KitchenNavbarProps> = ({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 text-white hover:bg-[#1b253d] px-2.5 py-1.5 rounded-full border border-[#26375c] cursor-pointer"
+                className="flex items-center gap-2 text-white hover:bg-[#1b253d] px-2.5 py-2.5 rounded-full border border-[#26375c] cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-full bg-orange-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
-                <div className="hidden md:flex flex-col text-left leading-tight">
-                  <span className="text-xs font-semibold text-white">
-                    {displayName}
-                  </span>
-                  <span className="text-[10px] text-slate-400">
-                    {displayRole}
-                  </span>
-                </div>
+
               </Button>
             </DropdownMenuTrigger>
 

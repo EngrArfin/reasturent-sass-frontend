@@ -307,8 +307,8 @@ const FoodManagement: React.FC = () => {
           type="button"
           onClick={() => setActiveTab("Tables")}
           className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${activeTab === "Tables"
-              ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-              : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
+            ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
+            : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
             }`}
         >
           Tables Overview
@@ -318,8 +318,8 @@ const FoodManagement: React.FC = () => {
           type="button"
           onClick={() => setActiveTab("Menu")}
           className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${activeTab === "Menu"
-              ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-              : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
+            ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
+            : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
             }`}
         >
           Menu Catalog
@@ -329,8 +329,8 @@ const FoodManagement: React.FC = () => {
           type="button"
           onClick={() => setActiveTab("Orders")}
           className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center ${activeTab === "Orders"
-              ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-              : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
+            ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
+            : "text-slate-400 hover:text-white hover:bg-[#1a243d]"
             }`}
         >
           Active Orders
@@ -440,8 +440,8 @@ const FoodManagement: React.FC = () => {
                             type="button"
                             onClick={() => toggleItemAvailability(item.id)}
                             className={`px-3 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${item.isAvailable
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                : "bg-red-500/10 text-red-400 border-red-500/20"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                              : "bg-red-500/10 text-red-400 border-red-500/20"
                               }`}
                           >
                             {item.isAvailable ? "In Stock" : "Out of Stock"}
@@ -562,12 +562,12 @@ const FoodManagement: React.FC = () => {
                     </div>
                     <span
                       className={`px-3 py-0.5 rounded-full text-xs font-semibold border ${order.status === "SERVED"
-                          ? "bg-orange-500/10 text-orange-400 border-orange-500/20"
-                          : order.status === "PREPARING"
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                            : order.status === "COMPLETED"
-                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                              : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                        ? "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                        : order.status === "PREPARING"
+                          ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                          : order.status === "COMPLETED"
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                         }`}
                     >
                       {order.status}

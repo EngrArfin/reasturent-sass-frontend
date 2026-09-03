@@ -106,7 +106,8 @@ const Login: React.FC = () => {
       route: "/cashier-dashboard",
       name: "Cashier User",
       icon: CreditCard,
-      color: "text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/10",
+      color:
+        "text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/10",
     },
     {
       label: "Kitchen",
@@ -122,7 +123,8 @@ const Login: React.FC = () => {
       route: "/serve-dashboard",
       name: "Server Staff",
       icon: ConciergeBell,
-      color: "text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10",
+      color:
+        "text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10",
     },
   ];
 
@@ -185,7 +187,9 @@ const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             {/* Email */}
             <div>
-              <label className="text-xs text-gray-300 mb-1.5 block">Email</label>
+              <label className="text-xs text-gray-300 mb-1.5 block">
+                Email
+              </label>
               <input
                 name="email"
                 type="email"
@@ -262,4 +266,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-

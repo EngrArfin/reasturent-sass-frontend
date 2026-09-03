@@ -22,11 +22,7 @@ const defaultKitchenSidebarItems: KitchenSidebarItem[] = [
         label: "Kitchen Production",
         href: "/kitchen-dashboard",
     },
-    {
-        icon: LayoutGrid,
-        label: "KDS Display Hub",
-        href: "/kitchen-dashboard/dashboard",
-    },
+
 ];
 
 export interface KitchenSidebarProps {
