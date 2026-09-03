@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TableCard, { TableData, TableStatus } from "./TableCard";
 import TableMenu, { OrderCustomization } from "./TableMenu";
-import { Search } from "lucide-react";
+import { Search, Filter, ChevronDown } from "lucide-react";
 
 const initialTables: TableData[] = [
   { id: 1, tableNumber: 1, seats: 4, status: "OCCUPIED", isServed: true },
@@ -97,37 +97,29 @@ const ServeDashboard: React.FC = () => {
             />
           </div>
 
-          <div className="inline-flex bg-[#131b2e] p-1 rounded-full text-xs font-semibold border border-[#1F2E4D] shadow-xs">
-            <button
-              onClick={() => setFilter("ALL")}
-              className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                filter === "ALL"
-                  ? "bg-orange-600 text-white shadow-md shadow-orange-600/30"
-                  : "text-slate-400 hover:text-white"
-              }`}
+          {/* Status Filter Dropdown */}
+          <div className="relative flex items-center bg-[#131b2e] hover:bg-[#18233c] border border-[#1F2E4D] hover:border-orange-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
+            <div className="flex items-center gap-2 pointer-events-none">
+              <Filter className="w-3.5 h-3.5 text-orange-400" />
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status:</span>
+              <span className="text-xs font-bold text-white capitalize">
+                {filter === "ALL"
+                  ? `All (${tables.length})`
+                  : filter === "AVAILABLE"
+                  ? `Available (${tables.filter((t) => t.status === "AVAILABLE").length})`
+                  : `Occupied (${tables.filter((t) => t.status === "OCCUPIED").length})`}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-400 transition-colors ml-1" />
+            </div>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as "ALL" | "AVAILABLE" | "OCCUPIED")}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
             >
-              All ({tables.length})
-            </button>
-            <button
-              onClick={() => setFilter("AVAILABLE")}
-              className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                filter === "AVAILABLE"
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Available ({tables.filter((t) => t.status === "AVAILABLE").length})
-            </button>
-            <button
-              onClick={() => setFilter("OCCUPIED")}
-              className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                filter === "OCCUPIED"
-                  ? "bg-orange-600 text-white shadow-md shadow-orange-600/30"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Occupied ({tables.filter((t) => t.status === "OCCUPIED").length})
-            </button>
+              <option value="ALL" className="bg-[#131b2e] text-white">All ({tables.length})</option>
+              <option value="AVAILABLE" className="bg-[#131b2e] text-white">Available ({tables.filter((t) => t.status === "AVAILABLE").length})</option>
+              <option value="OCCUPIED" className="bg-[#131b2e] text-white">Occupied ({tables.filter((t) => t.status === "OCCUPIED").length})</option>
+            </select>
           </div>
         </div>
       </div>

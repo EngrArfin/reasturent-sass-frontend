@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Send } from "lucide-react";
+import { ChevronDown, Send, Filter } from "lucide-react";
 import { toast } from "sonner";
 
 export type OrderStatus =
@@ -161,38 +161,37 @@ const TableOrderList: React.FC = () => {
           </p>
         </div>
 
-        {/* Filter Pills */}
-        <div className="inline-flex bg-[#131b2e] p-1 rounded-full text-xs font-semibold border border-[#1F2E4D] shadow-xs self-start md:self-auto">
-          <button
-            onClick={() => setFilter("ALL")}
-            className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-              filter === "ALL"
-                ? "bg-orange-600 text-white shadow-md shadow-orange-600/30"
-                : "text-slate-400 hover:text-white"
-            }`}
+        {/* Filter Dropdown */}
+        <div className="relative flex items-center bg-[#131b2e] hover:bg-[#18233c] border border-[#1F2E4D] hover:border-orange-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group self-start md:self-auto">
+          <div className="flex items-center gap-2 pointer-events-none">
+            <Filter className="w-3.5 h-3.5 text-orange-400" />
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status:</span>
+            <span className="text-xs font-bold text-white capitalize">
+              {filter === "ALL"
+                ? `All Orders (${orders.length})`
+                : filter === "CONFIRMED"
+                ? `Confirmed (${orders.filter((o) => o.status === "Confirmed").length})`
+                : `Cancelled (${orders.filter((o) => o.status === "Cancelled").length})`}
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-400 transition-colors ml-1" />
+          </div>
+          <select
+            value={filter}
+            onChange={(e) =>
+              setFilter(e.target.value as "ALL" | "CONFIRMED" | "CANCELLED")
+            }
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
           >
-            All Orders ({orders.length})
-          </button>
-          <button
-            onClick={() => setFilter("CONFIRMED")}
-            className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-              filter === "CONFIRMED"
-                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            Confirmed ({orders.filter((o) => o.status === "Confirmed").length})
-          </button>
-          <button
-            onClick={() => setFilter("CANCELLED")}
-            className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-              filter === "CANCELLED"
-                ? "bg-red-500 text-white shadow-md shadow-red-500/30"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            Cancelled ({orders.filter((o) => o.status === "Cancelled").length})
-          </button>
+            <option value="ALL" className="bg-[#131b2e] text-white">
+              All Orders ({orders.length})
+            </option>
+            <option value="CONFIRMED" className="bg-[#131b2e] text-white">
+              Confirmed ({orders.filter((o) => o.status === "Confirmed").length})
+            </option>
+            <option value="CANCELLED" className="bg-[#131b2e] text-white">
+              Cancelled ({orders.filter((o) => o.status === "Cancelled").length})
+            </option>
+          </select>
         </div>
       </div>
 

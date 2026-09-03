@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Menu, LogOut, Clock, Utensils, Bell, LayoutGrid, CheckCircle2 } from "lucide-react";
+import React from "react";
+import { Menu, LogOut, Bell, LayoutGrid, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { logOut } from "@/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
+import userPhoto from "@/assets/Photo/Group (3).png";
 
 export interface ServeNavBarProps {
   onMobileMenuToggle: () => void;
@@ -20,30 +21,12 @@ export interface ServeNavBarProps {
 
 const ServeNavBar: React.FC<ServeNavBarProps> = ({
   onMobileMenuToggle,
-  stationName = "Floor Service Station",
-  floorName = "Main Dining Floor",
+  stationName = "Service Station",
+  floorName = "Dining Floor",
 }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const authUser = useAppSelector((state) => state.auth.user);
-
-  const [currentDate, setCurrentDate] = useState<string>("");
-
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      setCurrentDate(
-        now.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-      );
-    };
-    updateDateTime();
-    const timer = setInterval(updateDateTime, 60000);
-    return () => clearInterval(timer);
-  }, []);
 
   const displayName =
     authUser?.name ||
@@ -77,13 +60,9 @@ const ServeNavBar: React.FC<ServeNavBarProps> = ({
             <div className="flex flex-col leading-tight">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-orange-400 font-semibold uppercase tracking-wider flex items-center gap-1">
-                  <Utensils className="w-3.5 h-3.5" />
                   {stationName}
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Active Shift
-                </span>
+
               </div>
               <span className="text-sm md:text-base font-bold text-white">
                 {floorName}
@@ -92,28 +71,16 @@ const ServeNavBar: React.FC<ServeNavBarProps> = ({
           </div>
         </div>
 
-        {/* Right Section: Time & Server Profile */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          {/* Quick Date Indicator */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1b253d] border border-[#26375c] text-xs text-slate-300">
-            <Clock className="w-3.5 h-3.5 text-orange-400" />
-            <span>
-              {currentDate ||
-                new Date().toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                })}
-            </span>
-          </div>
-
-          {/* Quick Orders Link */}
+        {/* Right Section: Notification & User Profile */}
+        <div className="flex items-center space-x-3">
+          {/* Notification Icon */}
           <Link
             to="/serve-dashboard/orders"
-            className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1b253d] hover:bg-orange-600 hover:text-white border border-[#26375c] text-xs font-medium text-slate-200 transition-all shadow-xs"
+            className="relative p-2 rounded-full bg-[#1b253d] hover:bg-[#26375c] text-slate-300 hover:text-white border border-[#26375c] transition-all shadow-xs flex items-center justify-center cursor-pointer"
+            title="Order Notifications"
           >
-            <Bell className="w-3.5 h-3.5 text-orange-400 group-hover:text-white" />
-            <span>Order Status</span>
+            <Bell className="w-4 h-4 text-orange-400" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full ring-2 ring-[#131b2e] animate-pulse" />
           </Link>
 
           {/* User Profile Dropdown */}
@@ -121,19 +88,14 @@ const ServeNavBar: React.FC<ServeNavBarProps> = ({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 text-white hover:bg-[#1b253d] px-2.5 py-1.5 rounded-full border border-[#26375c] cursor-pointer"
+                size="icon"
+                className="w-9 h-9 rounded-full border border-[#26375c] hover:border-orange-500/50 p-0 cursor-pointer overflow-hidden flex items-center justify-center transition-colors"
               >
-                <div className="w-7 h-7 rounded-full bg-orange-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
-                <div className="hidden md:flex flex-col text-left leading-tight">
-                  <span className="text-xs font-semibold text-white">
-                    {displayName}
-                  </span>
-                  <span className="text-[10px] text-slate-400">
-                    {displayRole}
-                  </span>
-                </div>
+                <img
+                  src={userPhoto}
+                  alt="User"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </Button>
             </DropdownMenuTrigger>
 
@@ -142,10 +104,15 @@ const ServeNavBar: React.FC<ServeNavBarProps> = ({
               className="bg-[#131b2e] text-white w-60 shadow-2xl rounded-2xl border border-[#3A5CFF]/30 backdrop-blur-md p-1.5 animate-fadeIn"
             >
               <div className="px-3 py-2 border-b border-[#1F2E4D]">
-                <p className="text-xs font-semibold text-white">
-                  {displayName}
-                </p>
-                <p className="text-[11px] text-slate-400 truncate">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-white">
+                    {displayName}
+                  </p>
+                  <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-1.5 py-0.5 rounded font-medium">
+                    {displayRole}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 truncate mt-0.5">
                   {displayEmail}
                 </p>
               </div>
