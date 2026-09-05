@@ -1,6 +1,7 @@
 // src/redux/features/auth/auth.type.ts
 export type Role =
   | "ADMIN"
+  | "SUPERVISOR"
   | "MANAGER"
   | "SERVER"
   | "KITCHEN"

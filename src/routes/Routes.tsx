@@ -32,6 +32,8 @@ import ServeLayout from "@/Layout/ServeLayout";
 import ServeOrderListPage from "@/pages/Serve/ServeOrderListPage";
 import ServeDashboardPage from "@/pages/Serve/ServeDashboardPage";
 
+import SupervisorLayout from "@/Layout/SupervisorLayout";
+
 const routes = createBrowserRouter([
   {
     path: "/",
@@ -63,6 +65,27 @@ const routes = createBrowserRouter([
       },
     ],
   },
+  /* Supervisor Dashboard (Restaurant Owner Control) */
+  {
+    path: "/supervisor-dashboard",
+    element: <SupervisorLayout />,
+    children: [
+      { index: true, element: <ManagerDashboardPage /> },
+      { path: "dashboard", element: <ManagerDashboardPage /> },
+      { path: "approvals", element: <ApprovalsPage /> },
+      { path: "employees", element: <EmployeesPage /> },
+      { path: "manage-food", element: <ManageFoodPage /> },
+      { path: "inventory", element: <InventoryPage /> },
+      { path: "voucher", element: <VoucherPage /> },
+      { path: "vouchers", element: <VoucherPage /> },
+      { path: "qrscanner", element: <QRScannerPage /> },
+      { path: "scan", element: <QRScannerPage /> },
+      { path: "manager-ticket", element: <ManagerTicketPage /> },
+      { path: "support", element: <ManagerTicketPage /> },
+      { path: "settings", element: <SettingsPage /> },
+    ],
+  },
+
   /* Manager Dashboard */
   {
     path: "/manager-dashboard",

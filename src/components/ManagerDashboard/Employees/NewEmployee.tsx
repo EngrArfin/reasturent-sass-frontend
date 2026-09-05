@@ -7,6 +7,7 @@ export type EmployeeRole = "Manager" | "Server" | "Kitchen" | "Cashier";
 export interface Employee {
   id: string;
   name: string;
+  email: string;
   role: EmployeeRole;
   pin: string;
   avatar: string;
@@ -21,6 +22,7 @@ const roleOptions: EmployeeRole[] = ["Manager", "Server", "Kitchen", "Cashier"];
 
 const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [role, setRole] = useState<EmployeeRole | "">("");
   const [pin, setPin] = useState("");
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -30,6 +32,11 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => 
 
     if (!name.trim()) {
       toast.error("Please enter the employee name");
+      return;
+    }
+
+    if (!email.trim()) {
+      toast.error("Please enter employee login email");
       return;
     }
 
@@ -49,12 +56,13 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => 
 
     onAddEmployee({
       name: name.trim(),
+      email: email.trim().toLowerCase(),
       role: role as EmployeeRole,
       pin: pin.trim(),
       avatar: randomAvatar,
     });
 
-    toast.success(`Employee ${name} added successfully!`);
+    toast.success(`Employee ${name} added successfully with PIN ${pin}!`);
     onClose();
   };
 
@@ -81,7 +89,7 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => 
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Employee Name */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-slate-400">
@@ -93,6 +101,22 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => 
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. John Doe"
               className="w-full bg-[#0b101d] text-white placeholder-slate-500 border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all"
+              required
+            />
+          </div>
+
+          {/* Employee Email */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-slate-400">
+              Login Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. cashier1@restaurant.com"
+              className="w-full bg-[#0b101d] text-white placeholder-slate-500 border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all"
+              required
             />
           </div>
 
@@ -161,8 +185,9 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onAddEmployee, onClose }) => 
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-              placeholder="Enter 4-digit PIN"
-              className="w-full bg-[#0b101d] text-white placeholder-slate-500 border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all"
+              placeholder="e.g. 1234"
+              className="w-full bg-[#0b101d] text-white placeholder-slate-500 border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all font-mono tracking-widest"
+              required
             />
           </div>
         </div>

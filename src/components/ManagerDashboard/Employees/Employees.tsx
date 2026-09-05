@@ -7,6 +7,7 @@ const initialEmployees: Employee[] = [
   {
     id: "1",
     name: "Sarah",
+    email: "manager@restaurant.com",
     role: "Manager",
     pin: "1234",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
@@ -14,6 +15,7 @@ const initialEmployees: Employee[] = [
   {
     id: "2",
     name: "John",
+    email: "server1@restaurant.com",
     role: "Server",
     pin: "5678",
     avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80",
@@ -21,6 +23,7 @@ const initialEmployees: Employee[] = [
   {
     id: "3",
     name: "Mick",
+    email: "kitchen1@restaurant.com",
     role: "Kitchen",
     pin: "9012",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
@@ -28,6 +31,7 @@ const initialEmployees: Employee[] = [
   {
     id: "4",
     name: "Olly Schroeder",
+    email: "cashier1@restaurant.com",
     role: "Cashier",
     pin: "3456",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
@@ -35,6 +39,7 @@ const initialEmployees: Employee[] = [
   {
     id: "5",
     name: "Emily Watson",
+    email: "server2@restaurant.com",
     role: "Server",
     pin: "7890",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
@@ -42,6 +47,7 @@ const initialEmployees: Employee[] = [
   {
     id: "6",
     name: "David Khan",
+    email: "manager2@restaurant.com",
     role: "Manager",
     pin: "2345",
     avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
@@ -49,6 +55,7 @@ const initialEmployees: Employee[] = [
   {
     id: "7",
     name: "Ayaan Rahman",
+    email: "kitchen2@restaurant.com",
     role: "Kitchen",
     pin: "6789",
     avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=200&q=80",
@@ -56,37 +63,10 @@ const initialEmployees: Employee[] = [
   {
     id: "8",
     name: "Sophia Lee",
+    email: "cashier2@restaurant.com",
     role: "Cashier",
     pin: "0123",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "9",
-    name: "Michael Brown",
-    role: "Server",
-    pin: "4567",
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "10",
-    name: "Isabella Ahmed",
-    role: "Manager",
-    pin: "8901",
-    avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "11",
-    name: "Daniel Roy",
-    role: "Kitchen",
-    pin: "2345",
-    avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "12",
-    name: "Emma Johnson",
-    role: "Cashier",
-    pin: "6789",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
   },
 ];
 
@@ -208,13 +188,16 @@ const Employees = () => {
                   </span>
                 </div>
 
-                {/* Card Info: Name & PIN */}
-                <div className="space-y-0.5 mb-5">
+                {/* Card Info: Name, Email & PIN */}
+                <div className="space-y-1 mb-5">
                   <h3 className="text-base font-bold text-white tracking-tight">
                     {emp.name}
                   </h3>
-                  <p className="text-xs font-medium text-slate-400">
-                    PIN: **** (Hidden)
+                  <p className="text-xs text-slate-400 truncate">
+                    {emp.email}
+                  </p>
+                  <p className="text-[11px] font-medium text-emerald-400 font-mono">
+                    PIN: **** (Active)
                   </p>
                 </div>
               </div>
@@ -225,7 +208,7 @@ const Employees = () => {
                   type="button"
                   onClick={() => handleDeleteEmployee(emp.id, emp.name)}
                   title="Delete Employee"
-                  className="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -279,6 +262,21 @@ const Employees = () => {
 
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Login Email Address
+                </label>
+                <input
+                  type="email"
+                  value={editingEmployee.email}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, email: e.target.value })
+                  }
+                  required
+                  className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
                   System Role
                 </label>
                 <select
@@ -313,7 +311,7 @@ const Employees = () => {
                     })
                   }
                   required
-                  className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 font-mono tracking-widest"
                 />
               </div>
 

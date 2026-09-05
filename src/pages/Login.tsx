@@ -1,27 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import {
-  ShieldCheck,
-  UserCheck,
-  CreditCard,
-  ChefHat,
-  ConciergeBell,
-} from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import loginphoto from "@/assets/sas/photo/bacground.jpeg";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
 import { setUser } from "@/redux/features/auth/authSlice";
-import { Role } from "@/redux/features/auth/auth.type";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [pin, setPin] = useState("");
+  const [email, setEmail] = useState("admin@restaurant.com");
+  const [pin, setPin] = useState("1234");
   const [showPin, setShowPin] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const isLoading = false;
   const { user } = useAppSelector((state) => state.auth);
 
   // Redirect if already logged in
@@ -34,230 +25,192 @@ const Login: React.FC = () => {
   const redirectBasedOnRole = (role: string) => {
     const roleRoutes: Record<string, string> = {
       ADMIN: "/admin-dashboard",
+      SUPERVISOR: "/supervisor-dashboard",
       MANAGER: "/manager-dashboard",
       SERVER: "/serve-dashboard",
       KITCHEN: "/kitchen-dashboard",
       CASHIER: "/cashier-dashboard",
     };
-    navigate(roleRoutes[role.toUpperCase()] || "/login");
-  };
-
-  const handleStaticRoleLogin = (role: Role, route: string, name: string) => {
-    dispatch(
-      setUser({
-        user: {
-          id: `static-${role.toLowerCase()}-id`,
-          email: `${role.toLowerCase()}@restaurant.com`,
-          name: name,
-          role: role,
-          tenantId: "static-tenant-id",
-        },
-        token: `static-${role.toLowerCase()}-token`,
-      }),
-    );
-    navigate(route);
+    navigate(roleRoutes[role.toUpperCase()] || "/admin-dashboard");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
-    if (!email || !pin) {
-      setError("Please enter both email and password");
-      return;
-    }
+    // Default static login directly into corresponding role dashboard based on email
+    const normalizedEmail = email.toLowerCase();
+    let assignedRole: "ADMIN" | "SUPERVISOR" | "MANAGER" | "CASHIER" | "KITCHEN" | "SERVER" =
+      "ADMIN";
 
-    // Statically set user as ADMIN and redirect to admin dashboard
+    if (normalizedEmail.includes("supervisor") || normalizedEmail.includes("owner"))
+      assignedRole = "SUPERVISOR";
+    else if (normalizedEmail.includes("manager")) assignedRole = "MANAGER";
+    else if (normalizedEmail.includes("cashier")) assignedRole = "CASHIER";
+    else if (normalizedEmail.includes("kitchen") || normalizedEmail.includes("chef"))
+      assignedRole = "KITCHEN";
+    else if (normalizedEmail.includes("server") || normalizedEmail.includes("waiter"))
+      assignedRole = "SERVER";
+
+    const userName = email.includes("@")
+      ? email.split("@")[0].toUpperCase()
+      : "Demo User";
+
     dispatch(
       setUser({
         user: {
-          id: "static-admin-id",
-          email: email,
-          name: email.split("@")[0], // Extract name from email
-          role: "ADMIN",
+          id: `static-${assignedRole.toLowerCase()}-id`,
+          email: email || "admin@restaurant.com",
+          name: userName,
+          role: assignedRole,
+          tenantId: "static-tenant-id",
         },
-        token: "static-admin-token",
+        token: `static-${assignedRole.toLowerCase()}-token`,
       }),
     );
 
-    redirectBasedOnRole("ADMIN");
+    redirectBasedOnRole(assignedRole);
   };
 
-  const staticRoles = [
-    {
-      label: "Admin",
-      role: "ADMIN" as Role,
-      route: "/admin-dashboard",
-      name: "Admin User",
-      icon: ShieldCheck,
-      color: "text-amber-400 hover:border-amber-500/50 hover:bg-amber-500/10",
-    },
-    {
-      label: "Manager",
-      role: "MANAGER" as Role,
-      route: "/manager-dashboard",
-      name: "Manager User",
-      icon: UserCheck,
-      color: "text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/10",
-    },
-    {
-      label: "Cashier",
-      role: "CASHIER" as Role,
-      route: "/cashier-dashboard",
-      name: "Cashier User",
-      icon: CreditCard,
-      color:
-        "text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/10",
-    },
-    {
-      label: "Kitchen",
-      role: "KITCHEN" as Role,
-      route: "/kitchen-dashboard",
-      name: "Kitchen Chef",
-      icon: ChefHat,
-      color: "text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/10",
-    },
-    {
-      label: "Serve",
-      role: "SERVER" as Role,
-      route: "/serve-dashboard",
-      name: "Server Staff",
-      icon: ConciergeBell,
-      color:
-        "text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10",
-    },
-  ];
-
   return (
-    <div className="min-h-screen flex items-center justify-center text-white bg-[#111827] p-4">
-      <div className="max-w-5xl w-full flex flex-col md:flex-row overflow-hidden rounded-xl shadow-2xl bg-[#131b2e] border border-gray-800">
-        {/* Left Side Image */}
-        <div className="hidden md:flex w-1/2 items-center justify-center relative">
+    <div className="min-h-screen flex items-center justify-center text-white bg-[#0b0f19] p-4 sm:p-6">
+      <div className="max-w-4xl w-full flex flex-col md:flex-row overflow-hidden rounded-2xl shadow-2xl bg-[#131b2e]/95 border border-[#1F2E4D] backdrop-blur-md">
+        {/* Left Side Image & Showcase */}
+        <div className="hidden md:flex w-1/2 flex-col justify-between relative p-8 overflow-hidden">
           <img
             src={loginphoto}
-            alt="login visual"
-            className="h-full w-full object-cover"
+            alt="restaurant login visual"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111827] via-transparent to-transparent opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-[#131b2e]/85 to-[#131b2e]/70" />
+
+          {/* Top Branding */}
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F54900]/20 border border-[#F54900]/30 text-[#F54900] text-xs font-semibold mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Smart Restaurant Platform</span>
+            </div>
+            <h1 className="text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight">
+              Restaurant POS & Management
+            </h1>
+            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+              Unified login with Email and 4-digit PIN for Admin, Managers, Cashiers, Kitchen, and Servers.
+            </p>
+          </div>
+
+          {/* Bottom Highlight */}
+          <div className="relative z-10 pt-8">
+            <div className="flex items-center gap-2.5 text-xs text-slate-300 bg-black/40 backdrop-blur-sm px-3.5 py-2.5 rounded-xl border border-white/10">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Email & 4-Digit PIN Access</span>
+            </div>
+          </div>
         </div>
 
-        {/* Right Side Form & Role Buttons */}
+        {/* Right Side: Login Form */}
         <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
-          <h2 className="text-center text-3xl font-bold mb-5">
-            <span className="text-[#F54900]">LOG</span> IN
-          </h2>
-
-          {/* Quick Static Role Buttons */}
-          <div className="mb-6 bg-[#1F2937]/70 p-3.5 rounded-xl border border-gray-700/60">
-            <p className="text-xs font-semibold text-gray-400 text-center uppercase tracking-wider mb-2.5">
-              ⚡ Quick Role Demo Access
+          <div className="mb-6">
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              Welcome <span className="text-[#F54900]">Back</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Sign in with your Email Address and 4-Digit PIN.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {staticRoles.map((item) => {
-                const IconComponent = item.icon;
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() =>
-                      handleStaticRoleLogin(item.role, item.route, item.name)
-                    }
-                    className={`flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-medium bg-[#111827] border border-gray-700 text-gray-200 transition-all active:scale-95 ${item.color}`}
-                  >
-                    <IconComponent className="w-4 h-4 shrink-0" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
-          <div className="flex items-center my-2 text-gray-500 text-xs">
-            <div className="flex-1 border-t border-gray-700"></div>
-            <span className="px-3">or login with credentials</span>
-            <div className="flex-1 border-t border-gray-700"></div>
-          </div>
-
-          {error && (
-            <div className="my-3 p-3 bg-red-500/10 border border-red-500/50 text-red-400 text-sm rounded-lg text-center">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            {/* Email */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email Field */}
             <div>
-              <label className="text-xs text-gray-300 mb-1.5 block">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="w-full px-4 py-2.5 rounded-xl bg-[#1F2937] text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#F54900] border border-gray-700/50"
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="text-xs text-gray-300 mb-1.5 block">
-                Password
+              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                Email Address
               </label>
               <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="w-4 h-4" />
+                </div>
                 <input
-                  name="password"
-                  type={showPin ? "text" : "password"}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-2.5 pr-12 rounded-xl bg-[#1F2937] text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#F54900] border border-gray-700/50"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@restaurant.com"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition"
                   required
-                  disabled={isLoading}
                 />
-                {pin && (
-                  <button
-                    type="button"
-                    onClick={() => setShowPin((prev) => !prev)}
-                    className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
-                  >
-                    {showPin ? (
-                      <AiOutlineEyeInvisible size={20} />
-                    ) : (
-                      <AiOutlineEye size={20} />
-                    )}
-                  </button>
-                )}
               </div>
             </div>
 
-            {/* Submit */}
+            {/* 4-Digit PIN Field */}
+            <div>
+              <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                4-Digit PIN
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPin ? "text" : "password"}
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Enter 4-digit PIN (e.g. 1234)"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition font-mono tracking-widest"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPin(!showPin)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white cursor-pointer"
+                >
+                  {showPin ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-xs pt-1">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-300 select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded bg-[#1b253d] border-[#26375c] text-[#F54900] focus:ring-0 cursor-pointer accent-[#F54900]"
+                />
+                <span>Remember me</span>
+              </label>
+              <button
+                type="button"
+                className="text-[#F54900] hover:text-orange-400 transition cursor-pointer"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 flex items-center justify-center gap-2 rounded-xl bg-[#F54900] hover:bg-orange-600 transition font-semibold text-sm disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-orange-500/20 cursor-pointer"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-[#F54900] hover:bg-orange-600 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all duration-200 cursor-pointer hover:shadow-orange-500/40 active:scale-[0.99]"
             >
-              {isLoading ? "Logging in..." : "Login"}
+              <span>Sign In</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Footer Links */}
-          <div className="mt-4 text-center space-y-1.5">
-            <p className="text-xs text-[#F54900] cursor-pointer hover:underline">
-              Forgot Password?
-            </p>
-            <p className="text-xs text-gray-400">
-              Don’t have an account?
+          {/* Footer */}
+          <div className="mt-6 pt-4 border-t border-[#1F2E4D] flex items-center justify-between text-xs text-slate-400">
+            <span>
+              Don’t have an account?{" "}
               <Link
                 to="/signup"
-                className="text-[#F54900] hover:text-orange-400 ml-1 font-medium"
+                className="text-[#F54900] hover:text-orange-400 font-semibold transition ml-0.5"
               >
-                Register
+                Sign Up
               </Link>
-            </p>
+            </span>
+            <span className="text-slate-500">v1.0.0</span>
           </div>
         </div>
       </div>

@@ -49,7 +49,6 @@ const KitchenNavbar: React.FC<KitchenNavbarProps> = ({
     authUser?.name ||
     (authUser?.email ? authUser.email.split("@")[0] : "Head Chef");
 
-  const displayRole = authUser?.role ? `${authUser.role} Kitchen` : "Kitchen Chef";
   const displayEmail = authUser?.email || "kitchen@restaurant.com";
 
   const handleLogout = () => {

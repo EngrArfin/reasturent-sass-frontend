@@ -11,10 +11,15 @@ interface RoleOption {
 
 const roleOptions: RoleOption[] = [
   {
+    id: "supervisor",
+    name: "supervisor",
+    label: "Supervisor / Owner (Required)",
+    required: true,
+  },
+  {
     id: "manager",
     name: "manager",
-    label: "Manager (Required)",
-    required: true,
+    label: "Manager (Requires Supervisor Approval)",
   },
   {
     id: "server",
@@ -34,6 +39,7 @@ const roleOptions: RoleOption[] = [
 ];
 
 const availableRoles = [
+  "Supervisor (Restaurant Owner)",
   "Manager",
   "Server",
   "Cashier",
@@ -44,11 +50,14 @@ const availableRoles = [
 
 const BusinessCreate: React.FC = () => {
   const [businessName, setBusinessName] = useState<string>("");
+  const [supervisorEmail, setSupervisorEmail] = useState<string>("");
+  const [supervisorPin, setSupervisorPin] = useState<string>("");
   const [roleType, setRoleType] = useState<string>("");
   const [subscriptionFee, setSubscriptionFee] = useState<string>("");
 
-  // Selected roles state (Manager is always true/required)
+  // Selected roles state (Supervisor is always true/required)
   const [selectedRoles, setSelectedRoles] = useState<{ [key: string]: boolean }>({
+    supervisor: true,
     manager: true,
     server: true,
     cashier: true,
@@ -69,7 +78,7 @@ const BusinessCreate: React.FC = () => {
   // Active roles labels
   const activeRolesLabels = roleOptions
     .filter((role) => selectedRoles[role.id])
-    .map((role) => (role.required ? "Manager" : role.label));
+    .map((role) => (role.required ? "Supervisor" : role.label));
 
   const totalEnabledCount = activeRolesLabels.length;
 
@@ -81,11 +90,23 @@ const BusinessCreate: React.FC = () => {
       return;
     }
 
+    if (!supervisorEmail.trim()) {
+      toast.error("Please enter supervisor (owner) email address");
+      return;
+    }
+
+    if (!supervisorPin.trim() || supervisorPin.length < 4) {
+      toast.error("Please enter a valid 4-digit supervisor PIN");
+      return;
+    }
+
     toast.success(
-      `Tenant "${businessName.trim()}" registered with ${totalEnabledCount} roles enabled!`
+      `Tenant "${businessName.trim()}" registered! Supervisor: ${supervisorEmail} (PIN: ${supervisorPin}) with ${totalEnabledCount} roles.`
     );
 
     setBusinessName("");
+    setSupervisorEmail("");
+    setSupervisorPin("");
     setRoleType("");
     setSubscriptionFee("");
   };
@@ -93,13 +114,16 @@ const BusinessCreate: React.FC = () => {
   return (
     <div className="w-full bg-[#131b2e] rounded-2xl border border-[#1F2E4D] shadow-sm p-5 sm:p-8 lg:p-10 text-white min-h-[calc(100vh-140px)]">
       {/* Header */}
-      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight mb-8">
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight mb-2">
         Create New Business
       </h1>
+      <p className="text-xs sm:text-sm text-slate-400 mb-8">
+        Register a new restaurant tenant with its primary Supervisor (Restaurant Owner). The Supervisor will control all staff & manager login approvals.
+      </p>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Top 3 Input Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+        {/* Business & Supervisor Credentials Inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {/* Business Name */}
           <div className="flex flex-col gap-2">
             <label className="text-xs sm:text-sm font-medium text-slate-300">
@@ -112,6 +136,42 @@ const BusinessCreate: React.FC = () => {
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
                 className="w-full px-5 py-3 rounded-full bg-[#0b1220] border border-[#1F2E4D] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#052350] focus:ring-1 focus:ring-[#052350] transition-all shadow-inner"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Supervisor Email */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs sm:text-sm font-medium text-slate-300">
+              Supervisor (Owner) Email
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                placeholder="supervisor@restaurant.com"
+                value={supervisorEmail}
+                onChange={(e) => setSupervisorEmail(e.target.value)}
+                className="w-full px-5 py-3 rounded-full bg-[#0b1220] border border-[#1F2E4D] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#052350] focus:ring-1 focus:ring-[#052350] transition-all shadow-inner"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Supervisor 4-Digit PIN */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs sm:text-sm font-medium text-slate-300">
+              Supervisor 4-Digit PIN
+            </label>
+            <div className="relative">
+              <input
+                type="password"
+                maxLength={4}
+                placeholder="e.g. 1234"
+                value={supervisorPin}
+                onChange={(e) => setSupervisorPin(e.target.value.replace(/\D/g, ""))}
+                className="w-full px-5 py-3 rounded-full bg-[#0b1220] border border-[#1F2E4D] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#052350] focus:ring-1 focus:ring-[#052350] transition-all shadow-inner tracking-widest font-mono"
+                required
               />
             </div>
           </div>
@@ -119,7 +179,7 @@ const BusinessCreate: React.FC = () => {
           {/* Role Type Dropdown */}
           <div className="flex flex-col gap-2 relative">
             <label className="text-xs sm:text-sm font-medium text-slate-300">
-              Role Type
+              Role Type / Plan
             </label>
             <div className="relative">
               <button
@@ -131,8 +191,9 @@ const BusinessCreate: React.FC = () => {
                   {roleType || "Select role"}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -168,7 +229,7 @@ const BusinessCreate: React.FC = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="$ Scan or enter code"
+                placeholder="$49.99 / month"
                 value={subscriptionFee}
                 onChange={(e) => setSubscriptionFee(e.target.value)}
                 className="w-full px-5 py-3 rounded-full bg-[#0b1220] border border-[#1F2E4D] text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#052350] focus:ring-1 focus:ring-[#052350] transition-all shadow-inner"

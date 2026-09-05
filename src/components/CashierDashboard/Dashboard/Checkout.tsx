@@ -5,7 +5,6 @@ import {
   Banknote,
   Smartphone,
   ChevronDown,
-  Check,
   Copy,
   Receipt,
   Printer,

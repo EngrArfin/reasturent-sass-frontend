@@ -2,7 +2,6 @@ import React from "react";
 import logo from "@/assets/icons/logoSAS.png";
 import {
     Flame,
-    LayoutGrid,
     LogOut,
     type LucideIcon,
 } from "lucide-react";
