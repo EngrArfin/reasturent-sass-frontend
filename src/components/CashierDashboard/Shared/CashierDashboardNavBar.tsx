@@ -9,8 +9,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
+import userPhoto from "@/assets/Photo/Group (3).png";
 
 export interface CashierNavbarProps {
   onMobileMenuToggle: () => void;
@@ -22,9 +23,18 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
   onMobileMenuToggle,
   terminalName = "POS Terminal 1",
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const authUser = useAppSelector((state) => state.auth.user);
 
+  const displayName =
+    authUser?.name ||
+    (authUser?.email ? authUser.email.split("@")[0] : "Cashier Staff");
+
+  const displayRole = authUser?.role
+    ? `${authUser.role} Cashier`
+    : "Cashier POS";
+  const displayEmail = authUser?.email || "cashier@restaurant.com";
 
   const handleLogout = () => {
     dispatch(logOut());
@@ -82,17 +92,14 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 text-white hover:bg-[#1b253d] px-2.5 py-1.5 rounded-full border border-[#26375c] cursor-pointer"
+                size="icon"
+                className="w-9 h-9 rounded-full border border-[#26375c] hover:border-orange-500/50 p-0 cursor-pointer overflow-hidden flex items-center justify-center transition-colors"
               >
-                <div className="w-7 h-7 rounded-full bg-orange-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
-                  arfin.gmail.com
-                </div>
-                <div className="hidden md:flex flex-col text-left leading-tight">
-                  <span className="text-xs font-semibold text-white">
-                    Arfin
-                  </span>
-                  <span className="text-[10px] text-slate-400">Cashier POS</span>
-                </div>
+                <img
+                  src={userPhoto}
+                  alt="User"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </Button>
             </DropdownMenuTrigger>
 
@@ -101,9 +108,16 @@ const CashierDashboardNavBar: React.FC<CashierNavbarProps> = ({
               className="bg-[#131b2e] text-white w-60 shadow-2xl rounded-2xl border border-[#3A5CFF]/30 backdrop-blur-md p-1.5 animate-fadeIn"
             >
               <div className="px-3 py-2 border-b border-[#1F2E4D]">
-                <p className="text-xs font-semibold text-white">Arfin</p>
-                <p className="text-[11px] text-slate-400 truncate">
-                  {"cashier@restaurant.com"}
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-white">
+                    {displayName}
+                  </p>
+                  <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-1.5 py-0.5 rounded font-medium">
+                    {displayRole}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                  {displayEmail}
                 </p>
               </div>
 
