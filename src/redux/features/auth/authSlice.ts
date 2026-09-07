@@ -60,19 +60,32 @@ const authSlice = createSlice({
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled,
       (state, { payload }: PayloadAction<LoginResponse>) => {
-        state.token = payload.accessToken;
+        const token = payload.access_token || payload.accessToken || "";
+        const userData = payload.user;
+        state.token = token;
         state.user = {
-          id: payload.user.sub,
-          email: payload.user.email,
-          name: payload.user.email.split("@")[0],
-          role: payload.user.role.toUpperCase(),
-          tenantId: payload.user.tenantId,
+          id: userData.id || userData.sub || "",
+          email: userData.email,
+          name: userData.name || userData.email.split("@")[0] || "User",
+          role: (userData.role || "").toUpperCase(),
+          businessId: userData.businessId,
+          tenantId: userData.businessId || userData.tenantId,
+          status: userData.status,
+          avatar: userData.avatar,
+          isActive: userData.isActive,
+          isApproved: userData.isApproved,
+          hasPin: userData.hasPin,
+          createdAt: userData.createdAt,
+          updatedAt: userData.updatedAt,
+          business: userData.business,
         };
-        Cookies.set("token", payload.accessToken, {
-          expires: 1,
-          secure: true,
-          sameSite: "strict",
-        });
+        if (token) {
+          Cookies.set("token", token, {
+            expires: 1,
+            secure: true,
+            sameSite: "strict",
+          });
+        }
         localStorage.setItem("user", JSON.stringify(state.user));
         state.isLoading = false;
       },

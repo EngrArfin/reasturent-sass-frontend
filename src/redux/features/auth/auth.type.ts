@@ -1,5 +1,7 @@
 // src/redux/features/auth/auth.type.ts
 export type Role =
+  | "super_admin"
+  | "SUPER_ADMIN"
   | "ADMIN"
   | "SUPERVISOR"
   | "MANAGER"
@@ -12,10 +14,17 @@ export type User = {
   id: string;
   email: string;
   name?: string;
-  role: Role;
-  tenantId?: string;
+  role: string;
+  businessId?: string | null;
+  tenantId?: string | null;
   status?: string;
+  avatar?: string | null;
+  isActive?: boolean;
+  isApproved?: boolean;
+  hasPin?: boolean;
   createdAt?: string;
+  updatedAt?: string;
+  business?: any;
 };
 
 export type AdminUser = {
@@ -29,16 +38,28 @@ export type AdminUser = {
 // Updated to match Swagger: uses pin instead of password
 export type LoginRequest = {
   email: string;
-  pin: string; // Changed from password to pin
+  pin: string;
 };
 
-// Updated to match Swagger response structure
+// Matches Swagger response structure: { access_token, user: { id, name, email, role, businessId, ... } }
 export type LoginResponse = {
-  accessToken: string;
+  access_token: string;
+  accessToken?: string; // compatibility fallback
   user: {
-    sub: string;
+    id: string;
+    name?: string;
     email: string;
     role: string;
+    businessId?: string | null;
+    avatar?: string | null;
+    isActive?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    business?: any;
+    status?: string;
+    isApproved?: boolean;
+    hasPin?: boolean;
+    sub?: string;
     tenantId?: string;
   };
 };
@@ -77,3 +98,4 @@ export type PinLoginResponse = {
     role: string;
   };
 };
+

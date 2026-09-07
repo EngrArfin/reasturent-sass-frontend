@@ -1,74 +1,86 @@
 import React, { useState, useEffect } from "react";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import loginphoto from "@/assets/sas/photo/bacground.jpeg";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks/redux-hook";
-import { setUser } from "@/redux/features/auth/authSlice";
+import { useAppSelector } from "@/redux/hooks/redux-hook";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
+
+export const getRoleRedirectPath = (role?: string): string => {
+  if (!role) return "/admin-dashboard";
+  const normalizedRole = role.toUpperCase().replace("-", "_").trim();
+
+  switch (normalizedRole) {
+    case "SUPER_ADMIN":
+    case "SUPERADMIN":
+    case "ADMIN":
+      return "/admin-dashboard";
+    case "SUPERVISOR":
+    case "OWNER":
+      return "/supervisor-dashboard";
+    case "MANAGER":
+      return "/manager-dashboard";
+    case "SERVER":
+    case "WAITER":
+      return "/serve-dashboard";
+    case "KITCHEN":
+    case "CHEF":
+      return "/kitchen-dashboard";
+    case "CASHIER":
+      return "/cashier-dashboard";
+    default:
+      return "/admin-dashboard";
+  }
+};
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("admin@restaurant.com");
+  const [email, setEmail] = useState("");
   const [pin, setPin] = useState("1234");
   const [showPin, setShowPin] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const [login, { isLoading }] = useLoginMutation();
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
-      redirectBasedOnRole(user.role);
+    if (user?.role) {
+      const targetPath = getRoleRedirectPath(user.role);
+      navigate(targetPath, { replace: true });
     }
   }, [user, navigate]);
 
-  const redirectBasedOnRole = (role: string) => {
-    const roleRoutes: Record<string, string> = {
-      ADMIN: "/admin-dashboard",
-      SUPERVISOR: "/supervisor-dashboard",
-      MANAGER: "/manager-dashboard",
-      SERVER: "/serve-dashboard",
-      KITCHEN: "/kitchen-dashboard",
-      CASHIER: "/cashier-dashboard",
-    };
-    navigate(roleRoutes[role.toUpperCase()] || "/admin-dashboard");
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Default static login directly into corresponding role dashboard based on email
-    const normalizedEmail = email.toLowerCase();
-    let assignedRole: "ADMIN" | "SUPERVISOR" | "MANAGER" | "CASHIER" | "KITCHEN" | "SERVER" =
-      "ADMIN";
+    if (!email.trim() || !pin.trim()) {
+      toast.error("Please provide both email and 4-digit PIN");
+      return;
+    }
 
-    if (normalizedEmail.includes("supervisor") || normalizedEmail.includes("owner"))
-      assignedRole = "SUPERVISOR";
-    else if (normalizedEmail.includes("manager")) assignedRole = "MANAGER";
-    else if (normalizedEmail.includes("cashier")) assignedRole = "CASHIER";
-    else if (normalizedEmail.includes("kitchen") || normalizedEmail.includes("chef"))
-      assignedRole = "KITCHEN";
-    else if (normalizedEmail.includes("server") || normalizedEmail.includes("waiter"))
-      assignedRole = "SERVER";
+    try {
+      const response = await login({
+        email: email.trim(),
+        pin: pin.trim(),
+      }).unwrap();
 
-    const userName = email.includes("@")
-      ? email.split("@")[0].toUpperCase()
-      : "Demo User";
+      const userRole = response?.user?.role;
+      const userName = response?.user?.name || "User";
 
-    dispatch(
-      setUser({
-        user: {
-          id: `static-${assignedRole.toLowerCase()}-id`,
-          email: email || "admin@restaurant.com",
-          name: userName,
-          role: assignedRole,
-          tenantId: "static-tenant-id",
-        },
-        token: `static-${assignedRole.toLowerCase()}-token`,
-      }),
-    );
+      toast.success(`Welcome back, ${userName}!`);
 
-    redirectBasedOnRole(assignedRole);
+      const targetPath = getRoleRedirectPath(userRole);
+      navigate(targetPath, { replace: true });
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      const errorMessage =
+        err?.data?.message ||
+        err?.data?.error ||
+        err?.error ||
+        "Invalid email or PIN. Please try again.";
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -132,7 +144,8 @@ const Login: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@restaurant.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition"
+                  disabled={isLoading}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition disabled:opacity-50"
                   required
                 />
               </div>
@@ -153,7 +166,8 @@ const Login: React.FC = () => {
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
                   placeholder="Enter 4-digit PIN (e.g. 1234)"
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition font-mono tracking-widest"
+                  disabled={isLoading}
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition font-mono tracking-widest disabled:opacity-50"
                   required
                 />
                 <button
@@ -192,10 +206,20 @@ const Login: React.FC = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-[#F54900] hover:bg-orange-600 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all duration-200 cursor-pointer hover:shadow-orange-500/40 active:scale-[0.99]"
+              disabled={isLoading}
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-[#F54900] hover:bg-orange-600 disabled:opacity-70 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all duration-200 cursor-pointer hover:shadow-orange-500/40 active:scale-[0.99]"
             >
-              <span>Sign In</span>
-              <ArrowRight className="w-4 h-4" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
@@ -219,3 +243,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+

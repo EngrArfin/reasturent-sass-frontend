@@ -10,9 +10,11 @@ type AdminRouteProps = {
 
 const AdminRoute = ({ children }: AdminRouteProps) => {
   const user = useSelector((state: AppRootState) => state.auth.user);
-  console.log("Admin Data:", user);
 
-  if (!user || user.role !== "admin") {
+  const role = user?.role?.toUpperCase().replace("-", "_").trim();
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN" || role === "SUPERADMIN";
+
+  if (!user || !isAdmin) {
     return <Navigate to="/login" replace />;
   }
 
@@ -20,3 +22,4 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 };
 
 export default AdminRoute;
+

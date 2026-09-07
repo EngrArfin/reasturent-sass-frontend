@@ -44,7 +44,6 @@ const availableRoles = [
   "Server",
   "Cashier",
   "Kitchen Staff",
-  "Restaurant Admin",
   "Super Admin",
 ];
 
@@ -191,15 +190,14 @@ const BusinessCreate: React.FC = () => {
                   {roleType || "Select role"}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
               {/* Dropdown Options */}
               {isDropdownOpen && (
-                <div className="absolute z-30 left-0 right-0 mt-2 bg-[#131b2e] rounded-2xl border border-[#1F2E4D] shadow-xl py-2 max-h-60 overflow-y-auto">
+                <div className="absolute z-30 left-0 right-0 mt-2 bg-[#131b2e] rounded-2xl border border-[#1F2E4D] shadow-xl py-4 max-h-100 overflow-y-auto">
                   {availableRoles.map((role) => (
                     <button
                       key={role}
