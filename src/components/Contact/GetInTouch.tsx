@@ -12,8 +12,8 @@ import {
   Send,
   CheckCircle2,
   Sparkles,
-  ArrowRight,
   MapPin,
+  Clock,
 } from "lucide-react";
 import CommonWrapper from "@/common/CommonWrapper";
 
@@ -53,7 +53,7 @@ const GetInTouch = () => {
     setIsSubmitting(true);
     setSubmittedName(data.name);
     // Simulate API request delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1200));
     setIsSubmitting(false);
     setIsSuccess(true);
     reset();
@@ -62,61 +62,70 @@ const GetInTouch = () => {
   const contactDetails = [
     {
       icon: MapPin,
-      title: "Visit us in person at:",
-      desc: "Dhaka, Bangladesh",
+      title: "Our Headquarters",
+      desc: "Mirpur-10, Dhaka-1260, Bangladesh",
     },
     {
       icon: Phone,
-      title: "Call us at:",
-      desc: "(319) 555-0115",
+      title: "Direct Phone Support",
+      desc: "(+880) 1923-434574",
     },
     {
       icon: Mail,
-      title: "Email us at:",
-      desc: "felicia.reid@example.com",
+      title: "Email Inquiries",
+      desc: "support@restosync.io",
+    },
+    {
+      icon: Clock,
+      title: "Working Hours",
+      desc: "24/7 Priority Support & Live Chat",
     },
   ];
 
   return (
-    <div className="bg-radial from-[#fdfbf7] to-[#ffffff] border-b border-gray-100">
-      <CommonWrapper className="!py-16 md:!py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16 items-start">
+    <div className="relative overflow-hidden bg-gradient-to-b from-[#07090D] via-[#0B0F17] to-[#07090D] text-white py-16 md:py-24 border-b border-white/10">
+      {/* Background ambient lighting */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-orange-500/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-500/10 blur-[130px] rounded-full pointer-events-none" />
 
+      <CommonWrapper className="relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16 items-start">
           {/* Left Column: Title and details */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-orange-100 text-primary-orange">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-orange-500/10 border border-orange-500/25 text-orange-400">
                 <Sparkles className="size-3.5" />
-                Get In Touch
+                Let's Connect
               </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-heading-blue leading-tight tracking-tight">
-                Contact Us For Your Needs
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+                Get in Touch with Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Specialists</span>
               </h2>
-              <p className="text-base text-paragraph-gray leading-relaxed">
-                Have questions about our POS, inventory management, or subscription plans?
+              <p className="text-base text-slate-400 leading-relaxed">
+                Have questions about our restaurant POS, kitchen display system, multi-outlet management, or tailored subscription plans? We're here to assist you 24/7.
               </p>
             </div>
 
             {/* Contact details cards */}
-            <div className="space-y-5 pt-4">
+            <div className="space-y-4 pt-2">
               {contactDetails.map((detail, idx) => {
                 const IconComponent = detail.icon;
                 return (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.1, duration: 0.4 }}
-                    className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-white/70 backdrop-blur-xs shadow-xs hover:shadow-md hover:border-primary-orange/20 transition-all duration-300 group"
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.08, duration: 0.4 }}
+                    className="flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-md hover:border-orange-500/30 hover:bg-white/[0.06] transition-all duration-300 group shadow-md shadow-black/20"
                   >
-                    <div className="flex-shrink-0 flex items-center justify-center size-12 rounded-lg bg-orange-50 text-primary-orange group-hover:bg-primary-orange group-hover:text-white transition-all duration-300">
-                      <IconComponent className="size-6" />
+                    <div className="shrink-0 flex items-center justify-center size-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 group-hover:bg-orange-500/20 group-hover:scale-105 transition-all duration-300">
+                      <IconComponent className="size-5" />
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="font-semibold text-paragraph-gray text-xs md:text-sm uppercase tracking-wider">
+                    <div className="space-y-0.5">
+                      <h4 className="font-semibold text-slate-400 text-xs uppercase tracking-wider">
                         {detail.title}
                       </h4>
-                      <p className="text-base md:text-lg font-bold text-gray-800">
+                      <p className="text-sm md:text-base font-bold text-white">
                         {detail.desc}
                       </p>
                     </div>
@@ -124,15 +133,14 @@ const GetInTouch = () => {
                 );
               })}
             </div>
-
           </div>
 
           {/* Right Column: Interactive form card */}
           <div className="lg:col-span-7">
-            <div className="relative bg-white rounded-2xl border border-gray-100 shadow-xl p-6 sm:p-8 md:p-10 overflow-hidden">
+            <div className="relative bg-white/[0.03] backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-6 sm:p-8 md:p-10 overflow-hidden">
               {/* Soft decorative background glow */}
-              <div className="absolute top-0 right-0 -mt-12 -mr-12 size-40 bg-orange-100/30 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 -mb-12 -ml-12 size-40 bg-blue-50/40 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 -mt-12 -mr-12 size-40 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 -mb-12 -ml-12 size-40 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
 
               <AnimatePresence mode="wait">
                 {!isSuccess ? (
@@ -145,54 +153,52 @@ const GetInTouch = () => {
                     className="space-y-6 relative z-10"
                   >
                     <div>
-                      <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-1">
+                      <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
                         Send Us a Message
                       </h3>
-                      <p className="text-sm text-paragraph-gray">
-                        Fields marked with * are required.
+                      <p className="text-sm text-slate-400">
+                        Fill in your details and our team will get back to you within 2 hours.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {/* Name input */}
                       <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                          <User className="size-4 text-paragraph-gray" /> Full Name *
+                        <label className="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                          <User className="size-4 text-orange-400" /> Full Name *
                         </label>
-                        <div className="relative">
-                          <input
-                            {...register("name")}
-                            type="text"
-                            placeholder="John Doe"
-                            className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 ${errors.name
-                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
-                              }`}
-                          />
-                        </div>
+                        <input
+                          {...register("name")}
+                          type="text"
+                          placeholder="Chef Gordon"
+                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${
+                            errors.name
+                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                          }`}
+                        />
                         {errors.name && (
-                          <p className="text-xs text-red-500 font-medium mt-0.5">{errors.name.message}</p>
+                          <p className="text-xs text-red-400 font-medium mt-0.5">{errors.name.message}</p>
                         )}
                       </div>
 
                       {/* Email input */}
                       <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                          <Mail className="size-4 text-paragraph-gray" /> Email Address *
+                        <label className="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                          <Mail className="size-4 text-orange-400" /> Email Address *
                         </label>
-                        <div className="relative">
-                          <input
-                            {...register("email")}
-                            type="email"
-                            placeholder="john@example.com"
-                            className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 ${errors.email
-                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
-                              }`}
-                          />
-                        </div>
+                        <input
+                          {...register("email")}
+                          type="email"
+                          placeholder="gordon@restaurant.com"
+                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${
+                            errors.email
+                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                          }`}
+                        />
                         {errors.email && (
-                          <p className="text-xs text-red-500 font-medium mt-0.5">{errors.email.message}</p>
+                          <p className="text-xs text-red-400 font-medium mt-0.5">{errors.email.message}</p>
                         )}
                       </div>
                     </div>
@@ -200,76 +206,67 @@ const GetInTouch = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {/* Phone input */}
                       <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                          <Phone className="size-4 text-paragraph-gray" /> Phone Number *
+                        <label className="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                          <Phone className="size-4 text-orange-400" /> Phone Number *
                         </label>
-                        <div className="relative">
-                          <input
-                            {...register("phone")}
-                            type="tel"
-                            placeholder="+1 (555) 000-0000"
-                            className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 ${errors.phone
-                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
-                              }`}
-                          />
-                        </div>
+                        <input
+                          {...register("phone")}
+                          type="tel"
+                          placeholder="+880 1900-000000"
+                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${
+                            errors.phone
+                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                          }`}
+                        />
                         {errors.phone && (
-                          <p className="text-xs text-red-500 font-medium mt-0.5">{errors.phone.message}</p>
+                          <p className="text-xs text-red-400 font-medium mt-0.5">{errors.phone.message}</p>
                         )}
                       </div>
 
                       {/* Subject inquiry selection */}
                       <div className="space-y-1.5">
-                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                          <Tag className="size-4 text-paragraph-gray" /> Inquiry Subject *
+                        <label className="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                          <Tag className="size-4 text-orange-400" /> Inquiry Subject *
                         </label>
-                        <div className="relative">
-                          <select
-                            {...register("subject")}
-                            className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 appearance-none cursor-pointer ${errors.subject
-                              ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                              : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
-                              }`}
-                          >
-                            <option value="">Select a topic</option>
-                            <option value="General Inquiry">General Inquiry</option>
-                            <option value="Product Demo">Request a Live Demo</option>
-                            <option value="Sales / Pricing">Sales & Subscription Pricing</option>
-                            <option value="Technical Support">Technical Support</option>
-                            <option value="Partnership">Partnership Opportunities</option>
-                          </select>
-                          {/* Custom Dropdown Arrow */}
-                          <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
-                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                            </svg>
-                          </div>
-                        </div>
+                        <select
+                          {...register("subject")}
+                          className={`w-full px-4 py-3 rounded-xl border bg-[#0B0F17] text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 cursor-pointer ${
+                            errors.subject
+                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                          }`}
+                        >
+                          <option value="" className="bg-[#0B0F17] text-slate-400">Select a topic</option>
+                          <option value="General Inquiry" className="bg-[#0B0F17] text-white">General Inquiry</option>
+                          <option value="Product Demo" className="bg-[#0B0F17] text-white">Request a Live Demo</option>
+                          <option value="Sales / Pricing" className="bg-[#0B0F17] text-white">Sales & Subscription Pricing</option>
+                          <option value="Technical Support" className="bg-[#0B0F17] text-white">Technical Support</option>
+                          <option value="Partnership" className="bg-[#0B0F17] text-white">Partnership Opportunities</option>
+                        </select>
                         {errors.subject && (
-                          <p className="text-xs text-red-500 font-medium mt-0.5">{errors.subject.message}</p>
+                          <p className="text-xs text-red-400 font-medium mt-0.5">{errors.subject.message}</p>
                         )}
                       </div>
                     </div>
 
-                    {/* Message body input */}
+                    {/* Message textarea */}
                     <div className="space-y-1.5">
-                      <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                        <MessageSquare className="size-4 text-paragraph-gray" /> Your Message *
+                      <label className="text-sm font-medium text-slate-300 flex items-center gap-1.5">
+                        <MessageSquare className="size-4 text-orange-400" /> Your Message *
                       </label>
-                      <div className="relative">
-                        <textarea
-                          {...register("message")}
-                          rows={4}
-                          placeholder="Tell us about your restaurant setup and how we can help you..."
-                          className={`w-full px-4 py-2.5 rounded-lg border bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none transition-all duration-300 resize-none ${errors.message
-                            ? "border-red-400 focus:ring-2 focus:ring-red-100"
-                            : "border-gray-200 focus:border-primary-orange focus:ring-2 focus:ring-orange-100"
-                            }`}
-                        />
-                      </div>
+                      <textarea
+                        {...register("message")}
+                        rows={4}
+                        placeholder="Tell us about your restaurant branches, current POS setup, or any specific requirements..."
+                        className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 resize-none ${
+                          errors.message
+                            ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                            : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                        }`}
+                      />
                       {errors.message && (
-                        <p className="text-xs text-red-500 font-medium mt-0.5">{errors.message.message}</p>
+                        <p className="text-xs text-red-400 font-medium mt-0.5">{errors.message.message}</p>
                       )}
                     </div>
 
@@ -277,58 +274,53 @@ const GetInTouch = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-primary-orange hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed group"
+                      className="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-gradient-to-r from-orange-500 to-[#F54900] shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.01] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? (
                         <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Processing Request...
+                          <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Sending Message...</span>
                         </>
                       ) : (
                         <>
-                          Send Message
-                          <Send className="size-4 group-hover:translate-x-1 transition-transform duration-300" />
+                          <span>Submit Inquiry</span>
+                          <Send className="size-4" />
                         </>
                       )}
                     </button>
                   </motion.form>
                 ) : (
-                  // Success State Card Design
                   <motion.div
-                    key="success-card"
+                    key="success-state"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="text-center py-10 px-4 space-y-6 relative z-10 flex flex-col items-center"
+                    className="p-8 text-center space-y-6 relative z-10 my-8"
                   >
-                    <div className="flex items-center justify-center size-20 rounded-full bg-green-50 text-green-500 shadow-inner">
-                      <CheckCircle2 className="size-12 animate-bounce" />
+                    <div className="mx-auto size-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                      <CheckCircle2 className="size-8" />
                     </div>
-                    <div className="space-y-2 max-w-md">
-                      <h3 className="text-2xl font-extrabold text-gray-800">
-                        Thank You, {submittedName}!
+
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold text-white">
+                        Thank you, {submittedName}!
                       </h3>
-                      <p className="text-sm md:text-base text-paragraph-gray">
-                        Your message has been received successfully. One of our restaurant solutions consultants will contact you shortly.
+                      <p className="text-slate-400 text-sm max-w-md mx-auto">
+                        Your message has been received successfully. One of our restaurant solutions experts will contact you shortly.
                       </p>
                     </div>
 
                     <button
                       onClick={() => setIsSuccess(false)}
-                      className="mt-4 px-6 py-2.5 border border-gray-200 hover:border-primary-orange text-gray-700 hover:text-primary-orange rounded-lg text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all duration-300 group"
+                      className="px-6 py-2.5 rounded-xl border border-white/15 bg-white/[0.05] text-sm font-semibold text-white hover:bg-white/[0.1] transition-all cursor-pointer"
                     >
                       Send Another Message
-                      <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform duration-300" />
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </div>
-
         </div>
       </CommonWrapper>
     </div>

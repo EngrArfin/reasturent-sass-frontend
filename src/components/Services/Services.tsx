@@ -13,6 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import CommonWrapper from "@/common/CommonWrapper";
+import { Link } from "react-router-dom";
 
 // Type definitions
 type Category = "All" | "Operations" | "Ordering" | "Management";
@@ -27,7 +28,7 @@ interface ServiceItem {
   badge?: string;
 }
 
-// 1. Static Configuration (Placed outside component for cleaner code)
+// 1. Static Configuration
 const CATEGORIES: Category[] = ["All", "Operations", "Ordering", "Management"];
 
 const SERVICES_DATA: ServiceItem[] = [
@@ -125,22 +126,22 @@ const Services = () => {
   );
 
   return (
-    <div className="bg-[#fdfbf7] relative overflow-hidden">
+    <div className="relative overflow-hidden bg-gradient-to-b from-[#07090D] via-[#0B0F17] to-[#07090D] py-20 md:py-28 text-white">
       {/* Ambient Background Glows */}
-      <div className="absolute top-20 right-10 w-96 h-96 bg-orange-200/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-blue-100/35 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-20 right-10 w-96 h-96 bg-orange-500/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-blue-500/10 blur-[130px] rounded-full pointer-events-none" />
 
-      <CommonWrapper>
+      <CommonWrapper className="relative z-10">
         {/* Section Title Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-orange-100 text-primary-orange">
+        <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-orange-500/10 border border-orange-500/25 text-orange-400">
             <Sparkles className="size-3.5" />
-            Our Services
+            Our Modules & Services
           </span>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-heading-blue leading-tight tracking-tight">
-            Tailored Modules to Scale Your Restaurant
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
+            Tailored Modules to Scale Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Restaurant</span>
           </h2>
-          <p className="text-base md:text-lg text-paragraph-gray leading-relaxed">
+          <p className="text-base md:text-lg text-slate-400 leading-relaxed">
             Everything you need to automate billing, streamline kitchen
             operations, and drive customer retention. Choose the tools that fit
             your business model.
@@ -148,15 +149,15 @@ const Services = () => {
         </div>
 
         {/* Filter Navigation Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-14">
           {CATEGORIES.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer ${
+              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer border ${
                 activeCategory === category
-                  ? "bg-primary-orange text-white shadow-md shadow-orange-500/20 scale-105"
-                  : "bg-white text-paragraph-gray hover:bg-orange-50/50 hover:text-primary-orange border border-gray-100"
+                  ? "bg-gradient-to-r from-orange-500 to-[#F54900] text-white border-orange-500/50 shadow-lg shadow-orange-500/25 scale-105"
+                  : "bg-white/[0.04] text-slate-300 border-white/10 hover:border-orange-500/30 hover:bg-white/[0.08]"
               }`}
             >
               {category}
@@ -180,7 +181,7 @@ const Services = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="group relative bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                  className="group relative bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 hover:border-orange-500/40 hover:bg-white/[0.06] transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg shadow-black/20 hover:shadow-[0_12px_35px_rgba(239,104,32,0.12)]"
                 >
                   {/* Color border accent */}
                   <div
@@ -191,12 +192,12 @@ const Services = () => {
                     {/* Card Header (Icon & Badge) */}
                     <div className="flex justify-between items-start">
                       <div
-                        className={`flex items-center justify-center size-12 rounded-xl bg-gradient-to-br ${service.color} text-white shadow-md group-hover:scale-110 transition-transform duration-300`}
+                        className={`flex items-center justify-center size-12 rounded-xl bg-gradient-to-br ${service.color} text-white shadow-md shadow-orange-500/15 group-hover:scale-110 transition-transform duration-300`}
                       >
                         <IconComponent className="size-6" />
                       </div>
                       {service.badge && (
-                        <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-orange-50 text-primary-orange border border-orange-100">
+                        <span className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/25">
                           {service.badge}
                         </span>
                       )}
@@ -204,23 +205,23 @@ const Services = () => {
 
                     {/* Details */}
                     <div className="space-y-3">
-                      <h3 className="text-xl font-bold text-gray-800 group-hover:text-primary-orange transition-colors duration-300">
+                      <h3 className="text-xl font-bold text-white group-hover:text-orange-400 transition-colors duration-300">
                         {service.title}
                       </h3>
-                      <p className="text-sm text-paragraph-gray leading-relaxed">
+                      <p className="text-sm text-slate-400 leading-relaxed">
                         {service.description}
                       </p>
                     </div>
 
                     {/* Features List */}
-                    <ul className="space-y-2 pt-2 border-t border-gray-50">
+                    <ul className="space-y-2.5 pt-3 border-t border-white/5">
                       {service.features.map((feature, idx) => (
                         <li
                           key={idx}
-                          className="flex items-center gap-2 text-xs text-paragraph-gray"
+                          className="flex items-center gap-2.5 text-xs text-slate-300"
                         >
-                          <div className="size-4 flex items-center justify-center rounded-full bg-green-50 text-green-600 flex-shrink-0">
-                            <Check className="size-3" />
+                          <div className="size-4 flex items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex-shrink-0">
+                            <Check className="size-2.5" />
                           </div>
                           <span>{feature}</span>
                         </li>
@@ -229,14 +230,17 @@ const Services = () => {
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between group-hover:bg-orange-50/20 transition-all duration-300">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <div className="p-5 bg-white/[0.02] border-t border-white/10 flex items-center justify-between group-hover:bg-white/[0.04] transition-all duration-300">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                       {service.category}
                     </span>
-                    <button className="flex items-center gap-1.5 text-xs font-bold text-primary-orange hover:text-orange-600 transition-colors cursor-pointer">
-                      Learn More
+                    <Link
+                      to="/contact"
+                      className="flex items-center gap-1.5 text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors cursor-pointer"
+                    >
+                      Get Started
                       <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform duration-300" />
-                    </button>
+                    </Link>
                   </div>
                 </motion.div>
               );
@@ -250,26 +254,29 @@ const Services = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mt-20 bg-gradient-to-r from-orange-500 to-amber-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-xl"
+          className="mt-20 bg-gradient-to-r from-orange-500/90 via-[#F54900] to-amber-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl border border-orange-400/30"
         >
-          <div className="absolute -top-12 -right-12 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-black/20 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-4">
-              <h3 className="text-2xl md:text-4xl font-extrabold tracking-tight">
+              <h3 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white">
                 Want to Custom-Build Your Modules?
               </h3>
-              <p className="text-sm md:text-base text-white/90 max-w-2xl">
+              <p className="text-sm md:text-base text-white/90 max-w-2xl leading-relaxed">
                 Our modular architecture allows you to choose exactly what your
                 restaurant needs. Start small with a simple POS and scale up to
                 multi-outlet inventory whenever you are ready.
               </p>
             </div>
             <div className="lg:col-span-4 lg:text-right">
-              <button className="bg-white hover:bg-orange-50 text-primary-orange hover:text-orange-600 font-bold px-8 py-3.5 rounded-xl shadow-lg transition duration-300 hover:scale-105 cursor-pointer">
+              <Link
+                to="/contact"
+                className="inline-block bg-slate-950 hover:bg-slate-900 text-white border border-white/15 font-bold px-8 py-3.5 rounded-xl shadow-xl transition duration-300 hover:scale-105 cursor-pointer"
+              >
                 Consult an Expert
-              </button>
+              </Link>
             </div>
           </div>
         </motion.div>
