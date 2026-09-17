@@ -14,217 +14,103 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-
-export interface Role {
-  id: string;
-  name: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
-export interface BusinessUser {
-  id: string;
-  name: string;
-  email: string;
-  pin: string;
-  role: {
-    name: string;
-  };
-  status: "ACTIVE" | "INACTIVE";
-  createdAt: string;
-}
+import { IBusinessUser } from "@/redux/features/admin/business/businessType";
+import { useChangeUserStatusMutation, useChangeUserRoleMutation } from "@/redux/features/auth/userApi";
+import { Loader2 } from "lucide-react";
 
 interface EditBusinessUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   businessId: string;
-  user: BusinessUser;
-  roles: Role[];
-  onSuccess: (data: { id: string; name: string; email: string; pin: string; role: string; status: "ACTIVE" | "INACTIVE" }) => void;
+  user: IBusinessUser;
+  allowedRoles?: string[];
+  onSuccess?: () => void;
 }
 
 export const EditBusinessUserModal = ({
   isOpen,
   onClose,
-  businessId,
   user,
-  roles,
+  allowedRoles = ["manager", "server", "cashier", "kitchen"],
   onSuccess,
 }: EditBusinessUserModalProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    pin: "",
-    role: "",
-    status: "ACTIVE" as "ACTIVE" | "INACTIVE",
-  });
+  const [changeUserStatus, { isLoading: isStatusLoading }] = useChangeUserStatusMutation();
+  const [changeUserRole, { isLoading: isRoleLoading }] = useChangeUserRoleMutation();
 
-  const [errors, setErrors] = useState({
-    name: "",
-    email: "",
-    pin: "",
-  });
+  const [role, setRole] = useState(user?.role || "server");
+  const [isActive, setIsActive] = useState<boolean>(user?.isActive ?? true);
 
   useEffect(() => {
     if (user) {
-      setFormData({
-        name: user.name,
-        email: user.email,
-        pin: user.pin,
-        role: user.role?.name || "",
-        status: user.status,
-      });
+      setRole(user.role || "");
+      setIsActive(user.isActive);
     }
   }, [user]);
 
-  const validateForm = () => {
-    const newErrors = {
-      name: "",
-      email: "",
-      pin: "",
-    };
-    let isValid = true;
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-      isValid = false;
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-      isValid = false;
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        newErrors.email = "Please enter a valid email address";
-        isValid = false;
+  const handleSubmit = async () => {
+    try {
+      if (user.role !== role) {
+        await changeUserRole({
+          id: user.id,
+          payload: { role },
+        }).unwrap();
       }
-    }
 
-    if (!formData.pin) {
-      newErrors.pin = "PIN is required";
-      isValid = false;
-    } else if (!/^\d{4}$/.test(formData.pin)) {
-      newErrors.pin = "PIN must be exactly 4 digits";
-      isValid = false;
-    }
+      if (user.isActive !== isActive) {
+        await changeUserStatus({
+          id: user.id,
+          payload: { status: isActive ? "ACTIVE" : "INACTIVE" },
+        }).unwrap();
+      }
 
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = () => {
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    // Simulate API call
-    console.log("Updating user for business:", businessId);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success(`User "${formData.name}" updated successfully`);
-      onSuccess({
-        id: user.id,
-        name: formData.name,
-        email: formData.email,
-        pin: formData.pin,
-        role: formData.role,
-        status: formData.status,
-      });
+      toast.success(`User "${user.name}" updated successfully!`);
+      if (onSuccess) {
+        onSuccess();
+      }
       onClose();
-    }, 600);
+    } catch (err: any) {
+      const errorMsg =
+        err?.data?.message || err?.error || "Failed to update user profile.";
+      toast.error(typeof errorMsg === "string" ? errorMsg : JSON.stringify(errorMsg));
+    }
   };
 
-  const availableRoles = roles.filter((role) => role.isActive);
+  const isSubmitting = isStatusLoading || isRoleLoading;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-[#131b2e] border border-[#1F2E4D] text-white rounded-2xl shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-white">Edit User</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-white">Edit User - {user?.name}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Name Field */}
+          {/* Email Info */}
           <div>
-            <label className="text-sm font-medium text-slate-300">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className={`w-full mt-1 border rounded-lg px-3 py-2 bg-[#1a243d] border-[#1F2E4D] text-white focus:outline-none focus:ring-2 focus:ring-[#052350] ${
-                errors.name ? "border-red-500" : ""
-              }`}
-            />
-            {errors.name && (
-              <p className="text-red-400 text-xs mt-1">{errors.name}</p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div>
-            <label className="text-sm font-medium text-slate-300">
-              Email Address *
-            </label>
+            <label className="text-sm font-medium text-slate-300">Email Address</label>
             <input
               type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              className={`w-full mt-1 border rounded-lg px-3 py-2 bg-[#1a243d] border-[#1F2E4D] text-white focus:outline-none focus:ring-2 focus:ring-[#052350] ${
-                errors.email ? "border-red-500" : ""
-              }`}
+              disabled
+              value={user?.email || ""}
+              className="w-full mt-1 border rounded-lg px-3 py-2 bg-[#1a243d]/60 border-[#1F2E4D] text-slate-400 cursor-not-allowed"
             />
-            {errors.email && (
-              <p className="text-red-400 text-xs mt-1">{errors.email}</p>
-            )}
-          </div>
-
-          {/* PIN Field */}
-          <div>
-            <label className="text-sm font-medium text-slate-300">
-              4-Digit PIN *
-            </label>
-            <input
-              type="password"
-              maxLength={4}
-              value={formData.pin}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                if (value.length <= 4) {
-                  setFormData({ ...formData, pin: value });
-                }
-              }}
-              className={`w-full mt-1 border rounded-lg px-3 py-2 bg-[#1a243d] border-[#1F2E4D] text-white focus:outline-none focus:ring-2 focus:ring-[#052350] ${
-                errors.pin ? "border-red-500" : ""
-              }`}
-            />
-            {errors.pin && (
-              <p className="text-red-400 text-xs mt-1">{errors.pin}</p>
-            )}
           </div>
 
           {/* Role Field */}
           <div>
             <label className="text-sm font-medium text-slate-300">Role</label>
-            <Select
-              value={formData.role}
-              onValueChange={(value) =>
-                setFormData({ ...formData, role: value })
-              }
-            >
-              <SelectTrigger className="w-full mt-1 bg-[#1a243d] border-[#1F2E4D] text-white">
+            <Select value={role} onValueChange={(value) => setRole(value)}>
+              <SelectTrigger className="w-full mt-1 bg-[#1a243d] border-[#1F2E4D] text-white cursor-pointer">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent className="bg-[#131b2e] border border-[#1F2E4D] text-white rounded-lg">
-                {availableRoles.map((role) => (
-                  <SelectItem key={role.id} value={role.name} className="hover:bg-[#1a243d] focus:bg-[#1a243d]">
-                    {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                {allowedRoles.map((roleName) => (
+                  <SelectItem
+                    key={roleName}
+                    value={roleName}
+                    className="hover:bg-[#1a243d] focus:bg-[#1a243d] capitalize cursor-pointer"
+                  >
+                    {roleName.replace(/_/g, " ")}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -235,17 +121,21 @@ export const EditBusinessUserModal = ({
           <div>
             <label className="text-sm font-medium text-slate-300">Status</label>
             <Select
-              value={formData.status}
+              value={isActive ? "ACTIVE" : "INACTIVE"}
               onValueChange={(value: "ACTIVE" | "INACTIVE") =>
-                setFormData({ ...formData, status: value })
+                setIsActive(value === "ACTIVE")
               }
             >
-              <SelectTrigger className="w-full mt-1 bg-[#1a243d] border-[#1F2E4D] text-white">
+              <SelectTrigger className="w-full mt-1 bg-[#1a243d] border-[#1F2E4D] text-white cursor-pointer">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#131b2e] border border-[#1F2E4D] text-white rounded-lg">
-                <SelectItem value="ACTIVE" className="hover:bg-[#1a243d] focus:bg-[#1a243d]">Active</SelectItem>
-                <SelectItem value="INACTIVE" className="hover:bg-[#1a243d] focus:bg-[#1a243d]">Inactive</SelectItem>
+                <SelectItem value="ACTIVE" className="hover:bg-[#1a243d] focus:bg-[#1a243d] cursor-pointer">
+                  Active
+                </SelectItem>
+                <SelectItem value="INACTIVE" className="hover:bg-[#1a243d] focus:bg-[#1a243d] cursor-pointer">
+                  Inactive
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -254,16 +144,24 @@ export const EditBusinessUserModal = ({
         <DialogFooter>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-slate-300 bg-[#1a243d] border border-[#1F2E4D] hover:bg-[#232f4c] hover:text-white rounded-lg transition"
+            disabled={isSubmitting}
+            className="px-4 py-2 text-slate-300 bg-[#1a243d] border border-[#1F2E4D] hover:bg-[#232f4c] hover:text-white rounded-lg transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 text-white bg-[#052350] border border-[#1F2E4D] hover:bg-[#061E49] rounded-lg transition disabled:opacity-50"
+            className="px-5 py-2 text-white bg-[#052350] border border-[#1F2E4D] hover:bg-[#061E49] rounded-lg transition disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md"
           >
-            {isSubmitting ? "Updating..." : "Update User"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <span>Save Changes</span>
+            )}
           </button>
         </DialogFooter>
       </DialogContent>

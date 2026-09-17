@@ -14,6 +14,7 @@ export const getRoleRedirectPath = (role?: string): string => {
     case "SUPER_ADMIN":
     case "SUPERADMIN":
     case "ADMIN":
+    case "BUSINESS_ADMIN":
       return "/admin-dashboard";
     case "SUPERVISOR":
     case "OWNER":

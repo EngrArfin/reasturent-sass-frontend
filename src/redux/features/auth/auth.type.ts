@@ -1,20 +1,30 @@
 // src/redux/features/auth/auth.type.ts
+
+export enum UserRole {
+  super_admin = "super_admin",
+  business_admin = "business_admin",
+  supervisor = "supervisor",
+  manager = "manager",
+  cashier = "cashier",
+  server = "server",
+  kitchen = "kitchen",
+}
+
 export type Role =
   | "super_admin"
-  | "SUPER_ADMIN"
-  | "ADMIN"
-  | "SUPERVISOR"
-  | "MANAGER"
-  | "SERVER"
-  | "KITCHEN"
-  | "CASHIER"
-  | string;
+  | "business_admin"
+  | "supervisor"
+  | "manager"
+  | "cashier"
+  | "server"
+  | "kitchen"
+  | UserRole;
 
 export type User = {
   id: string;
   email: string;
   name?: string;
-  role: string;
+  role: Role | string;
   businessId?: string | null;
   tenantId?: string | null;
   status?: string;
@@ -22,6 +32,9 @@ export type User = {
   isActive?: boolean;
   isApproved?: boolean;
   hasPin?: boolean;
+  pin?: string;
+  accessPin?: string;
+  department?: string;
   createdAt?: string;
   updatedAt?: string;
   business?: any;
@@ -35,38 +48,23 @@ export type AdminUser = {
   createdAt: string;
 };
 
-// Updated to match Swagger: uses pin instead of password
+// Swagger format: uses email & 4-digit PIN for authentication
 export type LoginRequest = {
   email: string;
   pin: string;
 };
 
-// Matches Swagger response structure: { access_token, user: { id, name, email, role, businessId, ... } }
+// Swagger response structure: { access_token, user: { id, name, email, role, businessId, ... } }
 export type LoginResponse = {
   access_token: string;
-  accessToken?: string; // compatibility fallback
-  user: {
-    id: string;
-    name?: string;
-    email: string;
-    role: string;
-    businessId?: string | null;
-    avatar?: string | null;
-    isActive?: boolean;
-    createdAt?: string;
-    updatedAt?: string;
-    business?: any;
-    status?: string;
-    isApproved?: boolean;
-    hasPin?: boolean;
-    sub?: string;
-    tenantId?: string;
-  };
+  accessToken?: string;
+  user: User;
 };
 
 export type SignupRequest = {
   email: string;
-  password: string;
+  password?: string;
+  pin?: string;
   name: string;
 };
 
@@ -95,7 +93,31 @@ export type PinLoginResponse = {
     sub: string;
     name: string;
     tenantId: string;
-    role: string;
+    role: Role | string;
   };
 };
 
+export type UserResponse = {
+  success?: boolean;
+  message?: string;
+  data: User;
+};
+
+export type UsersResponse = {
+  success?: boolean;
+  message?: string;
+  data: User[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+};
+
+export type ChangeRolePayload = {
+  role: Role | string;
+};
+
+export type ChangeStatusPayload = {
+  status: "ACTIVE" | "INACTIVE" | string;
+};

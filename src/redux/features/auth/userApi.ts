@@ -1,11 +1,11 @@
-// src/redux/features/user/userApi.ts
+// src/redux/features/auth/userApi.ts
 import { baseApi } from "@/redux/hooks/baseApi";
 import {
   UsersResponse,
   UserResponse,
   ChangeRolePayload,
   ChangeStatusPayload,
-} from "@/redux/types/user.type";
+} from "./auth.type";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

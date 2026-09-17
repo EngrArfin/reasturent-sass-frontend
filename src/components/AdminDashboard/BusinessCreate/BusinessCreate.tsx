@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { ChevronDown, Check } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { ChevronDown, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useCreateBusinessMutation } from "@/redux/features/admin/business/businessApi";
 
 interface RoleOption {
   id: string;
@@ -32,8 +34,8 @@ const roleOptions: RoleOption[] = [
     label: "Cashier",
   },
   {
-    id: "kitchen_staff",
-    name: "kitchen_staff",
+    id: "kitchen",
+    name: "kitchen",
     label: "Kitchen Staff",
   },
 ];
@@ -48,6 +50,9 @@ const availableRoles = [
 ];
 
 const BusinessCreate: React.FC = () => {
+  const navigate = useNavigate();
+  const [createBusiness, { isLoading }] = useCreateBusinessMutation();
+
   const [businessName, setBusinessName] = useState<string>("");
   const [supervisorEmail, setSupervisorEmail] = useState<string>("");
   const [supervisorPin, setSupervisorPin] = useState<string>("");
@@ -60,7 +65,7 @@ const BusinessCreate: React.FC = () => {
     manager: true,
     server: true,
     cashier: true,
-    kitchen_staff: true,
+    kitchen: true,
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -81,7 +86,7 @@ const BusinessCreate: React.FC = () => {
 
   const totalEnabledCount = activeRolesLabels.length;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!businessName.trim()) {
@@ -94,20 +99,50 @@ const BusinessCreate: React.FC = () => {
       return;
     }
 
-    if (!supervisorPin.trim() || supervisorPin.length < 4) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(supervisorEmail.trim())) {
+      toast.error("Please enter a valid supervisor email address");
+      return;
+    }
+
+    if (!supervisorPin.trim() || supervisorPin.length !== 4) {
       toast.error("Please enter a valid 4-digit supervisor PIN");
       return;
     }
 
-    toast.success(
-      `Tenant "${businessName.trim()}" registered! Supervisor: ${supervisorEmail} (PIN: ${supervisorPin}) with ${totalEnabledCount} roles.`
-    );
+    try {
+      const allowedRoles = Object.keys(selectedRoles).filter((key) => selectedRoles[key]);
 
-    setBusinessName("");
-    setSupervisorEmail("");
-    setSupervisorPin("");
-    setRoleType("");
-    setSubscriptionFee("");
+      const feeValue = subscriptionFee.replace(/[^0-9.]/g, "") || "99.99";
+
+      const payload = {
+        businessName: businessName.trim(),
+        subscriptionFee: feeValue,
+        supervisorEmail: supervisorEmail.trim(),
+        supervisorPin: supervisorPin.trim(),
+        allowedRoles,
+      };
+
+      const response = await createBusiness(payload).unwrap();
+
+      toast.success(
+        response.message || `Tenant "${businessName.trim()}" registered successfully!`
+      );
+
+      setBusinessName("");
+      setSupervisorEmail("");
+      setSupervisorPin("");
+      setRoleType("");
+      setSubscriptionFee("");
+
+      navigate("/admin-dashboard/all-business");
+    } catch (err: any) {
+      const errorMsg =
+        err?.data?.message ||
+        err?.error ||
+        "Failed to register business tenant. Please check your credentials.";
+      toast.error(typeof errorMsg === "string" ? errorMsg : JSON.stringify(errorMsg));
+    }
   };
 
   return (
@@ -190,8 +225,9 @@ const BusinessCreate: React.FC = () => {
                   {roleType || "Select role"}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -257,33 +293,36 @@ const BusinessCreate: React.FC = () => {
                 <div
                   key={role.id}
                   onClick={() => handleToggleRole(role.id, isRequired)}
-                  className={`w-full px-5 py-3 rounded-full border flex items-center gap-3 transition-all select-none ${isRequired
-                    ? "bg-[#0b1220]/60 border-[#1F2E4D]/60 cursor-default opacity-85"
-                    : isChecked
-                      ? "bg-[#0b1220] border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer shadow-sm ring-1 ring-blue-500/20"
-                      : "bg-[#0b1220]/70 border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer hover:border-slate-600"
-                    }`}
+                  className={`w-full px-5 py-3 rounded-full border flex items-center gap-3 transition-all select-none ${
+                    isRequired
+                      ? "bg-[#0b1220]/60 border-[#1F2E4D]/60 cursor-default opacity-85"
+                      : isChecked
+                        ? "bg-[#0b1220] border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer shadow-sm ring-1 ring-blue-500/20"
+                        : "bg-[#0b1220]/70 border-[#1F2E4D] hover:bg-[#0e172a] cursor-pointer hover:border-slate-600"
+                  }`}
                 >
                   {/* Custom Checkbox */}
                   <div
-                    className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${isRequired
-                      ? "bg-[#1a243d] text-slate-400"
-                      : isChecked
-                        ? "bg-[#052350] border border-blue-500/50 text-blue-400 shadow-sm"
-                        : "border-2 border-slate-600 bg-transparent"
-                      }`}
+                    className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
+                      isRequired
+                        ? "bg-[#1a243d] text-slate-400"
+                        : isChecked
+                          ? "bg-[#052350] border border-blue-500/50 text-blue-400 shadow-sm"
+                          : "border-2 border-slate-600 bg-transparent"
+                    }`}
                   >
                     {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                   </div>
 
                   {/* Role Label */}
                   <span
-                    className={`text-sm font-medium ${isRequired
-                      ? "text-slate-400"
-                      : isChecked
-                        ? "text-white"
-                        : "text-slate-300"
-                      }`}
+                    className={`text-sm font-medium ${
+                      isRequired
+                        ? "text-slate-400"
+                        : isChecked
+                          ? "text-white"
+                          : "text-slate-300"
+                    }`}
                   >
                     {role.label}
                   </span>
@@ -305,9 +344,17 @@ const BusinessCreate: React.FC = () => {
         <div className="flex justify-end pt-6">
           <button
             type="submit"
-            className="w-full sm:w-auto px-8 py-3.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center justify-center gap-2"
+            disabled={isLoading}
+            className="w-full sm:w-auto px-8 py-3.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create Tenant ({totalEnabledCount} roles enabled)
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Creating Tenant...</span>
+              </>
+            ) : (
+              <span>Create Tenant ({totalEnabledCount} roles enabled)</span>
+            )}
           </button>
         </div>
       </form>

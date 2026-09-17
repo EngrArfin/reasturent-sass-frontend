@@ -1,83 +1,102 @@
 import { useState, useEffect } from "react";
 import { FaTimes, FaSave, FaSpinner } from "react-icons/fa";
 import { toast } from "sonner";
-
-export interface Business {
-  id: string;
-  name: string;
-  industry: string;
-  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
-  subscriptionFee: number;
-  lastSync: string;
-  createdAt: string;
-}
-
-export interface Role {
-  id: string;
-  name: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import { IBusiness } from "@/redux/features/admin/business/businessType";
+import { useUpdateBusinessMutation } from "@/redux/features/admin/business/businessApi";
 
 interface RolesManagementModalProps {
-  business: Business;
-  roles: Role[];
+  business: IBusiness;
   onClose: () => void;
-  onSuccess?: (updatedRoles: { server: boolean; kitchen: boolean; cashier: boolean }) => void;
+  onSuccess?: (updatedRoles: string[]) => void;
 }
+
+const AVAILABLE_ROLES = [
+  {
+    id: "supervisor",
+    label: "Supervisor / Owner",
+    description: "Tenant owner with administrative privileges (Always enabled)",
+    required: true,
+  },
+  {
+    id: "manager",
+    label: "Manager",
+    description: "Day-to-day operations, staff & inventory management",
+  },
+  {
+    id: "server",
+    label: "Server",
+    description: "Order taking and table management",
+  },
+  {
+    id: "cashier",
+    label: "Cashier",
+    description: "Payment processing and billing",
+  },
+  {
+    id: "kitchen",
+    label: "Kitchen Staff",
+    description: "Order preparation and status updates",
+  },
+];
 
 const RolesManagementModal = ({
   business,
-  roles,
   onClose,
   onSuccess,
 }: RolesManagementModalProps) => {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [rolesState, setRolesState] = useState({
+  const [updateBusiness, { isLoading }] = useUpdateBusinessMutation();
+
+  const [rolesState, setRolesState] = useState<Record<string, boolean>>({
+    supervisor: true,
+    manager: true,
     server: false,
     kitchen: false,
     cashier: false,
   });
 
   useEffect(() => {
-    if (roles) {
-      // Initialize checkboxes based on existing roles
-      const initialRoles = {
-        server: roles.some((role) => role.name === "server" && role.isActive),
-        kitchen: roles.some((role) => role.name === "kitchen" && role.isActive),
-        cashier: roles.some((role) => role.name === "cashier" && role.isActive),
+    if (business?.allowedRoles) {
+      const state: Record<string, boolean> = {
+        supervisor: true,
       };
-      setRolesState(initialRoles);
+      AVAILABLE_ROLES.forEach((r) => {
+        state[r.id] = business.allowedRoles.includes(r.id);
+      });
+      // Ensure supervisor is true
+      state.supervisor = true;
+      setRolesState(state);
     }
-  }, [roles]);
+  }, [business]);
 
-  const handleRoleChange = (roleName: keyof typeof rolesState) => {
+  const handleRoleChange = (roleId: string, required?: boolean) => {
+    if (required) return;
     setRolesState((prev) => ({
       ...prev,
-      [roleName]: !prev[roleName],
+      [roleId]: !prev[roleId],
     }));
   };
 
-  const handleSubmit = () => {
-    setIsUpdating(true);
-    setTimeout(() => {
-      setIsUpdating(false);
-      toast.success("Roles updated successfully");
-      onSuccess?.(rolesState);
-      onClose();
-    }, 600);
-  };
+  const handleSubmit = async () => {
+    try {
+      const allowedRoles = Object.keys(rolesState).filter((key) => rolesState[key]);
 
-  const getRoleDetails = (roleName: string) => {
-    const role = roles.find((r) => r.name === roleName);
-    if (role) {
-      return {
-        id: role.id,
-        isActive: role.isActive,
-        createdAt: new Date(role.createdAt).toLocaleDateString(),
-      };
+      await updateBusiness({
+        id: business.id,
+        payload: {
+          allowedRoles,
+        },
+      }).unwrap();
+
+      toast.success("Allowed roles updated successfully");
+      if (onSuccess) {
+        onSuccess(allowedRoles);
+      }
+      onClose();
+    } catch (err: any) {
+      const errorMsg =
+        err?.data?.message || err?.error || "Failed to update business roles.";
+      toast.error(typeof errorMsg === "string" ? errorMsg : JSON.stringify(errorMsg));
     }
-    return null;
   };
 
   return (
@@ -87,9 +106,11 @@ const RolesManagementModal = ({
         <div className="flex items-center justify-between p-6 border-b border-[#1F2E4D]">
           <div>
             <h2 className="text-xl font-semibold text-white">
-              Manage Roles
+              Manage Allowed Roles
             </h2>
-            <p className="text-sm text-slate-400 mt-1">{business.name}</p>
+            <p className="text-sm text-slate-400 mt-1">
+              {business.businessName || business.name}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -104,98 +125,50 @@ const RolesManagementModal = ({
           <div className="space-y-4">
             <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-4">
               <p className="text-sm text-blue-300">
-                Enable or disable roles for this business. Changes will take
-                effect immediately.
+                Enable or disable roles for this business. Changes take effect immediately across all tenant logins.
               </p>
             </div>
 
-            {/* Server Role */}
-            <div className="flex items-center justify-between p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
-              <div className="flex-1">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rolesState.server}
-                    onChange={() => handleRoleChange("server")}
-                    className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350]"
-                  />
-                  <div>
-                    <span className="font-medium text-white">Server</span>
-                    <p className="text-sm text-slate-400">
-                      Order taking and table management
-                    </p>
+            {AVAILABLE_ROLES.map((role) => {
+              const isChecked = !!rolesState[role.id];
+              return (
+                <div
+                  key={role.id}
+                  className={`flex items-center justify-between p-3.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl transition ${
+                    role.required ? "opacity-80" : "hover:border-slate-500"
+                  }`}
+                >
+                  <div className="flex-1">
+                    <label
+                      className={`flex items-center gap-3 ${
+                        role.required ? "cursor-default" : "cursor-pointer"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        disabled={role.required}
+                        checked={isChecked}
+                        onChange={() => handleRoleChange(role.id, role.required)}
+                        className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350] cursor-pointer"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-white">{role.label}</span>
+                          {role.required && (
+                            <span className="text-[10px] uppercase font-semibold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">
+                              Required
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          {role.description}
+                        </p>
+                      </div>
+                    </label>
                   </div>
-                </label>
-              </div>
-              {getRoleDetails("server") && (
-                <span className="text-xs text-slate-400">
-                  ID: {getRoleDetails("server")?.id.slice(0, 8)}...
-                </span>
-              )}
-            </div>
-
-            {/* Kitchen Role */}
-            <div className="flex items-center justify-between p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
-              <div className="flex-1">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rolesState.kitchen}
-                    onChange={() => handleRoleChange("kitchen")}
-                    className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350]"
-                  />
-                  <div>
-                    <span className="font-medium text-white">Kitchen</span>
-                    <p className="text-sm text-slate-400">
-                      Order preparation and status updates
-                    </p>
-                  </div>
-                </label>
-              </div>
-              {getRoleDetails("kitchen") && (
-                <span className="text-xs text-slate-400">
-                  ID: {getRoleDetails("kitchen")?.id.slice(0, 8)}...
-                </span>
-              )}
-            </div>
-
-            {/* Cashier Role */}
-            <div className="flex items-center justify-between p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
-              <div className="flex-1">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rolesState.cashier}
-                    onChange={() => handleRoleChange("cashier")}
-                    className="w-5 h-5 rounded border-[#1F2E4D] bg-[#131b2e] text-[#052350] focus:ring-[#052350]"
-                  />
-                  <div>
-                    <span className="font-medium text-white">Cashier</span>
-                    <p className="text-sm text-slate-400">
-                      Payment processing and billing
-                    </p>
-                  </div>
-                </label>
-              </div>
-              {getRoleDetails("cashier") && (
-                <span className="text-xs text-slate-400">
-                  ID: {getRoleDetails("cashier")?.id.slice(0, 8)}...
-                </span>
-              )}
-            </div>
-
-            {/* Manager Role Info */}
-            <div className="mt-4 p-3 bg-[#1a243d] border border-[#1F2E4D] rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-emerald-500"></div>
-                <div>
-                  <span className="font-medium text-white">Manager</span>
-                  <p className="text-sm text-slate-400">
-                    This role is always enabled for all businesses
-                  </p>
                 </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
 
@@ -203,24 +176,25 @@ const RolesManagementModal = ({
         <div className="flex items-center justify-end gap-3 p-6 border-t border-[#1F2E4D]">
           <button
             onClick={onClose}
+            disabled={isLoading}
             className="px-4 py-2 text-sm font-medium text-slate-300 bg-[#1a243d] border border-[#1F2E4D] rounded-lg hover:bg-[#232f4c] hover:text-white transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isUpdating}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] border border-[#1F2E4D] rounded-lg hover:bg-[#061E49] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            disabled={isLoading}
+            className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-[#052350] border border-[#1F2E4D] rounded-lg hover:bg-[#061E49] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
           >
-            {isUpdating ? (
+            {isLoading ? (
               <>
                 <FaSpinner className="w-4 h-4 animate-spin" />
-                Saving...
+                <span>Saving...</span>
               </>
             ) : (
               <>
                 <FaSave className="w-4 h-4" />
-                Save Changes
+                <span>Save Changes</span>
               </>
             )}
           </button>

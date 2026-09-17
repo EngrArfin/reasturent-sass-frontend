@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import { authApi } from "./authApi";
-import { LoginResponse, SignupResponse, User } from "./auth.type";
+import { LoginResponse, SignupResponse, User, UserRole } from "./auth.type";
 
 type AuthState = {
   user: User | null;
@@ -56,7 +56,7 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle Login - Updated for Swagger response
+    // Handle Login
     builder.addMatcher(
       authApi.endpoints.login.matchFulfilled,
       (state, { payload }: PayloadAction<LoginResponse>) => {
@@ -64,18 +64,18 @@ const authSlice = createSlice({
         const userData = payload.user;
         state.token = token;
         state.user = {
-          id: userData.id || userData.sub || "",
-          email: userData.email,
-          name: userData.name || userData.email.split("@")[0] || "User",
-          role: (userData.role || "").toUpperCase(),
-          businessId: userData.businessId,
-          tenantId: userData.businessId || userData.tenantId,
-          status: userData.status,
-          avatar: userData.avatar,
-          isActive: userData.isActive,
-          isApproved: userData.isApproved,
-          hasPin: userData.hasPin,
-          createdAt: userData.createdAt,
+          id: userData.id || (userData as any).sub || "",
+          email: userData.email || "",
+          name: userData.name || userData.email?.split("@")[0] || "User",
+          role: userData.role || UserRole.super_admin,
+          businessId: userData.businessId || null,
+          tenantId: userData.businessId || (userData as any).tenantId || null,
+          status: userData.status || "ACTIVE",
+          avatar: userData.avatar || null,
+          isActive: userData.isActive ?? true,
+          isApproved: userData.isApproved ?? true,
+          hasPin: userData.hasPin ?? false,
+          createdAt: userData.createdAt || new Date().toISOString(),
           updatedAt: userData.updatedAt,
           business: userData.business,
         };
@@ -100,7 +100,7 @@ const authSlice = createSlice({
           id: payload.admin.id,
           email: payload.admin.email,
           name: payload.admin.name,
-          role: "ADMIN",
+          role: UserRole.super_admin,
           status: payload.admin.status,
           createdAt: payload.admin.createdAt,
         };
@@ -133,7 +133,7 @@ const authSlice = createSlice({
       },
     );
 
-    /* login by pin */
+    // Pin login matcher
     builder.addMatcher(
       authApi.endpoints.pinLogin.matchFulfilled,
       (state, { payload }) => {
@@ -141,9 +141,9 @@ const authSlice = createSlice({
 
         state.user = {
           id: payload.user.sub,
-          email: "", // no email in response
+          email: "",
           name: payload.user.name,
-          role: payload.user.role.toUpperCase(),
+          role: payload.user.role || UserRole.server,
           tenantId: payload.user.tenantId,
         };
 

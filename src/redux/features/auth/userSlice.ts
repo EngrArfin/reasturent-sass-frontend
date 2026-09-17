@@ -1,5 +1,5 @@
-// src/redux/features/user/userSlice.ts
-import { User } from "@/redux/types/user.type";
+// src/redux/features/auth/userSlice.ts
+import { User } from "./auth.type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
@@ -15,6 +15,31 @@ const initialState: UserState = {
   users: [],
   filteredUsers: [],
 };
+
+// Helper function to apply filters
+function applyFilters(state: UserState) {
+  let filtered = state.users;
+
+  // Apply search filter
+  if (state.searchTerm) {
+    const term = state.searchTerm.toLowerCase();
+    filtered = filtered.filter(
+      (user) =>
+        (user.name || "").toLowerCase().includes(term) ||
+        (user.email || "").toLowerCase().includes(term)
+    );
+  }
+
+  // Apply role filter
+  if (state.roleFilter) {
+    const filter = state.roleFilter.toLowerCase();
+    filtered = filtered.filter(
+      (user) => String(user.role || "").toLowerCase() === filter
+    );
+  }
+
+  state.filteredUsers = filtered;
+}
 
 const userSlice = createSlice({
   name: "user",
@@ -34,27 +59,6 @@ const userSlice = createSlice({
     },
   },
 });
-
-// Helper function to apply filters
-function applyFilters(state: UserState) {
-  let filtered = state.users;
-
-  // Apply search filter
-  if (state.searchTerm) {
-    filtered = filtered.filter(
-      (user) =>
-        user.name.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(state.searchTerm.toLowerCase())
-    );
-  }
-
-  // Apply role filter
-  if (state.roleFilter) {
-    filtered = filtered.filter((user) => user.role === state.roleFilter);
-  }
-
-  state.filteredUsers = filtered;
-}
 
 export const { setSearchTerm, setRoleFilter, setUsers } = userSlice.actions;
 export default userSlice.reducer;

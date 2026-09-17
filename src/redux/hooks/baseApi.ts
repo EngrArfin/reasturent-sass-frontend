@@ -14,7 +14,8 @@ const rawBaseQuery = fetchBaseQuery({
   prepareHeaders: (headers) => {
     const token = Cookies.get("token");
     if (token) {
-      headers.set("Authorization", `${token}`);
+      const authHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+      headers.set("Authorization", authHeader);
     }
     headers.set("Content-Type", "application/json");
     return headers;
@@ -30,8 +31,13 @@ const baseQueryWithErrorHandler: typeof rawBaseQuery = async (
     const result = await rawBaseQuery(args, api, extraOptions);
 
     if (result.error?.status === 401) {
-      Cookies.remove("token");
-      if (typeof window !== "undefined") {
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.includes("/login") &&
+        !window.location.pathname.includes("/signup")
+      ) {
+        Cookies.remove("token");
+        localStorage.removeItem("user");
         window.location.href = "/login";
       }
     }
@@ -53,19 +59,8 @@ export const baseApi = createApi({
   baseQuery: baseQueryWithErrorHandler,
   tagTypes: [
     "User",
+    "Business",
     "SupportTickets",
-    "Customers",
-    "Parcel",
-    "Address",
-    "LIST",
-    "MerchantCustomers",
-    "RestrictedUser",
-    "MerchantParcels",
-    "Notifications",
-    "MerchantParcel",
-    "Calculate",
-    "Tracking",
-    "Contact",
   ],
   endpoints: () => ({}),
 });

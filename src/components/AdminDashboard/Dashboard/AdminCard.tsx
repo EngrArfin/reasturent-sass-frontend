@@ -1,15 +1,9 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { TrendingUp, UserCheck, Eye, AlertTriangle } from "lucide-react";
+import { useGetBusinessesQuery } from "@/redux/features/admin/business/businessApi";
+import { useGetSupportTicketsQuery } from "@/redux/features/admin/ticketApi";
 
 export type CardColor = "green" | "blue" | "purple" | "red";
-
-interface CardData {
-  title: string;
-  value: string | number;
-  subtext: string;
-  icon: ReactNode;
-  color: CardColor;
-}
 
 const colorStyles: Record<
   CardColor,
@@ -45,38 +39,51 @@ const colorStyles: Record<
   },
 };
 
-const cardData: CardData[] = [
-  {
-    title: "Total Tenants",
-    value: "3",
-    subtext: "100%",
-    icon: <TrendingUp className="w-5 h-5" />,
-    color: "green",
-  },
-  {
-    title: "Active Tickets",
-    value: "1",
-    subtext: "0 closed",
-    icon: <UserCheck className="w-5 h-5" />,
-    color: "blue",
-  },
-  {
-    title: "Monthly Revenue",
-    value: "$199.98",
-    subtext: "100%",
-    icon: <Eye className="w-5 h-5" />,
-    color: "purple",
-  },
-  {
-    title: "System Insight",
-    value: "0",
-    subtext: "0 prev",
-    icon: <AlertTriangle className="w-5 h-5" />,
-    color: "red",
-  },
-];
-
 const AdminCard: React.FC = () => {
+  const { data: businesses = [] } = useGetBusinessesQuery();
+  const { data: tickets = [] } = useGetSupportTicketsQuery();
+
+  const totalTenants = businesses.length;
+  const activeTickets = Array.isArray(tickets) ? tickets.filter((t: any) => t.status !== "CLOSED" && t.status !== "RESOLVED").length : 0;
+
+  // Calculate monthly revenue from active businesses
+  const totalRevenue = businesses.reduce((acc, b) => {
+    const feeStr = String(b.subscriptionFee || "0").replace(/[^0-9.]/g, "");
+    const fee = parseFloat(feeStr) || 0;
+    return acc + fee;
+  }, 0);
+
+  const cardData = [
+    {
+      title: "Total Tenants",
+      value: totalTenants.toString(),
+      subtext: "100%",
+      icon: <TrendingUp className="w-5 h-5" />,
+      color: "green" as CardColor,
+    },
+    {
+      title: "Active Tickets",
+      value: activeTickets.toString(),
+      subtext: `${tickets.length - activeTickets} closed`,
+      icon: <UserCheck className="w-5 h-5" />,
+      color: "blue" as CardColor,
+    },
+    {
+      title: "Monthly Revenue",
+      value: `$${totalRevenue.toFixed(2)}`,
+      subtext: "100%",
+      icon: <Eye className="w-5 h-5" />,
+      color: "purple" as CardColor,
+    },
+    {
+      title: "System Insight",
+      value: "0",
+      subtext: "0 prev",
+      icon: <AlertTriangle className="w-5 h-5" />,
+      color: "red" as CardColor,
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
       {cardData.map((card, index) => {
