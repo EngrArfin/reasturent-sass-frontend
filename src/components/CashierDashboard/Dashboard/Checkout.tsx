@@ -204,9 +204,9 @@ const Checkout: React.FC<CheckoutProps> = ({
     table.items && table.items.length > 0
       ? table.items
       : [
-          { name: "Chicken Biryani", quantity: 2, price: 12.99 },
-          { name: "Mango Lassi", quantity: 2, price: 4.5 },
-        ];
+        { name: "Chicken Biryani", quantity: 2, price: 12.99 },
+        { name: "Mango Lassi", quantity: 2, price: 4.5 },
+      ];
 
   const subtotal = items.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -245,9 +245,8 @@ const Checkout: React.FC<CheckoutProps> = ({
           rocket: "Rocket",
           upay: "Upay",
         };
-        methodLabel = `${brandNames[selectedOnline]}${
-          transactionId ? ` (TrxID: ${transactionId})` : ""
-        }`;
+        methodLabel = `${brandNames[selectedOnline]}${transactionId ? ` (TrxID: ${transactionId})` : ""
+          }`;
       } else if (paymentMethod === "card") {
         methodLabel = `Card (${selectedCard.toUpperCase()})`;
       } else {
@@ -362,11 +361,10 @@ const Checkout: React.FC<CheckoutProps> = ({
             <button
               type="button"
               onClick={() => setPaymentMethod("online")}
-              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                paymentMethod === "online"
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${paymentMethod === "online"
                   ? "bg-orange-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
               <span>Online</span>
@@ -375,11 +373,10 @@ const Checkout: React.FC<CheckoutProps> = ({
             <button
               type="button"
               onClick={() => setPaymentMethod("card")}
-              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                paymentMethod === "card"
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${paymentMethod === "card"
                   ? "bg-orange-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
               <span>Card</span>
@@ -388,11 +385,10 @@ const Checkout: React.FC<CheckoutProps> = ({
             <button
               type="button"
               onClick={() => setPaymentMethod("cash")}
-              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                paymentMethod === "cash"
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${paymentMethod === "cash"
                   ? "bg-orange-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               <Banknote className="w-3.5 h-3.5" />
               <span>Cash</span>
@@ -410,11 +406,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("bkash")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedOnline === "bkash"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "bkash"
                       ? "bg-[#E2136E]/15 border-[#E2136E] ring-1 ring-[#E2136E] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <BkashLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">bKash</span>
@@ -424,11 +419,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("nagad")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedOnline === "nagad"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "nagad"
                       ? "bg-[#F7941D]/15 border-[#F7941D] ring-1 ring-[#F7941D] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <NagadLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">Nagad</span>
@@ -438,11 +432,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("rocket")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedOnline === "rocket"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "rocket"
                       ? "bg-[#8C3494]/15 border-[#8C3494] ring-1 ring-[#8C3494] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <RocketLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">Rocket</span>
@@ -452,11 +445,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("upay")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedOnline === "upay"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "upay"
                       ? "bg-[#0057A0]/15 border-[#0057A0] ring-1 ring-[#0057A0] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <UpayLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">Upay</span>
@@ -558,11 +550,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCard("visa")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedCard === "visa"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedCard === "visa"
                       ? "bg-blue-600/15 border-blue-500 ring-1 ring-blue-500 shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <VisaLogo className="w-9 h-5 sm:w-12 sm:h-7 mb-1" />
                   <span className="text-[10px] sm:text-xs font-bold text-white">Visa</span>
@@ -571,11 +562,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCard("mastercard")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedCard === "mastercard"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedCard === "mastercard"
                       ? "bg-amber-600/15 border-amber-500 ring-1 ring-amber-500 shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <MastercardLogo className="w-9 h-5 sm:w-12 sm:h-7 mb-1" />
                   <span className="text-[10px] sm:text-xs font-bold text-white">Mastercard</span>
@@ -584,11 +574,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCard("amex")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
-                    selectedCard === "amex"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedCard === "amex"
                       ? "bg-sky-600/15 border-sky-500 ring-1 ring-sky-500 shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] opacity-75 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <AmexLogo className="w-9 h-5 sm:w-12 sm:h-7 mb-1" />
                   <span className="text-[10px] sm:text-xs font-bold text-white">Amex</span>
@@ -698,8 +687,8 @@ const Checkout: React.FC<CheckoutProps> = ({
                 {paymentMethod === "cash" && parsedTendered >= finalTotal && changeDue > 0
                   ? `Confirm & Return $${changeDue.toFixed(2)} Change`
                   : paymentMethod === "online"
-                  ? `Pay $${finalTotal.toFixed(2)} with ${selectedOnline.toUpperCase()}`
-                  : `Complete Payment ($${finalTotal.toFixed(2)})`}
+                    ? `Pay $${finalTotal.toFixed(2)} with ${selectedOnline.toUpperCase()}`
+                    : `Complete Payment ($${finalTotal.toFixed(2)})`}
               </span>
             )}
           </button>

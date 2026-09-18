@@ -123,11 +123,10 @@ const QRScanner: React.FC = () => {
                 setActiveTab("camera");
                 setIsScanning(true);
               }}
-              className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
-                activeTab === "camera"
-                  ? "text-emerald-400 font-semibold"
-                  : "hover:text-white"
-              }`}
+              className={`flex items-center gap-1.5 transition-colors cursor-pointer ${activeTab === "camera"
+                ? "text-emerald-400 font-semibold"
+                : "hover:text-white"
+                }`}
             >
               <Camera className="w-4 h-4" />
               <span>Request Camera Permissions</span>
@@ -141,11 +140,10 @@ const QRScanner: React.FC = () => {
                 setActiveTab("upload");
                 fileInputRef.current?.click();
               }}
-              className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
-                activeTab === "upload"
-                  ? "text-emerald-400 font-semibold"
-                  : "hover:text-white"
-              }`}
+              className={`flex items-center gap-1.5 transition-colors cursor-pointer ${activeTab === "upload"
+                ? "text-emerald-400 font-semibold"
+                : "hover:text-white"
+                }`}
             >
               <Upload className="w-4 h-4" />
               <span>Scan an Image File</span>
@@ -276,11 +274,10 @@ const QRScanner: React.FC = () => {
                   <span>Item Verified</span>
                 </div>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                    scannedProduct.stock <= 5
-                      ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                      : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                  }`}
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${scannedProduct.stock <= 5
+                    ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    }`}
                 >
                   {scannedProduct.status}
                 </span>

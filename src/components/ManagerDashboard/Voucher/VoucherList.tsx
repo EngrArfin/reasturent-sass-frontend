@@ -92,9 +92,8 @@ const VoucherList = () => {
           className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
         >
           <Plus
-            className={`w-4 h-4 transition-transform duration-200 ${
-              showAddForm ? "rotate-45" : ""
-            }`}
+            className={`w-4 h-4 transition-transform duration-200 ${showAddForm ? "rotate-45" : ""
+              }`}
           />
           <span>{showAddForm ? "Close Form" : "Add Voucher"}</span>
         </button>

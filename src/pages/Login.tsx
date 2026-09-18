@@ -86,7 +86,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center text-white bg-[#0b0f19] p-4 sm:p-6">
-      <div className="max-w-4xl w-full flex flex-col md:flex-row overflow-hidden rounded-2xl shadow-2xl bg-[#131b2e]/95 border border-[#1F2E4D] backdrop-blur-md">
+      <div className="max-w-5xl w-full flex flex-col md:flex-row overflow-hidden rounded-2xl shadow-2xl bg-[#131b2e]/95 border border-[#1F2E4D] backdrop-blur-md">
         {/* Left Side Image & Showcase */}
         <div className="hidden md:flex w-1/2 flex-col justify-between relative p-8 overflow-hidden">
           <img
@@ -103,11 +103,11 @@ const Login: React.FC = () => {
               <span>Smart Restaurant Platform</span>
             </div>
             <h1 className="text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight">
-              Restaurant POS & Management
+              Restaurant Management
             </h1>
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+            {/* <p className="text-xs text-slate-300 mt-2 leading-relaxed">
               Unified login with Email and 4-digit PIN for Admin, Managers, Cashiers, Kitchen, and Servers.
-            </p>
+            </p> */}
           </div>
 
           {/* Bottom Highlight */}
@@ -235,7 +235,6 @@ const Login: React.FC = () => {
                 Sign Up
               </Link>
             </span>
-            <span className="text-slate-500">v1.0.0</span>
           </div>
         </div>
       </div>

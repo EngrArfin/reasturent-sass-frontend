@@ -1,53 +1,63 @@
 import { useState } from "react";
 import AdminTitle from "@/common/AdminTitle";
 import { Button } from "@/components/ui/button";
+import { Plus, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Pencil, Trash2, Plus } from "lucide-react";
-import SubscriptionModal, { SubscriptionPlan } from "./SubscriptionModal";
+import SubscriptionModal from "./SubscriptionModal";
+import {
+  useGetSubscriptionPlansQuery,
+  useCreateSubscriptionPlanMutation,
+  useUpdateSubscriptionPlanMutation,
+  useDeleteSubscriptionPlanMutation,
+  SubscriptionPlan,
+} from "@/redux/features/admin/subscriptionPlan/subscriptionPlanApi";
 
-// Seed initial plans matching the design screenshot
 const INITIAL_PLANS: SubscriptionPlan[] = [
   {
     id: "1",
     name: "Free Plan",
     type: "FREE",
+    description: "Owner business",
     amount: 0,
     currency: "USD",
-    description: "Owner business",
     isActive: true,
   },
   {
     id: "2",
     name: "Monthly Plan",
     type: "MONTHLY",
+    description: "Monthly - full app access monthly - manage you app",
     amount: 99.0,
     currency: "USD",
-    description:
-      "Monthly - full app access monthly - manage you app - jdjdjdjjdjd - jjdejjerejrejrje -wkek",
     isActive: true,
   },
   {
     id: "3",
     name: "Yearly Plan",
     type: "YEARLY",
+    description: "good plan df",
     amount: 999.0,
     currency: "USD",
-    description: "good plan df",
     isActive: true,
   },
 ];
 
 const SubscriptionCard = () => {
-  const [plans, setPlans] = useState<SubscriptionPlan[]>(INITIAL_PLANS);
+  const { data: apiPlans = [] } = useGetSubscriptionPlansQuery();
+  const [createPlan] = useCreateSubscriptionPlanMutation();
+  const [updatePlan] = useUpdateSubscriptionPlanMutation();
+  const [deletePlan] = useDeleteSubscriptionPlanMutation();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editPlan, setEditPlan] = useState<SubscriptionPlan | null>(null);
 
-  // Helper to format currency symbol
+  const plans: SubscriptionPlan[] = apiPlans && apiPlans.length > 0 ? apiPlans : INITIAL_PLANS;
+
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
       case "USD":
@@ -56,8 +66,10 @@ const SubscriptionCard = () => {
         return "€";
       case "GBP":
         return "£";
+      case "CFA":
+        return "CFA ";
       default:
-        return currency + " ";
+        return "$";
     }
   };
 
@@ -71,26 +83,49 @@ const SubscriptionCard = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeletePlan = (id: string) => {
+  const handleDeletePlan = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this subscription plan?")) {
-      setPlans((prev) => prev.filter((p) => p.id !== id));
+      try {
+        await deletePlan(id).unwrap();
+      } catch (err: any) {
+        console.error("Failed to delete plan", err);
+      }
     }
   };
 
-  const handleSavePlan = (savedPlan: SubscriptionPlan) => {
-    setPlans((prev) => {
-      const exists = prev.some((p) => p.id === savedPlan.id);
-      if (exists) {
-        return prev.map((p) => (p.id === savedPlan.id ? savedPlan : p));
+  const handleSavePlan = async (savedPlan: SubscriptionPlan) => {
+    try {
+      if (editPlan && editPlan.id && !INITIAL_PLANS.some(p => p.id === editPlan.id && !apiPlans.some(ap => ap.id === editPlan.id))) {
+        await updatePlan({
+          id: editPlan.id,
+          data: {
+            name: savedPlan.name,
+            type: savedPlan.type,
+            description: savedPlan.description,
+            amount: savedPlan.amount,
+            currency: savedPlan.currency,
+            isActive: savedPlan.isActive,
+          },
+        }).unwrap();
       } else {
-        return [...prev, savedPlan];
+        await createPlan({
+          name: savedPlan.name,
+          type: savedPlan.type,
+          description: savedPlan.description,
+          amount: savedPlan.amount,
+          currency: savedPlan.currency,
+          isActive: savedPlan.isActive,
+        }).unwrap();
       }
-    });
+      setIsModalOpen(false);
+    } catch (err: any) {
+      console.error("Failed to save plan", err);
+      setIsModalOpen(false);
+    }
   };
 
   return (
     <div className="w-full mb-8">
-      {/* Header section with full responsiveness across mobile, tablet, desktop */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
           <AdminTitle title="Subscription" />
@@ -106,10 +141,8 @@ const SubscriptionCard = () => {
         </div>
       </div>
 
-      {/* Grid: 1 col (mobile), 2 cols (tablet/iPad), 3 cols (desktop) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {plans.map((plan) => {
-          // Dynamic badge styles matching the dark theme color palette
           const getBadgeStyles = () => {
             if (!plan.isActive) {
               return "bg-red-950/40 text-red-400 border border-red-900/30";
@@ -121,19 +154,19 @@ const SubscriptionCard = () => {
                 return "bg-blue-900/40 text-blue-300 border border-blue-800/30";
               case "YEARLY":
                 return "bg-purple-900/40 text-purple-300 border border-purple-800/30";
+              default:
+                return "bg-blue-900/40 text-blue-300 border border-blue-800/30";
             }
           };
 
           return (
             <div
               key={plan.id}
-              className={`relative bg-[#131b2e] rounded-2xl sm:rounded-3xl border p-5 sm:p-6 lg:p-8 flex flex-col justify-between items-center text-center shadow-lg hover:shadow-2xl transition-all duration-300 min-h-[340px] sm:min-h-[370px] lg:min-h-[390px] h-full ${
-                plan.isActive
-                  ? "border-[#1F2E4D] hover:border-[#2b416e]"
-                  : "border-dashed border-slate-700 opacity-60"
-              }`}
+              className={`relative bg-[#131b2e] rounded-2xl sm:rounded-3xl border p-5 sm:p-6 lg:p-8 flex flex-col justify-between items-center text-center shadow-lg hover:shadow-2xl transition-all duration-300 min-h-[340px] sm:min-h-[370px] lg:min-h-[390px] h-full ${plan.isActive
+                ? "border-[#1F2E4D] hover:border-[#2b416e]"
+                : "border-dashed border-slate-700 opacity-60"
+                }`}
             >
-              {/* Card top banner with centered badge and floated action menu */}
               <div className="relative w-full flex items-center justify-center mb-4 sm:mb-6">
                 <div>
                   <span
@@ -167,13 +200,11 @@ const SubscriptionCard = () => {
                 </div>
               </div>
 
-              {/* Plan content */}
               <div className="flex-1 flex flex-col justify-center items-center w-full my-auto">
                 <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 tracking-tight">
                   {plan.name}
                 </h3>
 
-                {/* Price display */}
                 {plan.type === "FREE" || plan.amount === 0 ? (
                   <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3 sm:mb-4 select-none">
                     FREE
@@ -198,15 +229,13 @@ const SubscriptionCard = () => {
                 </p>
               </div>
 
-              {/* Action Button */}
               <div className="w-full mt-auto pt-2">
                 <button
                   type="button"
-                  className={`w-full py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm md:text-base tracking-wide transition cursor-pointer select-none ${
-                    plan.type === "FREE"
-                      ? "bg-slate-800 hover:bg-slate-700 text-slate-300"
-                      : "bg-[#052350] hover:bg-[#061E49] text-white shadow-md hover:shadow-lg hover:scale-[1.01]"
-                  }`}
+                  className={`w-full py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm md:text-base tracking-wide transition cursor-pointer select-none ${plan.type === "FREE"
+                    ? "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                    : "bg-[#052350] hover:bg-[#061E49] text-white shadow-md hover:shadow-lg hover:scale-[1.01]"
+                    }`}
                 >
                   Select Plan
                 </button>
@@ -216,7 +245,6 @@ const SubscriptionCard = () => {
         })}
       </div>
 
-      {/* Plan edit/create modal */}
       <SubscriptionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

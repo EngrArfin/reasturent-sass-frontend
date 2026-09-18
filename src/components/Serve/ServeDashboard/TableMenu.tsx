@@ -306,11 +306,10 @@ const TableMenu: React.FC<TableMenuProps> = ({
                               key={tag}
                               type="button"
                               onClick={() => handleToggleTag(idx, tag)}
-                              className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors cursor-pointer border ${
-                                isSelected
+                              className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors cursor-pointer border ${isSelected
                                   ? "bg-orange-500/20 text-orange-400 border-orange-500/40 font-semibold"
                                   : "bg-[#131b2e] text-slate-400 border-[#1F2E4D] hover:bg-white/5"
-                              }`}
+                                }`}
                             >
                               {tag}
                             </button>

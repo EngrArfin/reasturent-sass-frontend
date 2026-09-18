@@ -138,9 +138,8 @@ const NewVoucher: React.FC<NewVoucherProps> = ({
               >
                 <span>{discountPercent}%</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 

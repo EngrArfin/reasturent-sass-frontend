@@ -240,11 +240,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCustomItemForm(!showCustomItemForm)}
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
-                    showCustomItemForm
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${showCustomItemForm
                       ? "bg-[#052350] text-white border-blue-500/40"
                       : "bg-[#1a243d] text-slate-300 hover:text-white border-[#1F2E4D]"
-                  }`}
+                    }`}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                   <span>+ Custom Dish</span>
@@ -298,11 +297,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                      selectedCategory === cat
+                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${selectedCategory === cat
                         ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
                         : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
-                    }`}
+                      }`}
                   >
                     {cat}
                   </button>
@@ -320,13 +318,12 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                       <div
                         key={dish.id}
                         onClick={() => dish.isAvailable && handleAddItem(dish)}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-                          !dish.isAvailable
+                        className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${!dish.isAvailable
                             ? "bg-[#1a243d]/30 border-[#1F2E4D]/40 opacity-50 cursor-not-allowed"
                             : inCart
-                            ? "bg-[#052350]/40 border-blue-500/50 shadow-sm"
-                            : "bg-[#1a243d] hover:bg-[#1a243d]/80 border-[#1F2E4D]"
-                        }`}
+                              ? "bg-[#052350]/40 border-blue-500/50 shadow-sm"
+                              : "bg-[#1a243d] hover:bg-[#1a243d]/80 border-[#1F2E4D]"
+                          }`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <div>
@@ -397,11 +394,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                       key={type}
                       type="button"
                       onClick={() => setOrderType(type)}
-                      className={`py-1 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${
-                        orderType === type
+                      className={`py-1 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${orderType === type
                           ? "bg-[#052350] text-white shadow-sm border border-[#1F2E4D]"
                           : "text-slate-400 hover:text-white"
-                      }`}
+                        }`}
                     >
                       {type}
                     </button>

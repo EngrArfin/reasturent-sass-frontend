@@ -111,11 +111,10 @@ const PricingCard = ({ plan, yearly }: PricingCardProps) => {
       whileHover={{
         y: -10,
       }}
-      className={`relative rounded-3xl p-8 border overflow-hidden transition-all duration-300 ${
-        plan.popular
+      className={`relative rounded-3xl p-8 border overflow-hidden transition-all duration-300 ${plan.popular
           ? "border-orange-500 bg-gradient-to-b from-orange-500/10 to-transparent shadow-[0_0_40px_rgba(249,115,22,0.25)]"
           : "border-white/10 bg-white/5 hover:border-orange-500/30"
-      }`}
+        }`}
     >
       {/* Glow Effect */}
       <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_top,rgba(249,115,22,0.15),transparent_60%)] pointer-events-none" />
@@ -178,11 +177,10 @@ const PricingCard = ({ plan, yearly }: PricingCardProps) => {
             className="flex items-center gap-3 text-gray-300"
           >
             <div
-              className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                plan.popular
+              className={`w-5 h-5 rounded-full flex items-center justify-center ${plan.popular
                   ? "bg-orange-500/20 text-orange-400"
                   : "bg-white/10 text-green-400"
-              }`}
+                }`}
             >
               <Check size={14} />
             </div>
@@ -196,11 +194,10 @@ const PricingCard = ({ plan, yearly }: PricingCardProps) => {
       <motion.button
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.02 }}
-        className={`w-full py-4 rounded-xl font-semibold transition-all duration-300 relative z-10 ${
-          plan.popular
+        className={`w-full py-4 rounded-xl font-semibold transition-all duration-300 relative z-10 ${plan.popular
             ? "bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90 text-white"
             : "border border-white/10 hover:border-orange-500 hover:bg-orange-500/10"
-        }`}
+          }`}
       >
         {price ? "Start Free Trial" : "Contact Sales"}
       </motion.button>
@@ -254,9 +251,8 @@ const PricingSection = () => {
           {/* Toggle */}
           <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
             <span
-              className={`text-sm transition-colors duration-300 ${
-                !yearly ? "text-white" : "text-gray-500"
-              }`}
+              className={`text-sm transition-colors duration-300 ${!yearly ? "text-white" : "text-gray-500"
+                }`}
             >
               Monthly
             </span>
@@ -266,9 +262,8 @@ const PricingSection = () => {
               aria-label="Toggle pricing plan"
               aria-pressed={yearly}
               onClick={() => setYearly((prev) => !prev)}
-              className={`relative w-14 h-7 rounded-full flex items-center px-1 transition-all duration-300 ${
-                yearly ? "bg-orange-500" : "bg-gray-700"
-              }`}
+              className={`relative w-14 h-7 rounded-full flex items-center px-1 transition-all duration-300 ${yearly ? "bg-orange-500" : "bg-gray-700"
+                }`}
             >
               <motion.div
                 layout
@@ -285,9 +280,8 @@ const PricingSection = () => {
             </button>
 
             <span
-              className={`text-sm transition-colors duration-300 ${
-                yearly ? "text-white" : "text-gray-500"
-              }`}
+              className={`text-sm transition-colors duration-300 ${yearly ? "text-white" : "text-gray-500"
+                }`}
             >
               Yearly
             </span>

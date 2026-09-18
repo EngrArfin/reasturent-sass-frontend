@@ -1,7 +1,7 @@
 import React from "react";
 import { TrendingUp, UserCheck, Eye, AlertTriangle } from "lucide-react";
 import { useGetBusinessesQuery } from "@/redux/features/admin/business/businessApi";
-import { useGetSupportTicketsQuery } from "@/redux/features/admin/ticketApi";
+import { useGetSupportTicketsQuery } from "@/redux/features/admin/ticket/ticketApi";
 
 export type CardColor = "green" | "blue" | "purple" | "red";
 

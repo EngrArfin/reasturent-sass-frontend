@@ -16,16 +16,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { AlertCircle } from "lucide-react";
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  type: "FREE" | "MONTHLY" | "YEARLY";
-  amount: number;
-  currency: string;
-  description: string;
-  isActive: boolean;
-}
+import { SubscriptionPlan } from "@/redux/features/admin/subscriptionPlan/subscriptionPlanApi";
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -60,7 +51,8 @@ const SubscriptionModal = ({
   useEffect(() => {
     if (isOpen) {
       if (editPlan) {
-        setType(editPlan.type);
+        const normalizedType = (editPlan.type || "MONTHLY").toUpperCase() as "FREE" | "MONTHLY" | "YEARLY";
+        setType(normalizedType);
         setDescription(editPlan.description);
         setAmount(editPlan.amount.toString());
         setCurrency(editPlan.currency);
@@ -126,8 +118,8 @@ const SubscriptionModal = ({
       type === "FREE"
         ? "Free Plan"
         : type === "MONTHLY"
-        ? "Monthly Plan"
-        : "Yearly Plan";
+          ? "Monthly Plan"
+          : "Yearly Plan";
 
     const savedPlan: SubscriptionPlan = {
       id: editPlan ? editPlan.id : Math.random().toString(36).substring(2, 9),
@@ -146,7 +138,7 @@ const SubscriptionModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-[#131b2e] border border-[#1F2E4D] text-white rounded-2xl shadow-xl p-6">
+      <DialogContent className="sm:max-w-xl bg-[#131b2e] border border-[#1F2E4D] text-white rounded-2xl shadow-xl p-6">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-xl font-bold text-white tracking-tight">
             {editPlan ? "Edit Subscription Plan" : "Create Subscription Plan"}
@@ -207,11 +199,10 @@ const SubscriptionModal = ({
               onBlur={() => handleBlur("description")}
               placeholder="Enter plan description..."
               rows={3}
-              className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d] focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D] transition-all duration-200 resize-none ${
-                errors.description && touched.description
-                  ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                  : "border-[#1F2E4D] hover:border-[#26354D]"
-              }`}
+              className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d] focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D] transition-all duration-200 resize-none ${errors.description && touched.description
+                ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                : "border-[#1F2E4D] hover:border-[#26354D]"
+                }`}
             />
             {errors.description && touched.description && (
               <div className="flex items-center gap-1.5 mt-1 text-red-400 text-xs">
@@ -239,11 +230,10 @@ const SubscriptionModal = ({
                   }
                 }}
                 onBlur={() => handleBlur("amount")}
-                className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d] focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.amount && touched.amount
-                    ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                    : "border-[#1F2E4D] hover:border-[#26354D]"
-                }`}
+                className={`w-full border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-500 bg-[#1a243d] focus:outline-none focus:ring-2 focus:ring-[#052350]/20 focus:border-[#1F2E4D] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${errors.amount && touched.amount
+                  ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                  : "border-[#1F2E4D] hover:border-[#26354D]"
+                  }`}
               />
               {errors.amount && touched.amount && (
                 <div className="flex items-center gap-1.5 mt-1 text-red-400 text-xs">
@@ -293,14 +283,12 @@ const SubscriptionModal = ({
             <button
               type="button"
               onClick={() => setIsActive((prev) => !prev)}
-              className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 focus:outline-none cursor-pointer ${
-                isActive ? "bg-[#0b2545]" : "bg-slate-700"
-              }`}
+              className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 focus:outline-none cursor-pointer ${isActive ? "bg-[#0b2545]" : "bg-slate-700"
+                }`}
             >
               <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${
-                  isActive ? "translate-x-6" : "translate-x-0"
-                }`}
+                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${isActive ? "translate-x-6" : "translate-x-0"
+                  }`}
               />
             </button>
           </div>

@@ -160,9 +160,8 @@ const InventoryTable = () => {
               className="w-11 h-11 rounded-full bg-[#1a243d] hover:bg-[#232f4c] border border-[#1F2E4D] text-white flex items-center justify-center cursor-pointer shadow-sm flex-shrink-0 transition-all active:scale-95"
             >
               <RefreshCw
-                className={`w-4 h-4 text-slate-300 ${
-                  isRefreshing ? "animate-spin text-white" : ""
-                }`}
+                className={`w-4 h-4 text-slate-300 ${isRefreshing ? "animate-spin text-white" : ""
+                  }`}
               />
             </button>
           </div>
@@ -220,11 +219,10 @@ const InventoryTable = () => {
 
                         <td className="px-6 py-5 text-center">
                           <span
-                            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${
-                              isLowStock
+                            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${isLowStock
                                 ? "bg-rose-500/10 text-rose-400"
                                 : "bg-emerald-500/10 text-emerald-400"
-                            }`}
+                              }`}
                           >
                             {item.stock} In stock
                           </span>

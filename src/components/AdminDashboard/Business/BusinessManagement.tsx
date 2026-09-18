@@ -220,65 +220,65 @@ const BusinessManagement = () => {
                     </tr>
                   ) : paginatedBusinesses.length > 0 ? (
                     paginatedBusinesses.map((business: IBusiness) => (
-                    <tr
-                      key={business.id}
-                      className="border-b border-[#1F2E4D]/60 hover:bg-[#1a243d]/45 transition cursor-pointer"
-                      onClick={() => setSelectedBusinessForUsers(business)}
-                    >
-                      <td className="px-6 py-5">
-                        <div className="font-semibold text-white whitespace-nowrap">
-                          {business.businessName || business.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="capitalize px-2 py-1 bg-[#1a243d] rounded-full text-xs text-slate-300">
-                          {business.industry || "Restaurant"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(
-                            business.isActive ? "ACTIVE" : "INACTIVE"
-                          )}`}
-                        >
-                          {business.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="font-semibold text-white">
-                          {typeof business.subscriptionFee === "string" &&
-                          business.subscriptionFee.includes("$")
-                            ? business.subscriptionFee
-                            : `$${business.subscriptionFee}/mo`}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-slate-400">
-                        {formatDate(business.lastSync)}
-                      </td>
-                      <td className="px-6 py-5 text-slate-400">
-                        {formatDate(business.createdAt)}
-                      </td>
-                      <td className="px-6 py-5" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleAddUser(business)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg cursor-pointer whitespace-nowrap hover:bg-[#041a3d] border border-[#1F2E4D] transition duration-200 shadow-sm"
-                            title="Add User"
+                      <tr
+                        key={business.id}
+                        className="border-b border-[#1F2E4D]/60 hover:bg-[#1a243d]/45 transition cursor-pointer"
+                        onClick={() => setSelectedBusinessForUsers(business)}
+                      >
+                        <td className="px-6 py-5">
+                          <div className="font-semibold text-white whitespace-nowrap">
+                            {business.businessName || business.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className="capitalize px-2 py-1 bg-[#1a243d] rounded-full text-xs text-slate-300">
+                            {business.industry || "Restaurant"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(
+                              business.isActive ? "ACTIVE" : "INACTIVE"
+                            )}`}
                           >
-                            <FaUserPlus className="text-white" />
-                            <span>Add User</span>
-                          </button>
-                          <button
-                            onClick={() => handleManageRoles(business)}
-                            className="p-2 text-sm font-medium text-slate-300 bg-[#1a243d] hover:bg-[#232f4c] rounded-lg cursor-pointer transition duration-200 border border-[#1F2E4D]"
-                            title="Manage Roles"
-                          >
-                            <FaUsersCog className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            {business.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className="font-semibold text-white">
+                            {typeof business.subscriptionFee === "string" &&
+                              business.subscriptionFee.includes("$")
+                              ? business.subscriptionFee
+                              : `$${business.subscriptionFee}/mo`}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5 text-slate-400">
+                          {formatDate(business.lastSync)}
+                        </td>
+                        <td className="px-6 py-5 text-slate-400">
+                          {formatDate(business.createdAt)}
+                        </td>
+                        <td className="px-6 py-5" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleAddUser(business)}
+                              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#052350] rounded-lg cursor-pointer whitespace-nowrap hover:bg-[#041a3d] border border-[#1F2E4D] transition duration-200 shadow-sm"
+                              title="Add User"
+                            >
+                              <FaUserPlus className="text-white" />
+                              <span>Add User</span>
+                            </button>
+                            <button
+                              onClick={() => handleManageRoles(business)}
+                              className="p-2 text-sm font-medium text-slate-300 bg-[#1a243d] hover:bg-[#232f4c] rounded-lg cursor-pointer transition duration-200 border border-[#1F2E4D]"
+                              title="Manage Roles"
+                            >
+                              <FaUsersCog className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   ) : (
                     <tr>
                       <td

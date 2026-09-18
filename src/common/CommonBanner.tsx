@@ -9,8 +9,7 @@ interface ICommonBannerProp {
   bgImage: string;
 }
 
-const CommonBanner = ({ title, route, bgImage }: ICommonBannerProp) => {
-  const parts = route.split("/").map((s) => s.trim());
+const CommonBanner = ({ title, bgImage }: ICommonBannerProp) => {
 
   return (
     <div className="relative h-72 md:h-[380px] w-full overflow-hidden flex items-center justify-center">
