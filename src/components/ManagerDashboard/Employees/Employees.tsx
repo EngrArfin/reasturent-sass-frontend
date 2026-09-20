@@ -11,7 +11,6 @@ import {
   Shield,
   Loader2,
   KeyRound,
-  CheckCircle2,
   AlertTriangle,
   UserCheck,
 } from "lucide-react";

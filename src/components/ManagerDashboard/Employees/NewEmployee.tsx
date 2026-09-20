@@ -24,7 +24,6 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [role, setRole] = useState<string>("server");
   const [pin, setPin] = useState("");
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -88,10 +87,6 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
 
       if (email.trim()) {
         payload.email = email.trim().toLowerCase();
-      }
-
-      if (password.trim()) {
-        payload.password = password.trim();
       }
 
       if (currentUser?.businessId) {
@@ -185,9 +180,8 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
                   {selectedRoleObj?.label || "Select role"}
                 </span>
                 <svg
-                  className={`w-4 h-4 text-slate-400 transition-transform ${
-                    isRoleDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform ${isRoleDropdownOpen ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -211,11 +205,10 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
                         setRole(roleOption.value);
                         setIsRoleDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-2.5 transition-colors cursor-pointer ${
-                        role.toLowerCase() === roleOption.value.toLowerCase()
+                      className={`w-full text-left px-4 py-2.5 transition-colors cursor-pointer ${role.toLowerCase() === roleOption.value.toLowerCase()
                           ? "bg-blue-600/20 text-blue-400 font-semibold"
                           : "text-slate-300 hover:bg-[#1a243b] hover:text-white"
-                      }`}
+                        }`}
                     >
                       <div className="text-sm font-medium">
                         {roleOption.label}
