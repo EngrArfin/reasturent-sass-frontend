@@ -1,243 +1,527 @@
-import { useState } from "react";
-import { Plus, Trash2, Edit3, X, Save } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  Plus,
+  Trash2,
+  Edit3,
+  X,
+  Save,
+  Search,
+  RefreshCw,
+  Users,
+  Shield,
+  Loader2,
+  KeyRound,
+  CheckCircle2,
+  AlertTriangle,
+  UserCheck,
+} from "lucide-react";
 import { toast } from "sonner";
-import NewEmployee, { Employee, EmployeeRole } from "./NewEmployee";
+import NewEmployee from "./NewEmployee";
+import {
+  useGetEmployeesQuery,
+  useUpdateEmployeeMutation,
+  useDeleteEmployeeMutation,
+} from "@/redux/features/auth/userApi";
+import { IUser } from "@/redux/features/auth/userType";
 
-const initialEmployees: Employee[] = [
-  {
-    id: "1",
-    name: "Sarah",
-    email: "manager@restaurant.com",
-    role: "Manager",
-    pin: "1234",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+const roleStyles: Record<string, { bg: string; text: string; border: string }> = {
+  supervisor: {
+    bg: "bg-indigo-500/10",
+    text: "text-indigo-400",
+    border: "border-indigo-500/20",
   },
-  {
-    id: "2",
-    name: "John",
-    email: "server1@restaurant.com",
-    role: "Server",
-    pin: "5678",
-    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "3",
-    name: "Mick",
-    email: "kitchen1@restaurant.com",
-    role: "Kitchen",
-    pin: "9012",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "4",
-    name: "Olly Schroeder",
-    email: "cashier1@restaurant.com",
-    role: "Cashier",
-    pin: "3456",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "5",
-    name: "Emily Watson",
-    email: "server2@restaurant.com",
-    role: "Server",
-    pin: "7890",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "6",
-    name: "David Khan",
-    email: "manager2@restaurant.com",
-    role: "Manager",
-    pin: "2345",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "7",
-    name: "Ayaan Rahman",
-    email: "kitchen2@restaurant.com",
-    role: "Kitchen",
-    pin: "6789",
-    avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=200&q=80",
-  },
-  {
-    id: "8",
-    name: "Sophia Lee",
-    email: "cashier2@restaurant.com",
-    role: "Cashier",
-    pin: "0123",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
-  },
-];
-
-const roleStyles: Record<EmployeeRole, { bg: string; text: string; border: string }> = {
-  Manager: {
+  manager: {
     bg: "bg-purple-500/10",
     text: "text-purple-400",
     border: "border-purple-500/20",
   },
-  Server: {
+  server: {
     bg: "bg-blue-500/10",
     text: "text-blue-400",
     border: "border-blue-500/20",
   },
-  Kitchen: {
+  kitchen: {
     bg: "bg-amber-500/10",
     text: "text-amber-400",
     border: "border-amber-500/20",
   },
-  Cashier: {
+  cashier: {
     bg: "bg-emerald-500/10",
     text: "text-emerald-400",
     border: "border-emerald-500/20",
   },
 };
 
-const Employees = () => {
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+const getRoleStyle = (role?: string) => {
+  const normalized = (role || "").toLowerCase();
+  return roleStyles[normalized] || {
+    bg: "bg-slate-500/10",
+    text: "text-slate-400",
+    border: "border-slate-500/20",
+  };
+};
+
+const Employees: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState<string>("ALL");
   const [showNewEmployeeForm, setShowNewEmployeeForm] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<IUser | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const handleAddEmployee = (newEmpData: Omit<Employee, "id">) => {
-    const newEmp: Employee = {
-      ...newEmpData,
-      id: Date.now().toString(),
-    };
-    setEmployees([newEmp, ...employees]);
+  // RTK Query hooks
+  const {
+    data: employees = [],
+    isLoading,
+    isFetching,
+    refetch,
+  } = useGetEmployeesQuery({
+    search: searchQuery || undefined,
+    role: selectedRole === "ALL" ? undefined : selectedRole.toLowerCase(),
+  });
+
+  const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
+  const [deleteEmployee, { isLoading: isDeleting }] = useDeleteEmployeeMutation();
+
+  // Edit form state
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editRole, setEditRole] = useState("server");
+  const [editPin, setEditPin] = useState("");
+  const [editIsActive, setEditIsActive] = useState<boolean>(true);
+
+  const openEditModal = (emp: IUser) => {
+    setEditingEmployee(emp);
+    setEditName(emp.name || "");
+    setEditEmail(emp.email || "");
+    setEditRole((emp.role || "server").toLowerCase());
+    setEditPin(emp.pin || "");
+    setEditIsActive(emp.isActive ?? true);
   };
 
-  const handleDeleteEmployee = (id: string, name: string) => {
-    setEmployees(employees.filter((emp) => emp.id !== id));
-    toast.success(`Removed employee ${name}`);
-  };
-
-  const handleSaveEdit = (e: React.FormEvent) => {
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingEmployee) return;
 
-    setEmployees(
-      employees.map((emp) =>
-        emp.id === editingEmployee.id ? editingEmployee : emp
-      )
-    );
-    toast.success("Employee profile updated!");
-    setEditingEmployee(null);
+    if (!editName.trim()) {
+      toast.error("Employee name is required");
+      return;
+    }
+
+    if (editPin && editPin.length !== 4) {
+      toast.error("PIN must be exactly 4 digits");
+      return;
+    }
+
+    try {
+      await updateEmployee({
+        id: editingEmployee.id,
+        body: {
+          name: editName.trim(),
+          role: editRole.toLowerCase(),
+          email: editEmail.trim() || undefined,
+          pin: editPin || undefined,
+          isActive: editIsActive,
+        },
+      }).unwrap();
+
+      toast.success(`Profile for "${editName}" updated successfully!`);
+      setEditingEmployee(null);
+      refetch();
+    } catch (err: any) {
+      const msg =
+        err?.data?.message || err?.error || "Failed to update employee profile";
+      toast.error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    }
   };
+
+  const handleDeleteEmployee = async (id: string, name: string) => {
+    try {
+      await deleteEmployee(id).unwrap();
+      toast.success(`Employee "${name}" deleted successfully`);
+      setDeleteConfirmId(null);
+      refetch();
+    } catch (err: any) {
+      const msg =
+        err?.data?.message || err?.error || "Failed to delete employee";
+      toast.error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    }
+  };
+
+  // KPI Metrics calculation
+  const metrics = useMemo(() => {
+    const total = employees.length;
+    const active = employees.filter((e) => e.isActive !== false).length;
+    const managers = employees.filter(
+      (e) => (e.role || "").toLowerCase() === "manager"
+    ).length;
+    const staff = total - managers;
+    return { total, active, managers, staff };
+  }, [employees]);
 
   return (
     <div className="w-full space-y-6">
       {/* Top Header / Action Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-xl font-bold text-white tracking-wide">
-              Employees Management
-            </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="w-5 h-5 text-blue-400" />
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
+              Restaurant Staff & Management
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            Employees Management
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Manage your restaurant staff profiles, POS quick-login PINs, and
+            system access roles.
+          </p>
+        </div>
 
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#131b2e] hover:bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs sm:text-sm text-slate-300 hover:text-white transition-all duration-200 cursor-pointer shadow-sm"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
+            />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+
+          <button
+            onClick={() => setShowNewEmployeeForm(!showNewEmployeeForm)}
+            className="px-5 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-blue-500/40 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
+          >
+            {showNewEmployeeForm ? (
+              <>
+                <X className="w-4 h-4" />
+                <span>Close Form</span>
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                <span>Add Employee</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Stats Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="bg-[#131b2e] border border-[#1F2E4D] rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Total Employees
+            </span>
+            <span className="text-2xl font-bold text-white mt-1 block">
+              {metrics.total}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+            <Users className="w-5 h-5" />
           </div>
         </div>
 
-        <button
-          onClick={() => setShowNewEmployeeForm(!showNewEmployeeForm)}
-          className="px-5 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center gap-2"
-        >
-          {showNewEmployeeForm ? (
-            <>
-              <X className="w-4 h-4" />
-              <span>Close Form</span>
-            </>
-          ) : (
-            <>
-              <Plus className="w-4 h-4" />
-              <span>Add Employee</span>
-            </>
-          )}
-        </button>
+        <div className="bg-[#131b2e] border border-[#1F2E4D] rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block">
+              Active / Ready
+            </span>
+            <span className="text-2xl font-bold text-white mt-1 block">
+              {metrics.active}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <UserCheck className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-[#131b2e] border border-[#1F2E4D] rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
+              Managers
+            </span>
+            <span className="text-2xl font-bold text-white mt-1 block">
+              {metrics.managers}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+            <Shield className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-[#131b2e] border border-[#1F2E4D] rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider block">
+              Floor Staff
+            </span>
+            <span className="text-2xl font-bold text-white mt-1 block">
+              {metrics.staff}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <KeyRound className="w-5 h-5" />
+          </div>
+        </div>
       </div>
 
       {/* New Employee Form Box */}
       {showNewEmployeeForm && (
         <NewEmployee
-          onAddEmployee={handleAddEmployee}
           onClose={() => setShowNewEmployeeForm(false)}
+          onSuccess={() => {
+            setShowNewEmployeeForm(false);
+            refetch();
+          }}
         />
       )}
 
-      {/* Employees Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {employees.map((emp) => {
-          const roleStyle = roleStyles[emp.role] || roleStyles.Cashier;
-
-          return (
-            <div
-              key={emp.id}
-              className="group bg-[#131b2e] rounded-2xl p-5 border border-[#1F2E4D] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Role Filters */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#131b2e] border border-[#1F2E4D] rounded-xl overflow-x-auto">
+          {["ALL", "Manager", "Server", "Kitchen", "Cashier"].map((role) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => setSelectedRole(role)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                selectedRole === role
+                  ? "bg-[#052350] text-blue-400 border border-blue-500/40 shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
             >
-              <div>
-                {/* Card Top: Avatar & Role Badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <img
-                    src={emp.avatar}
-                    alt={emp.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-[#1F2E4D] shadow-sm"
-                  />
-                  <span
-                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${roleStyle.bg} ${roleStyle.text} ${roleStyle.border}`}
-                  >
-                    {emp.role}
-                  </span>
-                </div>
+              {role === "ALL" ? "All Roles" : role}
+            </button>
+          ))}
+        </div>
 
-                {/* Card Info: Name, Email & PIN */}
-                <div className="space-y-1 mb-5">
-                  <h3 className="text-base font-bold text-white tracking-tight">
-                    {emp.name}
-                  </h3>
-                  <p className="text-xs text-slate-400 truncate">
-                    {emp.email}
-                  </p>
-                  <p className="text-[11px] font-medium text-emerald-400 font-mono">
-                    PIN: **** (Active)
-                  </p>
-                </div>
+        {/* Search Input */}
+        <div className="relative min-w-[240px] sm:min-w-[300px]">
+          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name or email..."
+            className="w-full bg-[#131b2e] border border-[#1F2E4D] focus:border-blue-500 focus:outline-none rounded-xl pl-9.5 pr-4 py-2 text-xs sm:text-sm text-white placeholder:text-slate-500 transition-all duration-200"
+          />
+        </div>
+      </div>
+
+      {/* Loading Skeleton */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="bg-[#131b2e] rounded-2xl p-5 border border-[#1F2E4D] animate-pulse space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-full bg-slate-800" />
+                <div className="w-16 h-5 rounded-full bg-slate-800" />
               </div>
-
-              {/* Card Bottom: Delete & Edit Profile */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#1F2E4D]/50">
-                <button
-                  type="button"
-                  onClick={() => handleDeleteEmployee(emp.id, emp.name)}
-                  title="Delete Employee"
-                  className="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setEditingEmployee(emp)}
-                  className="px-3.5 py-1.5 rounded-full bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.98]"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-300" />
-                  <span>Edit Profile</span>
-                </button>
+              <div className="space-y-2">
+                <div className="w-3/4 h-4 bg-slate-800 rounded" />
+                <div className="w-1/2 h-3 bg-slate-800 rounded" />
+              </div>
+              <div className="pt-3 border-t border-[#1F2E4D]/40 flex justify-between">
+                <div className="w-8 h-8 bg-slate-800 rounded-xl" />
+                <div className="w-24 h-8 bg-slate-800 rounded-full" />
               </div>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      ) : employees.length === 0 ? (
+        /* Empty State */
+        <div className="bg-[#131b2e] border border-[#1F2E4D] rounded-2xl p-12 text-center space-y-4 shadow-sm">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-[#1a243d] border border-[#1F2E4D] flex items-center justify-center text-slate-400">
+            <Users className="w-7 h-7" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-bold text-white">No Employees Found</h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              {searchQuery || selectedRole !== "ALL"
+                ? "No employee records match your search query or role filter."
+                : "Your restaurant does not have any employees registered yet."}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowNewEmployeeForm(true)}
+            className="px-5 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-blue-500/40 text-white text-xs font-semibold rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add First Employee</span>
+          </button>
+        </div>
+      ) : (
+        /* Employees Card Grid */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {employees.map((emp) => {
+            const roleStyle = getRoleStyle(emp.role);
+            const avatarUrl =
+              emp.avatar ||
+              `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+                emp.name || emp.id
+              )}`;
+
+            const pinDisplay = emp.pin || emp.accessPin || "1234";
+
+            return (
+              <div
+                key={emp.id}
+                className="group bg-[#131b2e] rounded-2xl p-5 border border-[#1F2E4D] shadow-sm hover:border-blue-500/40 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Card Top: Avatar & Role Badge */}
+                  <div className="flex items-center justify-between mb-4">
+                    <img
+                      src={avatarUrl}
+                      alt={emp.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#1F2E4D] bg-[#0b101d] shadow-sm"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+                          emp.name || "avatar"
+                        )}`;
+                      }}
+                    />
+                    <div className="flex flex-col items-end gap-1">
+                      <span
+                        className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border capitalize ${roleStyle.bg} ${roleStyle.text} ${roleStyle.border}`}
+                      >
+                        {emp.role}
+                      </span>
+                      {emp.isActive === false ? (
+                        <span className="text-[10px] text-red-400 font-medium">
+                          Inactive
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Active
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Card Info: Name, Email & Department */}
+                  <div className="space-y-1 mb-4">
+                    <h3 className="text-base font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                      {emp.name}
+                    </h3>
+                    <p className="text-xs text-slate-400 truncate">
+                      {emp.email || "No email assigned"}
+                    </p>
+                    {emp.department && (
+                      <p className="text-[11px] text-slate-500 truncate">
+                        {emp.department}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* PIN & Login status */}
+                  <div className="bg-[#0b101d] border border-[#1F2E4D] rounded-xl px-3 py-2 flex items-center justify-between mb-4">
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      POS PIN:
+                    </span>
+                    <span className="font-mono text-xs font-bold text-emerald-400 tracking-wider">
+                      {pinDisplay.startsWith("PIN:") ? pinDisplay : `PIN: ${pinDisplay}`}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Bottom: Delete & Edit Profile */}
+                <div className="flex items-center justify-between pt-3 border-t border-[#1F2E4D]/60">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmId(emp.id)}
+                    title="Delete Employee"
+                    className="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer border border-red-500/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(emp)}
+                    className="px-3.5 py-1.5 rounded-xl bg-[#052350] hover:bg-[#041a3d] border border-blue-500/30 text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.98]"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-slate-300" />
+                    <span>Edit Profile</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-[#131b2e] rounded-2xl p-6 max-w-sm w-full border border-[#1F2E4D] shadow-2xl space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="text-base font-bold text-white">
+                Delete Employee Profile?
+              </h3>
+              <p className="text-xs text-slate-400">
+                This action is permanent and will remove access for this employee
+                from your restaurant.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 rounded-xl border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const emp = employees.find((e) => e.id === deleteConfirmId);
+                  handleDeleteEmployee(deleteConfirmId, emp?.name || "Employee");
+                }}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <span>Delete</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Employee Modal */}
       {editingEmployee && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-200">
           <div className="bg-[#131b2e] rounded-2xl p-6 sm:p-7 max-w-lg w-full border border-[#1F2E4D] shadow-2xl relative">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#1F2E4D]/50">
-              <h3 className="text-lg font-bold text-white">
-                Edit Employee Profile
-              </h3>
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#1F2E4D]/60">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-white">
+                  Edit Profile: {editingEmployee.name}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setEditingEmployee(null)}
+                disabled={isUpdating}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a243b] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -246,89 +530,108 @@ const Employees = () => {
 
             <form onSubmit={handleSaveEdit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Employee Name
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Employee Name *
                 </label>
                 <input
                   type="text"
-                  value={editingEmployee.name}
-                  onChange={(e) =>
-                    setEditingEmployee({ ...editingEmployee, name: e.target.value })
-                  }
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
                   required
                   className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Login Email Address
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Email Address
                 </label>
                 <input
                   type="email"
-                  value={editingEmployee.email}
-                  onChange={(e) =>
-                    setEditingEmployee({ ...editingEmployee, email: e.target.value })
-                  }
-                  required
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="employee@restaurant.com"
                   className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                    System Role *
+                  </label>
+                  <select
+                    value={editRole}
+                    onChange={(e) => setEditRole(e.target.value)}
+                    className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 capitalize"
+                  >
+                    <option value="manager" className="bg-[#131b2e]">Manager</option>
+                    <option value="server" className="bg-[#131b2e]">Server</option>
+                    <option value="kitchen" className="bg-[#131b2e]">Kitchen</option>
+                    <option value="cashier" className="bg-[#131b2e]">Cashier</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                    4-Digit POS PIN
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    value={editPin}
+                    onChange={(e) =>
+                      setEditPin(e.target.value.replace(/\D/g, ""))
+                    }
+                    placeholder="1234"
+                    className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 font-mono tracking-widest font-bold text-center"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  System Role
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Account Status
                 </label>
                 <select
-                  value={editingEmployee.role}
-                  onChange={(e) =>
-                    setEditingEmployee({
-                      ...editingEmployee,
-                      role: e.target.value as EmployeeRole,
-                    })
-                  }
+                  value={editIsActive ? "active" : "inactive"}
+                  onChange={(e) => setEditIsActive(e.target.value === "active")}
                   className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
                 >
-                  <option value="Manager" className="bg-[#131b2e]">Manager</option>
-                  <option value="Server" className="bg-[#131b2e]">Server</option>
-                  <option value="Kitchen" className="bg-[#131b2e]">Kitchen</option>
-                  <option value="Cashier" className="bg-[#131b2e]">Cashier</option>
+                  <option value="active" className="bg-[#131b2e]">
+                    Active (Can Login)
+                  </option>
+                  <option value="inactive" className="bg-[#131b2e]">
+                    Inactive / Suspended
+                  </option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Quick-Login PIN (4 digits)
-                </label>
-                <input
-                  type="password"
-                  maxLength={4}
-                  value={editingEmployee.pin}
-                  onChange={(e) =>
-                    setEditingEmployee({
-                      ...editingEmployee,
-                      pin: e.target.value.replace(/\D/g, ""),
-                    })
-                  }
-                  required
-                  className="w-full bg-[#0b101d] text-white border border-[#1F2E4D] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 font-mono tracking-widest"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1F2E4D]/50">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1F2E4D]/60">
                 <button
                   type="button"
                   onClick={() => setEditingEmployee(null)}
-                  className="px-5 py-2.5 rounded-full border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                  disabled={isUpdating}
+                  className="px-5 py-2.5 rounded-xl border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs font-semibold flex items-center gap-2 transition-all duration-200 shadow-sm cursor-pointer"
+                  disabled={isUpdating}
+                  className="px-6 py-2.5 rounded-xl bg-[#052350] hover:bg-[#041a3d] border border-blue-500/40 text-white text-xs font-semibold flex items-center gap-2 transition-all duration-200 shadow-sm cursor-pointer disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>Save Changes</span>
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving Changes...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Save Changes</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

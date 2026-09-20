@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Sparkles,
+  Loader2,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import loginphoto from "@/assets/sas/photo/bacground.jpeg";
 import { useAppSelector } from "@/redux/hooks/redux-hook";
@@ -73,6 +81,7 @@ const Login: React.FC = () => {
 
       const targetPath = getRoleRedirectPath(userRole);
       navigate(targetPath, { replace: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Login failed:", err);
       const errorMessage =
@@ -243,4 +252,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
