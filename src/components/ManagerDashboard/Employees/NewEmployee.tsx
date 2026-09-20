@@ -58,6 +58,13 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
     )}`;
 
     try {
+      const currentRole = (
+        currentUser?.role ||
+        currentUser?.systemRole ||
+        ""
+      ).toLowerCase();
+      const isManager = currentRole === "manager";
+
       const payload: {
         name: string;
         role: string;
@@ -66,11 +73,17 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
         password?: string;
         avatar?: string;
         businessId?: string;
+        status?: string;
+        isApproved?: boolean;
+        isActive?: boolean;
       } = {
         name: name.trim(),
         role: role.toLowerCase(),
         pin: pin.trim(),
         avatar: avatarUrl,
+        status: isManager ? "PENDING" : "APPROVED",
+        isApproved: !isManager,
+        isActive: !isManager,
       };
 
       if (email.trim()) {
@@ -87,9 +100,15 @@ const NewEmployee: React.FC<NewEmployeeProps> = ({ onClose, onSuccess }) => {
 
       await createEmployee(payload).unwrap();
 
-      toast.success(
-        `Employee "${name.trim()}" created successfully with PIN ${pin}!`
-      );
+      if (isManager) {
+        toast.success(
+          `Employee "${name.trim()}" created! Awaiting Supervisor approval before login access.`
+        );
+      } else {
+        toast.success(
+          `Employee "${name.trim()}" created & approved with PIN ${pin}!`
+        );
+      }
       if (onSuccess) {
         onSuccess();
       }

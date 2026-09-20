@@ -25,6 +25,7 @@ export type User = {
   email: string;
   name?: string;
   role: Role | string;
+  systemRole?: string;
   businessId?: string | null;
   tenantId?: string | null;
   status?: string;

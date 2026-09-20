@@ -126,6 +126,19 @@ export const userApi = baseApi.injectEndpoints({
       invalidatesTags: ["User", "Approvals"],
     }),
 
+    // 8. POST /users/{id}/change-pin - Update quick-login PIN
+    changeUserPin: build.mutation<
+      { message: string; userId: string },
+      { id: string; pin: string }
+    >({
+      query: ({ id, pin }) => ({
+        url: `/users/${id}/change-pin`,
+        method: "POST",
+        body: { pin },
+      }),
+      invalidatesTags: ["User", "Approvals"],
+    }),
+
     // --- Legacy / Compatibility Endpoints ---
     getAllUsers: build.query<UsersResponse, void>({
       query: () => ({
@@ -186,6 +199,7 @@ export const {
   useDeleteEmployeeMutation,
   useGetStaffApprovalsQuery,
   useUpdateApprovalStatusMutation,
+  useChangeUserPinMutation,
   useGetAllUsersQuery,
   useGetMyProfileQuery,
   useChangeUserRoleMutation,

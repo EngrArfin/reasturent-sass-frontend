@@ -13,9 +13,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { type ElementType } from "react";
+import React, { useMemo, type ElementType } from "react";
 import { useDispatch } from "react-redux";
 import { logOut } from "@/redux/features/auth/authSlice";
+import { useGetStaffApprovalsQuery } from "@/redux/features/auth/userApi";
+import { getStaffApprovalStatus } from "@/pages/Manager/ApprovalsPage";
+import { IUser } from "@/redux/features/auth/userType";
 
 export interface SidebarItem {
   icon: LucideIcon | ElementType;
@@ -28,59 +31,78 @@ export interface SupervisorSidebarProps {
   onItemClick?: () => void;
 }
 
-const supervisorSidebarItems: SidebarItem[] = [
-  {
-    icon: PieChart,
-    label: "Overview",
-    href: "/supervisor-dashboard/dashboard",
-  },
-  {
-    icon: ShieldCheck,
-    label: "Staff Approvals",
-    href: "/supervisor-dashboard/approvals",
-    badge: "2 Pending",
-  },
-  {
-    icon: Users,
-    label: "Employees",
-    href: "/supervisor-dashboard/employees",
-  },
-  {
-    icon: Utensils,
-    label: "Manage Food",
-    href: "/supervisor-dashboard/manage-food",
-  },
-  {
-    icon: Box,
-    label: "Inventory",
-    href: "/supervisor-dashboard/inventory",
-  },
-  {
-    icon: Ticket,
-    label: "Vouchers",
-    href: "/supervisor-dashboard/voucher",
-  },
-  {
-    icon: ScanLine,
-    label: "QRScanner",
-    href: "/supervisor-dashboard/qrscanner",
-  },
-  {
-    icon: LifeBuoy,
-    label: "Support Ticket",
-    href: "/supervisor-dashboard/manager-ticket",
-  },
-  {
-    icon: Settings,
-    label: "Settings",
-    href: "/supervisor-dashboard/settings",
-  },
-];
-
 const SupervisorSidebar: React.FC<SupervisorSidebarProps> = ({ onItemClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { data: approvalsData } = useGetStaffApprovalsQuery(undefined, {
+    pollingInterval: 30000,
+    refetchOnMountOrArgChange: true,
+  });
+
+  const pendingCount: number = useMemo(() => {
+    if (typeof approvalsData?.metrics?.pendingCount === "number") {
+      return approvalsData.metrics.pendingCount;
+    }
+    const requests = (approvalsData?.requests || approvalsData?.employees || []) as IUser[];
+    if (Array.isArray(requests) && requests.length > 0) {
+      return requests.filter((r: IUser) => getStaffApprovalStatus(r) === "PENDING").length;
+    }
+    return 0;
+  }, [approvalsData]);
+
+  const supervisorSidebarItems: SidebarItem[] = useMemo(
+    () => [
+      {
+        icon: PieChart,
+        label: "Overview",
+        href: "/supervisor-dashboard/dashboard",
+      },
+      {
+        icon: ShieldCheck,
+        label: "Staff Approvals",
+        href: "/supervisor-dashboard/approvals",
+        badge: pendingCount > 0 ? `${pendingCount} Pending` : undefined,
+      },
+      {
+        icon: Users,
+        label: "Employees",
+        href: "/supervisor-dashboard/employees",
+      },
+      {
+        icon: Utensils,
+        label: "Manage Food",
+        href: "/supervisor-dashboard/manage-food",
+      },
+      {
+        icon: Box,
+        label: "Inventory",
+        href: "/supervisor-dashboard/inventory",
+      },
+      {
+        icon: Ticket,
+        label: "Vouchers",
+        href: "/supervisor-dashboard/voucher",
+      },
+      {
+        icon: ScanLine,
+        label: "QRScanner",
+        href: "/supervisor-dashboard/qrscanner",
+      },
+      {
+        icon: LifeBuoy,
+        label: "Support Ticket",
+        href: "/supervisor-dashboard/manager-ticket",
+      },
+      {
+        icon: Settings,
+        label: "Settings",
+        href: "/supervisor-dashboard/settings",
+      },
+    ],
+    [pendingCount]
+  );
 
   const handleLogout = () => {
     dispatch(logOut());
@@ -125,11 +147,10 @@ const SupervisorSidebar: React.FC<SupervisorSidebarProps> = ({ onItemClick }) =>
                 <Link
                   to={item.href}
                   onClick={onItemClick}
-                  className={`group flex items-center justify-between w-full px-3.5 py-2.5 text-sm transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? "text-white bg-orange-600 rounded-xl shadow-md"
-                      : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
-                  }`}
+                  className={`group flex items-center justify-between w-full px-3.5 py-2.5 text-sm transition-all duration-300 cursor-pointer ${isActive
+                    ? "text-white bg-orange-600 rounded-xl shadow-md"
+                    : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
+                    }`}
                 >
                   <div className="flex items-center space-x-3 text-sm md:text-base font-medium">
                     <Icon className="w-5 h-5 text-white shrink-0" />
@@ -138,11 +159,10 @@ const SupervisorSidebar: React.FC<SupervisorSidebarProps> = ({ onItemClick }) =>
 
                   {item.badge && (
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
-                        isActive
-                          ? "bg-white text-orange-600"
-                          : "bg-amber-500/20 text-amber-300 border border-amber-500/40 group-hover:bg-white group-hover:text-orange-600"
-                      }`}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${isActive
+                        ? "bg-white text-orange-600"
+                        : "bg-amber-500/20 text-amber-300 border border-amber-500/40 group-hover:bg-white group-hover:text-orange-600"
+                        }`}
                     >
                       {item.badge}
                     </span>

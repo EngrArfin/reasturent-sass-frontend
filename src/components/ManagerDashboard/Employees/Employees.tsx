@@ -23,6 +23,7 @@ import {
   useDeleteEmployeeMutation,
 } from "@/redux/features/auth/userApi";
 import { IUser } from "@/redux/features/auth/userType";
+import { useAppSelector } from "@/redux/hooks/redux-hook";
 
 const roleStyles: Record<string, { bg: string; text: string; border: string }> = {
   supervisor: {
@@ -62,6 +63,10 @@ const getRoleStyle = (role?: string) => {
 };
 
 const Employees: React.FC = () => {
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const currentRole = (currentUser?.role || currentUser?.systemRole || "").toLowerCase();
+  const isCurrentUserManager = currentRole === "manager";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("ALL");
   const [showNewEmployeeForm, setShowNewEmployeeForm] = useState(false);
@@ -90,6 +95,14 @@ const Employees: React.FC = () => {
   const [editIsActive, setEditIsActive] = useState<boolean>(true);
 
   const openEditModal = (emp: IUser) => {
+    const isTargetSupervisor =
+      (emp.role || emp.systemRole || "").toLowerCase() === "supervisor";
+
+    if (isCurrentUserManager && isTargetSupervisor) {
+      toast.error("Managers are not permitted to edit Supervisor accounts.");
+      return;
+    }
+
     setEditingEmployee(emp);
     setEditName(emp.name || "");
     setEditEmail(emp.email || "");
@@ -101,6 +114,20 @@ const Employees: React.FC = () => {
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingEmployee) return;
+
+    const isTargetSupervisor =
+      (editingEmployee.role || editingEmployee.systemRole || "").toLowerCase() === "supervisor";
+
+    if (isCurrentUserManager && isTargetSupervisor) {
+      toast.error("Managers are not permitted to edit Supervisor accounts.");
+      setEditingEmployee(null);
+      return;
+    }
+
+    if (isCurrentUserManager && editRole.toLowerCase() === "supervisor") {
+      toast.error("Managers cannot assign the Supervisor role.");
+      return;
+    }
 
     if (!editName.trim()) {
       toast.error("Employee name is required");
@@ -135,6 +162,16 @@ const Employees: React.FC = () => {
   };
 
   const handleDeleteEmployee = async (id: string, name: string) => {
+    const targetEmp = employees.find((e) => e.id === id);
+    const isTargetSupervisor =
+      (targetEmp?.role || targetEmp?.systemRole || "").toLowerCase() === "supervisor";
+
+    if (isCurrentUserManager && isTargetSupervisor) {
+      toast.error("Managers are not permitted to delete Supervisor accounts.");
+      setDeleteConfirmId(null);
+      return;
+    }
+
     try {
       await deleteEmployee(id).unwrap();
       toast.success(`Employee "${name}" deleted successfully`);
@@ -288,11 +325,10 @@ const Employees: React.FC = () => {
               key={role}
               type="button"
               onClick={() => setSelectedRole(role)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                selectedRole === role
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${selectedRole === role
                   ? "bg-[#052350] text-blue-400 border border-blue-500/40 shadow-sm"
                   : "text-slate-400 hover:text-white"
-              }`}
+                }`}
             >
               {role === "ALL" ? "All Roles" : role}
             </button>
@@ -396,12 +432,13 @@ const Employees: React.FC = () => {
                         {emp.role}
                       </span>
                       {emp.isActive === false ? (
-                        <span className="text-[10px] text-red-400 font-medium">
-                          Inactive
+                        <span className="text-[10px] text-amber-400 font-medium flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          Pending Approval
                         </span>
                       ) : (
-                        <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                           Active
                         </span>
                       )}
@@ -436,23 +473,36 @@ const Employees: React.FC = () => {
 
                 {/* Card Bottom: Delete & Edit Profile */}
                 <div className="flex items-center justify-between pt-3 border-t border-[#1F2E4D]/60">
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirmId(emp.id)}
-                    title="Delete Employee"
-                    className="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer border border-red-500/20"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {isCurrentUserManager &&
+                    ((emp.role || emp.systemRole || "").toLowerCase() === "supervisor") ? (
+                    <div className="w-full flex items-center justify-between py-1.5 px-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium">
+                      <span className="flex items-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Supervisor Protected</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-normal">View Only</span>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteConfirmId(emp.id)}
+                        title="Delete Employee"
+                        className="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer border border-red-500/20"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(emp)}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#052350] hover:bg-[#041a3d] border border-blue-500/30 text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.98]"
-                  >
-                    <Edit3 className="w-3.5 h-3.5 text-slate-300" />
-                    <span>Edit Profile</span>
-                  </button>
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(emp)}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#052350] hover:bg-[#041a3d] border border-blue-500/30 text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.98]"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-slate-300" />
+                        <span>Edit Profile</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );

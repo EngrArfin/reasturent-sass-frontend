@@ -20,6 +20,44 @@ import {
 } from "@/redux/features/auth/userApi";
 import { IUser } from "@/redux/features/auth/userType";
 
+export const getStaffApprovalStatus = (
+  req: IUser
+): "PENDING" | "APPROVED" | "BLOCKED" => {
+  if (!req) return "PENDING";
+  const statusUpper = (req.status || req.approvalStatus || "").toUpperCase();
+
+  // 1. Explicit Blocked / Rejected
+  if (
+    statusUpper === "BLOCKED" ||
+    statusUpper === "REJECTED" ||
+    statusUpper === "SUSPENDED" ||
+    (req.isActive === false && req.isApproved !== false && statusUpper !== "PENDING")
+  ) {
+    return "BLOCKED";
+  }
+
+  // 2. Pending Approval
+  if (
+    statusUpper === "PENDING" ||
+    statusUpper.includes("PENDING") ||
+    req.isApproved === false ||
+    (!req.isApproved && statusUpper !== "APPROVED")
+  ) {
+    return "PENDING";
+  }
+
+  // 3. Approved
+  if (
+    req.isApproved === true ||
+    statusUpper === "APPROVED" ||
+    req.isActive === true
+  ) {
+    return "APPROVED";
+  }
+
+  return "PENDING";
+};
+
 const ApprovalsPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<
     "ALL" | "PENDING" | "APPROVED" | "BLOCKED"
@@ -57,28 +95,15 @@ const ApprovalsPage: React.FC = () => {
     return requests.filter((req) => {
       if (!req) return false;
 
-      const statusUpper = (req.status || "").toUpperCase();
-      const isApproved =
-        req.isApproved === true ||
-        statusUpper === "APPROVED" ||
-        (req.isActive === true &&
-          statusUpper !== "BLOCKED" &&
-          statusUpper !== "REJECTED");
+      const currentStatus = getStaffApprovalStatus(req);
 
-      const isBlocked =
-        statusUpper === "BLOCKED" ||
-        statusUpper === "REJECTED" ||
-        req.isActive === false;
-
-      const isPending = !isApproved && !isBlocked;
-
-      if (activeFilter === "PENDING" && !isPending && statusUpper !== "PENDING") {
+      if (activeFilter === "PENDING" && currentStatus !== "PENDING") {
         return false;
       }
-      if (activeFilter === "APPROVED" && !isApproved) {
+      if (activeFilter === "APPROVED" && currentStatus !== "APPROVED") {
         return false;
       }
-      if (activeFilter === "BLOCKED" && !isBlocked && statusUpper !== "BLOCKED") {
+      if (activeFilter === "BLOCKED" && currentStatus !== "BLOCKED") {
         return false;
       }
 
@@ -97,31 +122,15 @@ const ApprovalsPage: React.FC = () => {
   // Dynamic metrics from API with calculated fallback
   const pendingCount =
     approvalsData?.metrics?.pendingCount ??
-    requests.filter(
-      (r) =>
-        (r.status || "").toUpperCase() === "PENDING" ||
-        (!r.isApproved &&
-          !r.isActive &&
-          (r.status || "").toUpperCase() !== "BLOCKED" &&
-          (r.status || "").toUpperCase() !== "REJECTED")
-    ).length;
+    requests.filter((r) => getStaffApprovalStatus(r) === "PENDING").length;
 
   const approvedCount =
     approvalsData?.metrics?.approvedCount ??
-    requests.filter(
-      (r) =>
-        (r.status || "").toUpperCase() === "APPROVED" ||
-        r.isApproved === true ||
-        r.isActive === true
-    ).length;
+    requests.filter((r) => getStaffApprovalStatus(r) === "APPROVED").length;
 
   const blockedCount =
     approvalsData?.metrics?.blockedCount ??
-    requests.filter(
-      (r) =>
-        (r.status || "").toUpperCase() === "BLOCKED" ||
-        (r.status || "").toUpperCase() === "REJECTED"
-    ).length;
+    requests.filter((r) => getStaffApprovalStatus(r) === "BLOCKED").length;
 
   // Dynamic pagination
   const totalResults = filteredRequests.length;
@@ -375,20 +384,10 @@ const ApprovalsPage: React.FC = () => {
               </tr>
             ) : (
               paginatedRequests.map((req) => {
-                const statusUpper = (req.status || "").toUpperCase();
-                const isApproved =
-                  req.isApproved === true ||
-                  statusUpper === "APPROVED" ||
-                  (req.isActive === true &&
-                    statusUpper !== "BLOCKED" &&
-                    statusUpper !== "REJECTED");
-
-                const isBlocked =
-                  statusUpper === "BLOCKED" ||
-                  statusUpper === "REJECTED" ||
-                  req.isActive === false;
-
-                const isPending = !isApproved && !isBlocked;
+                const currentStatus = getStaffApprovalStatus(req);
+                const isApproved = currentStatus === "APPROVED";
+                const isPending = currentStatus === "PENDING";
+                const isBlocked = currentStatus === "BLOCKED";
 
                 // Safe non-null avatar url with Dicebear fallback
                 const avatarUrl =
@@ -466,19 +465,19 @@ const ApprovalsPage: React.FC = () => {
                       {isApproved && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>{req.approvalStatus || "Approved (Can Login)"}</span>
+                          <span>Approved (Can Login)</span>
                         </span>
                       )}
                       {isPending && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-400 animate-pulse">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>{req.approvalStatus || "Pending Acceptance"}</span>
+                          <span>Pending Acceptance</span>
                         </span>
                       )}
                       {isBlocked && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/10 border border-red-500/30 text-red-400">
                           <AlertCircle className="w-3.5 h-3.5" />
-                          <span>{req.approvalStatus || "Blocked (Denied)"}</span>
+                          <span>Blocked (Denied)</span>
                         </span>
                       )}
                     </td>
@@ -494,7 +493,7 @@ const ApprovalsPage: React.FC = () => {
                             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all duration-200 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap disabled:opacity-50"
                           >
                             <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>Accept & Approve</span>
+                            <span>{isBlocked ? "Unblock & Approve" : "Accept & Approve"}</span>
                           </button>
                         )}
 
