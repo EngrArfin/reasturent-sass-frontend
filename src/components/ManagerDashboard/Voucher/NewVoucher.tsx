@@ -1,53 +1,62 @@
 import React, { useState, useEffect } from "react";
-import { Save, ChevronDown, Check, X } from "lucide-react";
+import { Save, ChevronDown, Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  useCreateVoucherMutation,
+  useUpdateVoucherMutation,
+  IVoucher,
+} from "@/redux/features/manager/VouchersDiscounts/vouchersDiscountsApi";
+import { useAppSelector } from "@/redux/hooks/redux-hook";
 
-export interface VoucherItem {
-  id: string;
-  name: string;
-  requestedBy: string;
-  minPrice: number;
-  originalPrice: number;
-  discountPercent: number;
-  discountAmount: number;
-  finalPrice: number;
-}
+export { type IVoucher as VoucherItem } from "@/redux/features/manager/VouchersDiscounts/vouchersDiscountsType";
 
 interface NewVoucherProps {
-  onAddVoucher: (voucher: Omit<VoucherItem, "id">) => void;
   onCancel: () => void;
-  initialData?: VoucherItem | null;
+  initialData?: IVoucher | null;
+  onSuccess?: () => void;
+  onAddVoucher?: (voucher: any) => void;
 }
 
-const discountOptions = [2, 5, 10, 15, 20, 25, 30, 50];
+const discountOptions = [2, 5, 10, 14.3, 15, 15.3, 20, 25, 30, 50];
 
 const NewVoucher: React.FC<NewVoucherProps> = ({
-  onAddVoucher,
   onCancel,
   initialData,
+  onSuccess,
 }) => {
+  const user = useAppSelector((state) => state.auth.user);
+
   const [name, setName] = useState(initialData?.name || "");
   const [minPrice, setMinPrice] = useState<number | string>(
-    initialData?.minPrice ?? ""
+    initialData?.minimumPrice ?? initialData?.minPrice ?? ""
   );
-  const [originalPrice, setOriginalPrice] = useState<number | string>(
-    initialData?.originalPrice ?? 3.5
-  );
-  const [discountPercent, setDiscountPercent] = useState<number>(
-    initialData?.discountPercent ?? 2
-  );
+  const [discountPercent, setDiscountPercent] = useState<number>(() => {
+    if (initialData?.offPrice) {
+      const parsed = parseFloat(String(initialData.offPrice).replace("%", ""));
+      return !isNaN(parsed) ? parsed : 10;
+    }
+    return initialData?.discountPercent ?? 10;
+  });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const [createVoucher, { isLoading: isCreating }] = useCreateVoucherMutation();
+  const [updateVoucher, { isLoading: isUpdating }] = useUpdateVoucherMutation();
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     if (initialData) {
-      setName(initialData.name);
-      setMinPrice(initialData.minPrice);
-      setOriginalPrice(initialData.originalPrice);
-      setDiscountPercent(initialData.discountPercent);
+      setName(initialData.name || "");
+      setMinPrice(initialData.minimumPrice ?? initialData.minPrice ?? "");
+      if (initialData.offPrice) {
+        const parsed = parseFloat(String(initialData.offPrice).replace("%", ""));
+        setDiscountPercent(!isNaN(parsed) ? parsed : 10);
+      } else if (initialData.discountPercent) {
+        setDiscountPercent(initialData.discountPercent);
+      }
     }
   }, [initialData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
@@ -55,27 +64,64 @@ const NewVoucher: React.FC<NewVoucherProps> = ({
       return;
     }
 
-    const parsedMin = Number(minPrice) || 0;
-    const parsedOriginal = Number(originalPrice) || 0;
-    const calcDiscount = (parsedOriginal * discountPercent) / 100;
-    const calcFinal = Math.max(0, parsedOriginal - calcDiscount);
+    const parsedMin = Number(minPrice);
+    if (isNaN(parsedMin) || parsedMin <= 0) {
+      toast.error("Please enter a valid minimum price");
+      return;
+    }
 
-    onAddVoucher({
-      name: name.trim(),
-      requestedBy: initialData?.requestedBy || "JOHN",
-      minPrice: parsedMin,
-      originalPrice: parsedOriginal,
-      discountPercent: discountPercent,
-      discountAmount: Number(calcDiscount.toFixed(2)),
-      finalPrice: Number(calcFinal.toFixed(2)),
-    });
+    const offPriceStr = `${discountPercent}%`;
+    const defaultCode = `${name
+      .trim()
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 8)
+      .toUpperCase()}-${Math.round(discountPercent)}`;
+    const expiresAt =
+      initialData?.expiresAt ||
+      new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000).toISOString();
+    const requestedBy =
+      initialData?.requestedBy || user?.name?.toUpperCase() || "SARAH";
 
-    toast.success(
-      initialData
-        ? `Voucher for "${name}" updated!`
-        : `Voucher for "${name}" created successfully!`
-    );
-    onCancel();
+    try {
+      if (initialData?.id) {
+        await updateVoucher({
+          id: initialData.id,
+          data: {
+            name: name.trim(),
+            minimumPrice: parsedMin,
+            offPrice: offPriceStr,
+            requestedBy,
+            code: initialData.code || defaultCode,
+            expiresAt,
+            isUsed: initialData.isUsed ?? false,
+            isActive: initialData.isActive ?? true,
+            businessId:
+              initialData.businessId || user?.businessId || undefined,
+          },
+        }).unwrap();
+        toast.success(`Voucher for "${name}" updated successfully!`);
+      } else {
+        await createVoucher({
+          name: name.trim(),
+          minimumPrice: parsedMin,
+          offPrice: offPriceStr,
+          requestedBy,
+          code: defaultCode,
+          expiresAt,
+          isUsed: false,
+          isActive: true,
+          businessId: user?.businessId || undefined,
+        }).unwrap();
+        toast.success(`Voucher for "${name}" created successfully!`);
+      }
+
+      if (onSuccess) onSuccess();
+      onCancel();
+    } catch (err: any) {
+      toast.error(
+        err?.data?.message || err?.error || "Failed to save voucher"
+      );
+    }
   };
 
   return (
@@ -138,8 +184,9 @@ const NewVoucher: React.FC<NewVoucherProps> = ({
               >
                 <span>{discountPercent}%</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -173,16 +220,27 @@ const NewVoucher: React.FC<NewVoucherProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-full border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer text-center"
+            disabled={isLoading}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-full border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer text-center disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="w-full sm:w-auto px-7 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center justify-center gap-2"
+            disabled={isLoading}
+            className="w-full sm:w-auto px-7 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            <span>Save</span>
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save</span>
+              </>
+            )}
           </button>
         </div>
       </form>
