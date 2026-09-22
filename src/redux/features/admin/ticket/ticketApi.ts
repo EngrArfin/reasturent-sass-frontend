@@ -17,7 +17,9 @@ export const ticketApi = baseApi.injectEndpoints({
     getSupportTickets: builder.query<ISupportTicket[], IQueryTicketParams | void>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params?.status) queryParams.append("status", params.status);
+        if (params?.status && params.status !== "ALL") {
+          queryParams.append("status", params.status);
+        }
         if (params?.category) queryParams.append("category", params.category);
         if (params?.search) queryParams.append("search", params.search);
         if (params?.businessId) queryParams.append("businessId", params.businessId);
@@ -28,24 +30,27 @@ export const ticketApi = baseApi.injectEndpoints({
         };
       },
       transformResponse: (response: any) => {
-        const list = response?.data || response || [];
+        const list = Array.isArray(response)
+          ? response
+          : response?.data || response?.tickets || [];
         return list.map((t: any) => ({
           ...t,
+          category: t.category || t.title || "Support Request",
           businessName:
             t.business?.businessName ||
             t.business?.name ||
             t.businessName ||
             "Restaurant Tenant",
           messagesCount:
-            t._count?.messages ||
-            t.messageCount ||
-            t.messagesCount ||
-            (t.messages ? t.messages.length : 1),
+            t._count?.messages ??
+            t.messageCount ??
+            t.messagesCount ??
+            (Array.isArray(t.messages) ? t.messages.length : 1),
           time: t.createdAt
             ? new Date(t.createdAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+              hour: "2-digit",
+              minute: "2-digit",
+            })
             : "",
         }));
       },
@@ -63,16 +68,33 @@ export const ticketApi = baseApi.injectEndpoints({
         if (!ticket) return ticket;
         return {
           ...ticket,
+          category: ticket.category || ticket.title || "Support Request",
           businessName:
             ticket.business?.businessName ||
             ticket.business?.name ||
             ticket.businessName ||
             "Restaurant Tenant",
-          messages: (ticket.messages || []).map((m: any) => ({
-            ...m,
-            text: m.message || m.text,
-            sender: m.senderRole === "super_admin" ? "admin" : "user",
-          })),
+          messages: (ticket.messages || []).map((m: any) => {
+            const isAdmin =
+              m.senderRole === "super_admin" ||
+              m.senderRole === "admin" ||
+              m.sender === "admin";
+            return {
+              ...m,
+              text: m.message || m.text || "",
+              sender: isAdmin ? "admin" : "user",
+              senderName:
+                m.senderName ||
+                m.user?.name ||
+                (isAdmin ? "Support Admin" : "You"),
+              time: m.createdAt
+                ? new Date(m.createdAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+                : m.time || "",
+            };
+          }),
         };
       },
       providesTags: (_result, _error, id) => [{ type: "SupportTickets", id }],
@@ -157,3 +179,4 @@ export const {
   useUpdateSupportTicketMutation,
   useDeleteSupportTicketMutation,
 } = ticketApi;
+

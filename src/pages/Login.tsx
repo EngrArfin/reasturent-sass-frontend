@@ -124,6 +124,7 @@ const Login: React.FC = () => {
             <div className="flex items-center gap-2.5 text-xs text-slate-300 bg-black/40 backdrop-blur-sm px-3.5 py-2.5 rounded-xl border border-white/10">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>Email & 4-Digit PIN Access</span>
+
             </div>
           </div>
         </div>
@@ -136,6 +137,14 @@ const Login: React.FC = () => {
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
               Sign in with your Email Address and 4-Digit PIN.
+              <a
+                href="https://docs.google.com/document/d/1ollwPYOMF_dc4X9LOW8Y1sE4FSlDENMGXsuL6FfH7EI/edit?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 ml-1"
+              >
+                Login Credential
+              </a>
             </p>
           </div>
 
