@@ -13,6 +13,7 @@ import SubscriptionPage from "@/pages/Admin/SubscriptionPage";
 import AllBusinessPage from "@/pages/Admin/AllBusinessPage";
 import SubmitTicketPage from "@/pages/Admin/SubmitTicketPage";
 import BusinessCreatePage from "@/pages/Admin/BusinessCreatePage";
+import NotificationPage from "@/pages/Admin/NotificationPage";
 import ManagerLayout from "@/Layout/ManagerLayout";
 import ManagerDashboardPage from "@/pages/Manager/ManagerDashboardPage";
 import InventoryPage from "@/pages/Manager/InventoryPage";
@@ -83,6 +84,7 @@ const routes = createBrowserRouter([
       { path: "manager-ticket", element: <ManagerTicketPage /> },
       { path: "support", element: <ManagerTicketPage /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "notifications", element: <NotificationPage /> },
     ],
   },
 
@@ -105,6 +107,7 @@ const routes = createBrowserRouter([
       { path: "support", element: <ManagerTicketPage /> },
       { path: "managersupport", element: <ManagerTicketPage /> },
       { path: "settings", element: <SettingsPage /> },
+      { path: "notifications", element: <NotificationPage /> },
     ],
   },
 
@@ -116,6 +119,7 @@ const routes = createBrowserRouter([
       { index: true, element: <CashierDashboardPage /> },
       { path: "dashboard", element: <CashierDashboardPage /> },
       { path: "table-menu", element: <TableMenuPage /> },
+      { path: "notifications", element: <NotificationPage /> },
     ],
   },
 
@@ -126,6 +130,7 @@ const routes = createBrowserRouter([
     children: [
       { index: true, element: <KitchenDashboardPage /> },
       { path: "dashboard", element: <KitchenDashboardPage /> },
+      { path: "notifications", element: <NotificationPage /> },
     ],
   },
 
@@ -139,6 +144,7 @@ const routes = createBrowserRouter([
       { path: "orders", element: <ServeOrderListPage /> },
       { path: "order-status", element: <ServeOrderListPage /> },
       { path: "table-orders", element: <ServeOrderListPage /> },
+      { path: "notifications", element: <NotificationPage /> },
     ],
   },
 
@@ -157,6 +163,7 @@ const routes = createBrowserRouter([
       { path: "subscription", element: <SubscriptionPage /> },
       { path: "submit-ticket", element: <SubmitTicketPage /> },
       { path: "business-create", element: <BusinessCreatePage /> },
+      { path: "notifications", element: <NotificationPage /> },
     ],
   },
   {
@@ -166,3 +173,4 @@ const routes = createBrowserRouter([
 ]);
 
 export default routes;
+

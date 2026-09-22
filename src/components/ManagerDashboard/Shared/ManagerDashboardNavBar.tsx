@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import user from "@/assets/Photo/Group (3).png";
 import { Link } from "react-router-dom";
+import NotificationPannel from "@/components/AdminDashboard/Shared/NotificationPannel";
 
 export interface NavbarProps {
   onMobileMenuToggle: () => void;
@@ -19,7 +20,6 @@ export interface NavbarProps {
 
 const ManagerDashboardNavBar: React.FC<NavbarProps> = ({
   onMobileMenuToggle,
-
   userName = "Gemini Chachi",
   isSidebarOpen,
 }) => {
@@ -53,10 +53,12 @@ const ManagerDashboardNavBar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center space-x-4">
-          {/* Dashboard Icon */}
+        {/* Right Section: Notifications + User Profile */}
+        <div className="flex items-center space-x-3">
+          {/* Notification Icon & Dropdown Panel */}
+          <NotificationPannel notificationsUrl="/manager-dashboard/notifications" />
 
+          {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -72,25 +74,21 @@ const ManagerDashboardNavBar: React.FC<NavbarProps> = ({
               align="end"
               className="bg-[#131b2e] text-white w-60 shadow-2xl rounded-3xl border border-[#3A5CFF]/40 backdrop-blur-md overflow-hidden animate-fadeIn"
             >
-              <Link to="/admin-dashboard/settings">
+              <Link to="/manager-dashboard/settings">
                 <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-[#FEF7ED] hover:text-black transition-colors cursor-pointer">
-                  {/* <IoMdSettings className="text-white hover:text-black transition-colors duration-300 cursor-pointer" /> */}
                   <span className="font-medium">Settings</span>
                 </DropdownMenuItem>
               </Link>
 
               <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-[#FEF7ED] hover:text-black transition-colors cursor-pointer">
-                {/* <RiFileList3Fill className="text-white hover:text-black" /> */}
                 <span className="font-medium">Terms & Conditions</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-[#FEF7ED] hover:text-black transition-colors cursor-pointer">
-                {/* <MdPrivacyTip className="text-white hover:text-black" /> */}
                 <span className="font-medium">Privacy Policy</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 rounded-3xl hover:bg-red-600 hover:text-black transition-colors cursor-pointer">
-                {/* <RiLogoutBoxRLine className="text-red-500" /> */}
                 <span className="font-medium">Sign Out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -102,3 +100,4 @@ const ManagerDashboardNavBar: React.FC<NavbarProps> = ({
 };
 
 export default ManagerDashboardNavBar;
+

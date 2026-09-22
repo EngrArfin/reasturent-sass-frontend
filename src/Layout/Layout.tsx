@@ -1,6 +1,7 @@
 import Footer from "./Footer";
 import { Outlet, useLocation } from "react-router-dom";
 import NavBar from "./Navbar";
+import Chat from "@/components/Home/Chat";
 
 const Layout: React.FC = () => {
   const location = useLocation();
@@ -17,7 +18,12 @@ const Layout: React.FC = () => {
       <main>
         <Outlet />
       </main>
-      {!hidePage && <Footer />}
+      {!hidePage && (
+        <>
+          <Footer />
+          <Chat />
+        </>
+      )}
     </div>
   );
 };
