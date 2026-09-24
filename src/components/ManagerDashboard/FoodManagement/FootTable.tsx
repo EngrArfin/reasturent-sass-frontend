@@ -12,26 +12,30 @@ import {
   Clock,
   Filter,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  useGetTablesQuery,
+  useGetTableSummaryQuery,
+  useCreateTableMutation,
+  useUpdateTableMutation,
+  useDeleteTableMutation,
+} from "@/redux/features/manager/ManageFood/manageFoodApi";
+import { ITable, TableStatus } from "@/redux/features/manager/ManageFood/manageFoodType";
 
-export interface RestaurantTable {
-  id: number | string;
-  capacity: number;
-  status: "OCCUPIED" | "AVAILABLE" | "RESERVED" | "CLEANING";
-  subStatus: "SERVED" | "ORDER_PLACED" | "PREPARING" | "PAYMENT_PENDING" | "-";
-  section?: string;
+export interface RestaurantTable extends ITable {
   waiter?: string;
   seatedTime?: string;
-  activeOrderNumber?: string;
   totalBill?: number;
   orderItems?: { name: string; quantity: number; price: number }[];
 }
 
-export const initialTablesData: RestaurantTable[] = [
+const fallbackTablesData: RestaurantTable[] = [
   {
-    id: 1,
-    capacity: 4,
+    id: "1",
+    tableNumber: "1",
+    capacity: "4 Persons",
     status: "OCCUPIED",
     subStatus: "SERVED",
     section: "Main Dining Hall",
@@ -46,15 +50,17 @@ export const initialTablesData: RestaurantTable[] = [
     ],
   },
   {
-    id: 2,
-    capacity: 4,
+    id: "2",
+    tableNumber: "2",
+    capacity: "4 Persons",
     status: "AVAILABLE",
     subStatus: "-",
     section: "Main Dining Hall",
   },
   {
-    id: 3,
-    capacity: 4,
+    id: "3",
+    tableNumber: "3",
+    capacity: "4 Persons",
     status: "OCCUPIED",
     subStatus: "SERVED",
     section: "Patio Terrace",
@@ -69,8 +75,9 @@ export const initialTablesData: RestaurantTable[] = [
     ],
   },
   {
-    id: 4,
-    capacity: 4,
+    id: "4",
+    tableNumber: "4",
+    capacity: "4 Persons",
     status: "OCCUPIED",
     subStatus: "SERVED",
     section: "Patio Terrace",
@@ -85,8 +92,9 @@ export const initialTablesData: RestaurantTable[] = [
     ],
   },
   {
-    id: 5,
-    capacity: 2,
+    id: "5",
+    tableNumber: "5",
+    capacity: "2 Persons",
     status: "OCCUPIED",
     subStatus: "SERVED",
     section: "Window Bay",
@@ -100,15 +108,17 @@ export const initialTablesData: RestaurantTable[] = [
     ],
   },
   {
-    id: 6,
-    capacity: 2,
+    id: "6",
+    tableNumber: "6",
+    capacity: "2 Persons",
     status: "AVAILABLE",
     subStatus: "-",
     section: "Window Bay",
   },
   {
-    id: 7,
-    capacity: 6,
+    id: "7",
+    tableNumber: "7",
+    capacity: "6 Persons",
     status: "RESERVED",
     subStatus: "-",
     section: "VIP Lounge",
@@ -116,8 +126,9 @@ export const initialTablesData: RestaurantTable[] = [
     seatedTime: "Reserved for 8:30 PM",
   },
   {
-    id: 8,
-    capacity: 8,
+    id: "8",
+    tableNumber: "8",
+    capacity: "8 Persons",
     status: "AVAILABLE",
     subStatus: "-",
     section: "VIP Lounge",
@@ -134,16 +145,29 @@ export const FootTable: React.FC<FootTableProps> = ({
   isAddModalOpen = false,
   onCloseAddModal,
 }) => {
-  const [tables, setTables] = useState<RestaurantTable[]>(initialTablesData);
-  const [localAddModalOpen, setLocalAddModalOpen] = useState(false);
-  const [viewTable, setViewTable] = useState<RestaurantTable | null>(null);
-  const [editTable, setEditTable] = useState<RestaurantTable | null>(null);
-  const [deleteTableId, setDeleteTableId] = useState<number | string | null>(null);
-
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [sectionFilter, setSectionFilter] = useState<string>("ALL");
+
+  // API Queries & Mutations
+  const { data: tablesData, isLoading, isFetching } = useGetTablesQuery({
+    search: searchQuery || undefined,
+    status: statusFilter !== "ALL" ? statusFilter : undefined,
+    section: sectionFilter !== "ALL" ? sectionFilter : undefined,
+  });
+
+  const { data: summaryData } = useGetTableSummaryQuery();
+
+  const [createTable, { isLoading: isCreating }] = useCreateTableMutation();
+  const [updateTable, { isLoading: isUpdating }] = useUpdateTableMutation();
+  const [deleteTable, { isLoading: isDeleting }] = useDeleteTableMutation();
+
+  // Local modal states
+  const [localAddModalOpen, setLocalAddModalOpen] = useState(false);
+  const [viewTable, setViewTable] = useState<RestaurantTable | null>(null);
+  const [editTable, setEditTable] = useState<RestaurantTable | null>(null);
+  const [deleteTableId, setDeleteTableId] = useState<string | null>(null);
 
   const showAddModal = isAddModalOpen || localAddModalOpen;
   const handleCloseAdd = () => {
@@ -153,112 +177,139 @@ export const FootTable: React.FC<FootTableProps> = ({
 
   // Add Table Form State
   const [newTable, setNewTable] = useState<{
-    id: string;
-    capacity: number;
-    status: RestaurantTable["status"];
-    subStatus: RestaurantTable["subStatus"];
+    tableNumber: string;
+    capacity: string;
+    status: TableStatus;
+    subStatus: string;
     section: string;
   }>({
-    id: "",
-    capacity: 4,
+    tableNumber: "",
+    capacity: "4 Persons",
     status: "AVAILABLE",
     subStatus: "-",
     section: "Main Dining Hall",
   });
 
+  // Calculate live tables from API or fallback
+  const apiTables = tablesData?.data;
+  const tables: RestaurantTable[] =
+    apiTables && apiTables.length > 0 ? (apiTables as RestaurantTable[]) : fallbackTablesData;
+
   // Add Table Submit
-  const handleAddTableSubmit = (e: React.FormEvent) => {
+  const handleAddTableSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const tableId = newTable.id.trim() ? newTable.id.trim() : (tables.length + 1).toString();
+    const tableNum = newTable.tableNumber.trim()
+      ? newTable.tableNumber.trim()
+      : (tables.length + 1).toString();
 
-    if (tables.some((t) => t.id.toString() === tableId.toString())) {
-      toast.error(`Table ${tableId} already exists!`);
-      return;
+    try {
+      await createTable({
+        tableNumber: tableNum,
+        capacity: newTable.capacity,
+        section: newTable.section || "Main Dining Hall",
+        status: newTable.status,
+        subStatus: newTable.status === "AVAILABLE" ? "-" : newTable.subStatus,
+      }).unwrap();
+
+      toast.success(`Table #${tableNum} added successfully!`);
+      setNewTable({
+        tableNumber: "",
+        capacity: "4 Persons",
+        status: "AVAILABLE",
+        subStatus: "-",
+        section: "Main Dining Hall",
+      });
+      handleCloseAdd();
+    } catch (err: any) {
+      toast.error(err?.data?.message || `Failed to add Table #${tableNum}`);
     }
-
-    const createdTable: RestaurantTable = {
-      id: isNaN(Number(tableId)) ? tableId : Number(tableId),
-      capacity: Number(newTable.capacity) || 4,
-      status: newTable.status,
-      subStatus: newTable.status === "AVAILABLE" ? "-" : newTable.subStatus,
-      section: newTable.section || "Main Dining Hall",
-    };
-
-    setTables((prev) => [...prev, createdTable]);
-    toast.success(`Table #${tableId} added successfully!`);
-    setNewTable({
-      id: "",
-      capacity: 4,
-      status: "AVAILABLE",
-      subStatus: "-",
-      section: "Main Dining Hall",
-    });
-    handleCloseAdd();
   };
 
   // Edit Table Submit
-  const handleUpdateTableSubmit = (e: React.FormEvent) => {
+  const handleUpdateTableSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editTable) return;
 
-    setTables((prev) =>
-      prev.map((t) =>
-        t.id === editTable.id
-          ? {
-            ...editTable,
-            subStatus: editTable.status === "AVAILABLE" ? "-" : editTable.subStatus,
-          }
-          : t
-      )
-    );
-    toast.success(`Table #${editTable.id} updated successfully!`);
-    setEditTable(null);
+    try {
+      await updateTable({
+        id: editTable.id,
+        tableNumber: editTable.tableNumber,
+        capacity: editTable.capacity,
+        section: editTable.section,
+        status: editTable.status,
+        subStatus: editTable.status === "AVAILABLE" ? "-" : editTable.subStatus,
+      }).unwrap();
+
+      toast.success(`Table #${editTable.tableNumber || editTable.id} updated successfully!`);
+      setEditTable(null);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update table");
+    }
   };
 
-  // Delete Table
-  const confirmDelete = () => {
-    if (deleteTableId !== null) {
-      setTables((prev) => prev.filter((t) => t.id !== deleteTableId));
-      toast.success(`Table #${deleteTableId} deleted successfully!`);
+  // Delete Table Submit
+  const confirmDelete = async () => {
+    if (!deleteTableId) return;
+
+    try {
+      await deleteTable(deleteTableId).unwrap();
+      toast.success(`Table deleted successfully!`);
       setDeleteTableId(null);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to delete table");
     }
   };
 
   // Quick Status Toggle
-  const handleQuickStatusChange = (
-    tableId: number | string,
-    newStatus: RestaurantTable["status"],
-    newSubStatus: RestaurantTable["subStatus"] = "-"
+  const handleQuickStatusChange = async (
+    tableId: string,
+    newStatus: TableStatus,
+    newSubStatus: string = "-"
   ) => {
-    setTables((prev) =>
-      prev.map((t) =>
-        t.id === tableId
-          ? {
-            ...t,
-            status: newStatus,
-            subStatus: newStatus === "AVAILABLE" ? "-" : newSubStatus,
-          }
-          : t
-      )
-    );
-    if (viewTable && viewTable.id === tableId) {
-      setViewTable((prev) =>
-        prev
-          ? {
-            ...prev,
-            status: newStatus,
-            subStatus: newStatus === "AVAILABLE" ? "-" : newSubStatus,
-          }
-          : null
-      );
+    try {
+      await updateTable({
+        id: tableId,
+        status: newStatus,
+        subStatus: newStatus === "AVAILABLE" ? "-" : newSubStatus,
+      }).unwrap();
+
+      if (viewTable && viewTable.id === tableId) {
+        setViewTable((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: newStatus,
+                subStatus: newStatus === "AVAILABLE" ? "-" : newSubStatus,
+              }
+            : null
+        );
+      }
+      toast.success(`Table status marked as ${newStatus}`);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update table status");
     }
-    toast.success(`Table #${tableId} marked as ${newStatus}`);
   };
 
-  // Filtered Tables
+  // Metrics summary
+  const totalCount = summaryData?.data?.total ?? tablesData?.summary?.total ?? tables.length;
+  const occupiedCount =
+    summaryData?.data?.occupied ??
+    tablesData?.summary?.occupied ??
+    tables.filter((t) => t.status === "OCCUPIED").length;
+  const availableCount =
+    summaryData?.data?.available ??
+    tablesData?.summary?.available ??
+    tables.filter((t) => t.status === "AVAILABLE").length;
+  const reservedCount =
+    summaryData?.data?.reserved ??
+    tablesData?.summary?.reserved ??
+    tables.filter((t) => t.status === "RESERVED").length;
+
+  // Filter tables in memory if offline/fallback
   const filteredTables = tables.filter((table) => {
+    const tableIdStr = (table.tableNumber || table.id).toString().toLowerCase();
     const matchesSearch =
-      table.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tableIdStr.includes(searchQuery.toLowerCase()) ||
       (table.section && table.section.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (table.waiter && table.waiter.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -271,10 +322,6 @@ export const FootTable: React.FC<FootTableProps> = ({
     return matchesSearch && matchesStatus && matchesSection;
   });
 
-  const occupiedCount = tables.filter((t) => t.status === "OCCUPIED").length;
-  const availableCount = tables.filter((t) => t.status === "AVAILABLE").length;
-  const reservedCount = tables.filter((t) => t.status === "RESERVED").length;
-
   return (
     <div className="w-full space-y-6">
       {/* Top Search & Professional Filter Bar */}
@@ -284,7 +331,7 @@ export const FootTable: React.FC<FootTableProps> = ({
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by table ID, capacity, section..."
+            placeholder="Search by table number, capacity, section..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] focus:border-blue-500/60 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350] transition-all"
@@ -299,9 +346,11 @@ export const FootTable: React.FC<FootTableProps> = ({
               <div className="w-5 h-5 rounded-md bg-[#052350] border border-blue-500/30 flex items-center justify-center text-blue-400">
                 <Filter className="w-3 h-3" />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status:</span>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Status:
+              </span>
               <span className="text-xs font-bold text-white capitalize">
-                {statusFilter === "ALL" ? `All (${tables.length})` : statusFilter.toLowerCase()}
+                {statusFilter === "ALL" ? `All (${totalCount})` : statusFilter.toLowerCase()}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors ml-1" />
             </div>
@@ -310,17 +359,27 @@ export const FootTable: React.FC<FootTableProps> = ({
               onChange={(e) => setStatusFilter(e.target.value)}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
             >
-              <option value="ALL" className="bg-[#131b2e] text-white">All Tables ({tables.length})</option>
-              <option value="OCCUPIED" className="bg-[#131b2e] text-white">Occupied ({occupiedCount})</option>
-              <option value="AVAILABLE" className="bg-[#131b2e] text-white">Available ({availableCount})</option>
-              <option value="RESERVED" className="bg-[#131b2e] text-white">Reserved ({reservedCount})</option>
+              <option value="ALL" className="bg-[#131b2e] text-white">
+                All Tables ({totalCount})
+              </option>
+              <option value="OCCUPIED" className="bg-[#131b2e] text-white">
+                Occupied ({occupiedCount})
+              </option>
+              <option value="AVAILABLE" className="bg-[#131b2e] text-white">
+                Available ({availableCount})
+              </option>
+              <option value="RESERVED" className="bg-[#131b2e] text-white">
+                Reserved ({reservedCount})
+              </option>
             </select>
           </div>
 
           {/* Section Dropdown */}
           <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-blue-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group">
             <div className="flex items-center gap-2 pointer-events-none">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Zone:</span>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Zone:
+              </span>
               <span className="text-xs font-bold text-white">
                 {sectionFilter === "ALL" ? "All Sections" : sectionFilter}
               </span>
@@ -331,25 +390,42 @@ export const FootTable: React.FC<FootTableProps> = ({
               onChange={(e) => setSectionFilter(e.target.value)}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
             >
-              <option value="ALL" className="bg-[#131b2e] text-white">All Sections</option>
-              <option value="Main Dining Hall" className="bg-[#131b2e] text-white">Main Dining Hall</option>
-              <option value="Patio Terrace" className="bg-[#131b2e] text-white">Patio Terrace</option>
-              <option value="Window Bay" className="bg-[#131b2e] text-white">Window Bay</option>
-              <option value="VIP Lounge" className="bg-[#131b2e] text-white">VIP Lounge</option>
+              <option value="ALL" className="bg-[#131b2e] text-white">
+                All Sections
+              </option>
+              <option value="Main Dining Hall" className="bg-[#131b2e] text-white">
+                Main Dining Hall
+              </option>
+              <option value="Main Hall" className="bg-[#131b2e] text-white">
+                Main Hall
+              </option>
+              <option value="Patio Terrace" className="bg-[#131b2e] text-white">
+                Patio Terrace
+              </option>
+              <option value="Window Bay" className="bg-[#131b2e] text-white">
+                Window Bay
+              </option>
+              <option value="VIP Lounge" className="bg-[#131b2e] text-white">
+                VIP Lounge
+              </option>
+              <option value="Bar Area" className="bg-[#131b2e] text-white">
+                Bar Area
+              </option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Main Table Card (Harmonized with Dark Theme Dashboard) */}
+      {/* Main Table Card */}
       <div className="bg-[#131b2e] rounded-2xl border border-[#1F2E4D] shadow-sm overflow-hidden text-slate-300">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             {/* Header */}
             <thead>
               <tr className="border-b border-[#1F2E4D] bg-[#1a243d] text-slate-300 text-sm">
-                <th className="py-4.5 px-6 sm:px-8 font-semibold">ID</th>
+                <th className="py-4.5 px-6 sm:px-8 font-semibold">Table #</th>
                 <th className="py-4.5 px-6 sm:px-8 font-semibold">Capacity</th>
+                <th className="py-4.5 px-6 sm:px-8 font-semibold">Section</th>
                 <th className="py-4.5 px-6 sm:px-8 font-semibold">Status</th>
                 <th className="py-4.5 px-6 sm:px-8 font-semibold">Sub Status</th>
                 <th className="py-4.5 px-6 sm:px-8 font-semibold text-center">Actions</th>
@@ -358,7 +434,14 @@ export const FootTable: React.FC<FootTableProps> = ({
 
             {/* Rows */}
             <tbody className="divide-y divide-[#1F2E4D]/60 text-sm">
-              {filteredTables.length > 0 ? (
+              {isLoading || isFetching ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-blue-400" />
+                    <p className="text-sm">Loading floor tables...</p>
+                  </td>
+                </tr>
+              ) : filteredTables.length > 0 ? (
                 filteredTables.map((table) => {
                   const isOccupied = table.status === "OCCUPIED";
                   const isAvailable = table.status === "AVAILABLE";
@@ -369,14 +452,19 @@ export const FootTable: React.FC<FootTableProps> = ({
                       key={table.id}
                       className="hover:bg-[#1a243d]/45 transition-colors duration-150"
                     >
-                      {/* ID */}
+                      {/* ID / Table Number */}
                       <td className="py-4.5 px-6 sm:px-8 font-semibold text-white">
-                        {table.id}
+                        Table #{table.tableNumber || table.id}
                       </td>
 
                       {/* Capacity */}
                       <td className="py-4.5 px-6 sm:px-8 text-slate-300 font-medium">
-                        {table.capacity} Persons
+                        {table.capacity?.includes("Person") ? table.capacity : `${table.capacity} Persons`}
+                      </td>
+
+                      {/* Section */}
+                      <td className="py-4.5 px-6 sm:px-8 text-slate-300 font-medium">
+                        {table.section || "Main Hall"}
                       </td>
 
                       {/* Status */}
@@ -405,7 +493,7 @@ export const FootTable: React.FC<FootTableProps> = ({
 
                       {/* Sub Status */}
                       <td className="py-4.5 px-6 sm:px-8 font-medium text-slate-400 text-xs sm:text-sm">
-                        {table.subStatus}
+                        {table.subStatus || "-"}
                       </td>
 
                       {/* Actions: Eye, Edit, Delete */}
@@ -447,7 +535,7 @@ export const FootTable: React.FC<FootTableProps> = ({
                 })
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
                     <Utensils className="w-10 h-10 mx-auto mb-3 opacity-30 text-slate-400" />
                     <p className="text-sm font-semibold text-slate-300">No tables found</p>
                     <p className="text-xs text-slate-500 mt-1">
@@ -464,7 +552,7 @@ export const FootTable: React.FC<FootTableProps> = ({
         <div className="px-6 py-4 bg-[#1a243d]/60 border-t border-[#1F2E4D] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
           <div>
             Showing <span className="font-semibold text-white">{filteredTables.length}</span> of{" "}
-            <span className="font-semibold text-white">{tables.length}</span> total tables
+            <span className="font-semibold text-white">{tables.length}</span> floor tables
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
@@ -472,6 +560,9 @@ export const FootTable: React.FC<FootTableProps> = ({
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-orange-400"></span> Occupied: {occupiedCount}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-400"></span> Reserved: {reservedCount}
             </span>
           </div>
         </div>
@@ -494,7 +585,7 @@ export const FootTable: React.FC<FootTableProps> = ({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-white">Add New Table</h3>
-                <p className="text-xs text-slate-400">Configure table capacity and section</p>
+                <p className="text-xs text-slate-400">Configure table capacity, zone and status</p>
               </div>
             </div>
 
@@ -505,9 +596,10 @@ export const FootTable: React.FC<FootTableProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. 7 or T-07"
-                  value={newTable.id}
-                  onChange={(e) => setNewTable({ ...newTable, id: e.target.value })}
+                  required
+                  placeholder="e.g. 10 or Table #10"
+                  value={newTable.tableNumber}
+                  onChange={(e) => setNewTable({ ...newTable, tableNumber: e.target.value })}
                   className="w-full px-4 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#052350]"
                 />
               </div>
@@ -520,15 +612,15 @@ export const FootTable: React.FC<FootTableProps> = ({
                   <select
                     value={newTable.capacity}
                     onChange={(e) =>
-                      setNewTable({ ...newTable, capacity: Number(e.target.value) })
+                      setNewTable({ ...newTable, capacity: e.target.value })
                     }
                     className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
                   >
-                    <option value={2} className="bg-[#131b2e] text-white">2 Persons</option>
-                    <option value={4} className="bg-[#131b2e] text-white">4 Persons</option>
-                    <option value={6} className="bg-[#131b2e] text-white">6 Persons</option>
-                    <option value={8} className="bg-[#131b2e] text-white">8 Persons</option>
-                    <option value={10} className="bg-[#131b2e] text-white">10+ Persons</option>
+                    <option value="2 Persons" className="bg-[#131b2e] text-white">2 Persons</option>
+                    <option value="4 Persons" className="bg-[#131b2e] text-white">4 Persons</option>
+                    <option value="6 Persons" className="bg-[#131b2e] text-white">6 Persons</option>
+                    <option value="8 Persons" className="bg-[#131b2e] text-white">8 Persons</option>
+                    <option value="10+ Persons" className="bg-[#131b2e] text-white">10+ Persons</option>
                   </select>
                 </div>
 
@@ -541,10 +633,12 @@ export const FootTable: React.FC<FootTableProps> = ({
                     onChange={(e) => setNewTable({ ...newTable, section: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
                   >
-                    <option value="Main Dining Hall" className="bg-[#131b2e] text-white">Main Hall</option>
+                    <option value="Main Dining Hall" className="bg-[#131b2e] text-white">Main Dining Hall</option>
+                    <option value="Main Hall" className="bg-[#131b2e] text-white">Main Hall</option>
                     <option value="Patio Terrace" className="bg-[#131b2e] text-white">Patio Terrace</option>
                     <option value="Window Bay" className="bg-[#131b2e] text-white">Window Bay</option>
                     <option value="VIP Lounge" className="bg-[#131b2e] text-white">VIP Lounge</option>
+                    <option value="Bar Area" className="bg-[#131b2e] text-white">Bar Area</option>
                   </select>
                 </div>
               </div>
@@ -558,7 +652,7 @@ export const FootTable: React.FC<FootTableProps> = ({
                   onChange={(e) =>
                     setNewTable({
                       ...newTable,
-                      status: e.target.value as RestaurantTable["status"],
+                      status: e.target.value as TableStatus,
                     })
                   }
                   className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
@@ -579,9 +673,11 @@ export const FootTable: React.FC<FootTableProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-sm font-semibold rounded-full shadow-sm transition-all cursor-pointer"
+                  disabled={isCreating}
+                  className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-sm font-semibold rounded-full shadow-sm transition-all cursor-pointer flex items-center gap-2"
                 >
-                  Save Table
+                  {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>Save Table</span>
                 </button>
               </div>
             </form>
@@ -606,9 +702,9 @@ export const FootTable: React.FC<FootTableProps> = ({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-white">
-                  Edit Table #{editTable.id}
+                  Edit Table #{editTable.tableNumber || editTable.id}
                 </h3>
-                <p className="text-xs text-slate-400">Update capacity, status, and sub-status</p>
+                <p className="text-xs text-slate-400">Update capacity, status, and zone</p>
               </div>
             </div>
 
@@ -623,16 +719,16 @@ export const FootTable: React.FC<FootTableProps> = ({
                     onChange={(e) =>
                       setEditTable({
                         ...editTable,
-                        capacity: Number(e.target.value),
+                        capacity: e.target.value,
                       })
                     }
                     className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
                   >
-                    <option value={2} className="bg-[#131b2e] text-white">2 Persons</option>
-                    <option value={4} className="bg-[#131b2e] text-white">4 Persons</option>
-                    <option value={6} className="bg-[#131b2e] text-white">6 Persons</option>
-                    <option value={8} className="bg-[#131b2e] text-white">8 Persons</option>
-                    <option value={10} className="bg-[#131b2e] text-white">10+ Persons</option>
+                    <option value="2 Persons" className="bg-[#131b2e] text-white">2 Persons</option>
+                    <option value="4 Persons" className="bg-[#131b2e] text-white">4 Persons</option>
+                    <option value="6 Persons" className="bg-[#131b2e] text-white">6 Persons</option>
+                    <option value="8 Persons" className="bg-[#131b2e] text-white">8 Persons</option>
+                    <option value="10+ Persons" className="bg-[#131b2e] text-white">10+ Persons</option>
                   </select>
                 </div>
 
@@ -647,10 +743,12 @@ export const FootTable: React.FC<FootTableProps> = ({
                     }
                     className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
                   >
-                    <option value="Main Dining Hall" className="bg-[#131b2e] text-white">Main Hall</option>
+                    <option value="Main Dining Hall" className="bg-[#131b2e] text-white">Main Dining Hall</option>
+                    <option value="Main Hall" className="bg-[#131b2e] text-white">Main Hall</option>
                     <option value="Patio Terrace" className="bg-[#131b2e] text-white">Patio Terrace</option>
                     <option value="Window Bay" className="bg-[#131b2e] text-white">Window Bay</option>
                     <option value="VIP Lounge" className="bg-[#131b2e] text-white">VIP Lounge</option>
+                    <option value="Bar Area" className="bg-[#131b2e] text-white">Bar Area</option>
                   </select>
                 </div>
               </div>
@@ -664,7 +762,7 @@ export const FootTable: React.FC<FootTableProps> = ({
                   onChange={(e) =>
                     setEditTable({
                       ...editTable,
-                      status: e.target.value as RestaurantTable["status"],
+                      status: e.target.value as TableStatus,
                     })
                   }
                   className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
@@ -681,11 +779,11 @@ export const FootTable: React.FC<FootTableProps> = ({
                     Sub Status
                   </label>
                   <select
-                    value={editTable.subStatus}
+                    value={editTable.subStatus || "SERVED"}
                     onChange={(e) =>
                       setEditTable({
                         ...editTable,
-                        subStatus: e.target.value as RestaurantTable["subStatus"],
+                        subStatus: e.target.value,
                       })
                     }
                     className="w-full px-3.5 py-2.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
@@ -708,9 +806,11 @@ export const FootTable: React.FC<FootTableProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-sm font-semibold rounded-full shadow-sm transition-all cursor-pointer"
+                  disabled={isUpdating}
+                  className="px-6 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-[#1F2E4D] text-white text-sm font-semibold rounded-full shadow-sm transition-all cursor-pointer flex items-center gap-2"
                 >
-                  Update Table
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>Update Table</span>
                 </button>
               </div>
             </form>
@@ -731,11 +831,11 @@ export const FootTable: React.FC<FootTableProps> = ({
 
             <div className="flex items-center gap-3.5 mb-6">
               <div className="w-12 h-12 rounded-2xl bg-[#052350] border border-[#1F2E4D] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                #{viewTable.id}
+                #{viewTable.tableNumber || viewTable.id}
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white">
-                  Table #{viewTable.id} Overview
+                  Table #{viewTable.tableNumber || viewTable.id} Overview
                 </h3>
                 <div className="flex items-center gap-2.5 mt-0.5">
                   <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
@@ -744,7 +844,7 @@ export const FootTable: React.FC<FootTableProps> = ({
                   </span>
                   <span className="text-slate-600">•</span>
                   <span className="text-xs font-medium text-slate-400">
-                    Capacity: {viewTable.capacity} Seats
+                    Capacity: {viewTable.capacity}
                   </span>
                 </div>
               </div>
@@ -754,12 +854,13 @@ export const FootTable: React.FC<FootTableProps> = ({
               <div>
                 <span className="text-xs text-slate-400 block font-medium">Status</span>
                 <span
-                  className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${viewTable.status === "OCCUPIED"
-                    ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                    : viewTable.status === "AVAILABLE"
+                  className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold ${
+                    viewTable.status === "OCCUPIED"
+                      ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                      : viewTable.status === "AVAILABLE"
                       ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                       : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                    }`}
+                  }`}
                 >
                   {viewTable.status}
                 </span>
@@ -767,7 +868,7 @@ export const FootTable: React.FC<FootTableProps> = ({
               <div>
                 <span className="text-xs text-slate-400 block font-medium">Sub Status</span>
                 <span className="text-sm font-semibold text-white mt-1 block">
-                  {viewTable.subStatus}
+                  {viewTable.subStatus || "-"}
                 </span>
               </div>
               {viewTable.waiter && (
@@ -792,9 +893,9 @@ export const FootTable: React.FC<FootTableProps> = ({
             {viewTable.status === "OCCUPIED" && viewTable.orderItems && (
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-                  <span>Current Active Order ({viewTable.activeOrderNumber})</span>
+                  <span>Current Active Order ({viewTable.activeOrderNumber || "Active"})</span>
                   <span className="text-sm font-bold text-white">
-                    Total: ${viewTable.totalBill?.toFixed(2)}
+                    Total: ${viewTable.totalBill?.toFixed(2) || "0.00"}
                   </span>
                 </div>
                 <div className="bg-[#1a243d] rounded-2xl p-3.5 max-h-40 overflow-y-auto space-y-2 border border-[#1F2E4D]">
@@ -852,9 +953,9 @@ export const FootTable: React.FC<FootTableProps> = ({
             <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">Delete Table #{deleteTableId}?</h3>
+            <h3 className="text-lg font-bold text-white mb-1">Delete Table?</h3>
             <p className="text-xs text-slate-400 mb-6">
-              Are you sure you want to delete this table? This action cannot be undone.
+              Are you sure you want to delete this floor table? This action cannot be undone.
             </p>
             <div className="flex items-center justify-center gap-3">
               <button
@@ -865,9 +966,11 @@ export const FootTable: React.FC<FootTableProps> = ({
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors cursor-pointer"
+                disabled={isDeleting}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors cursor-pointer flex items-center gap-2"
               >
-                Delete
+                {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>Delete</span>
               </button>
             </div>
           </div>

@@ -1,86 +1,92 @@
 import React, { useState } from "react";
-import TableCard, { TableData, TableStatus } from "./TableCard";
-import TableMenu, { OrderCustomization } from "./TableMenu";
-import { Search, Filter, ChevronDown } from "lucide-react";
+import TableCard, { TableData } from "./TableCard";
+import TableMenu from "./TableMenu";
+import { Search, Filter, ChevronDown, Loader2, Utensils } from "lucide-react";
+import { toast } from "sonner";
+import {
+  useGetServeTablesQuery,
+  useUpdateServeTableStatusMutation,
+} from "@/redux/features/server/serverTableAndStatusApi";
+import { ServeTableStatus } from "@/redux/features/server/serverTableAndStatusType";
 
-const initialTables: TableData[] = [
-  { id: 1, tableNumber: 1, seats: 4, status: "OCCUPIED", isServed: true },
-  { id: 2, tableNumber: 2, seats: 4, status: "AVAILABLE" },
-  { id: 3, tableNumber: 3, seats: 4, status: "OCCUPIED", isServed: true },
-  { id: 4, tableNumber: 4, seats: 4, status: "OCCUPIED", isServed: true },
-  { id: 5, tableNumber: 5, seats: 2, status: "OCCUPIED", isServed: true },
-  { id: 6, tableNumber: 6, seats: 2, status: "AVAILABLE" },
-  { id: 7, tableNumber: 7, seats: 4, status: "AVAILABLE" },
-  { id: 8, tableNumber: 8, seats: 4, status: "AVAILABLE" },
-  { id: 9, tableNumber: 9, seats: 4, status: "AVAILABLE" },
-  { id: 10, tableNumber: 10, seats: 4, status: "AVAILABLE" },
-  { id: 11, tableNumber: 11, seats: 2, status: "AVAILABLE" },
-  { id: 12, tableNumber: 12, seats: 2, status: "AVAILABLE" },
+const fallbackTables: TableData[] = [
+  { id: "1", tableNumber: "1", capacity: "4 Persons", section: "Main Hall", status: "OCCUPIED", subStatus: "SERVED" },
+  { id: "2", tableNumber: "2", capacity: "4 Persons", section: "Bar Area", status: "AVAILABLE", subStatus: "-" },
+  { id: "3", tableNumber: "3", capacity: "4 Persons", section: "Patio Terrace", status: "OCCUPIED", subStatus: "SERVED" },
+  { id: "4", tableNumber: "4", capacity: "4 Persons", section: "Patio Terrace", status: "OCCUPIED", subStatus: "PREPARING" },
+  { id: "5", tableNumber: "5", capacity: "2 Persons", section: "Window Bay", status: "OCCUPIED", subStatus: "SERVED" },
+  { id: "6", tableNumber: "6", capacity: "2 Persons", section: "Window Bay", status: "AVAILABLE", subStatus: "-" },
+  { id: "7", tableNumber: "7", capacity: "4 Persons", section: "Main Hall", status: "AVAILABLE", subStatus: "-" },
+  { id: "8", tableNumber: "8", capacity: "4 Persons", section: "Main Hall", status: "AVAILABLE", subStatus: "-" },
+  { id: "9", tableNumber: "9", capacity: "4 Persons", section: "Main Hall", status: "AVAILABLE", subStatus: "-" },
+  { id: "10", tableNumber: "10", capacity: "4 Persons", section: "VIP Lounge", status: "OCCUPIED", subStatus: "PREPARING" },
+  { id: "11", tableNumber: "11", capacity: "2 Persons", section: "Window Bay", status: "AVAILABLE", subStatus: "-" },
+  { id: "12", tableNumber: "12", capacity: "8 Persons", section: "VIP Lounge", status: "AVAILABLE", subStatus: "-" },
 ];
 
 const ServeDashboard: React.FC = () => {
-  const [tables, setTables] = useState<TableData[]>(initialTables);
+  const { data: tablesData, isLoading, isFetching } = useGetServeTablesQuery();
+  const [updateTableStatus] = useUpdateServeTableStatusMutation();
+
   const [selectedTable, setSelectedTable] = useState<TableData | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [filter, setFilter] = useState<"ALL" | "AVAILABLE" | "OCCUPIED">("ALL");
+  const [filter, setFilter] = useState<"ALL" | "AVAILABLE" | "OCCUPIED" | "RESERVED">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const apiTables = tablesData?.data;
+  const tables: TableData[] =
+    apiTables && apiTables.length > 0 ? (apiTables as TableData[]) : fallbackTables;
 
   const handleSelectTable = (table: TableData) => {
     setSelectedTable(table);
     setIsMenuOpen(true);
   };
 
-  const handleStatusChange = (id: number, status: TableStatus) => {
-    setTables((prev) =>
-      prev.map((tbl) =>
-        tbl.id === id
-          ? {
-              ...tbl,
-              status,
-              isServed: status === "OCCUPIED" ? tbl.isServed ?? true : false,
-            }
-          : tbl
-      )
-    );
+  const handleStatusChange = async (
+    id: string,
+    status: ServeTableStatus,
+    subStatus?: string
+  ) => {
+    try {
+      const res = await updateTableStatus({ id, status, subStatus }).unwrap();
+      toast.success(res.message || `Table status marked as ${status}`);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update table status");
+    }
   };
 
-  const handleSendToKitchen = (
-    tableId: number,
-    _orderItems: OrderCustomization[],
-    _total: number
-  ) => {
-    setTables((prev) =>
-      prev.map((tbl) =>
-        tbl.id === tableId
-          ? {
-              ...tbl,
-              status: "OCCUPIED",
-              isServed: false,
-            }
-          : tbl
-      )
-    );
-  };
+  const totalCount = tablesData?.summary?.total ?? tables.length;
+  const availableCount =
+    tablesData?.summary?.available ??
+    tables.filter((t) => t.status === "AVAILABLE").length;
+  const occupiedCount =
+    tablesData?.summary?.occupied ??
+    tables.filter((t) => t.status === "OCCUPIED").length;
+  const reservedCount =
+    tablesData?.summary?.reserved ??
+    tables.filter((t) => t.status === "RESERVED").length;
 
   const filteredTables = tables.filter((table) => {
     const matchesFilter =
       filter === "ALL" || table.status === filter;
+    const searchLower = searchQuery.toLowerCase();
     const matchesSearch =
-      table.tableNumber.toString().includes(searchQuery) ||
-      `Table ${table.tableNumber}`.toLowerCase().includes(searchQuery.toLowerCase());
+      table.tableNumber.toString().includes(searchLower) ||
+      `Table #${table.tableNumber}`.toLowerCase().includes(searchLower) ||
+      (table.section && table.section.toLowerCase().includes(searchLower));
     return matchesFilter && matchesSearch;
   });
 
   return (
-    <div className="space-y-6 max-w-[1600px] mx-auto text-white">
+    <div className="space-y-6 max-w-[1600px] mx-auto text-white font-sans">
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Table Map
+            Floor Table Map
           </h1>
           <p className="text-xs sm:text-sm font-medium text-slate-400 tracking-wider uppercase mt-1">
-            SELECT A TABLE TO START AN ORDER
+            Real-time table seating & instant ordering terminal
           </p>
         </div>
 
@@ -90,10 +96,10 @@ const ServeDashboard: React.FC = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search table..."
+              placeholder="Search table or section..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-3.5 py-2 rounded-full text-xs font-medium bg-[#131b2e] border border-[#1F2E4D] focus:outline-none focus:ring-2 focus:ring-orange-500/30 text-white placeholder-slate-500 w-36 sm:w-48 shadow-xs"
+              className="pl-9 pr-3.5 py-2 rounded-full text-xs font-medium bg-[#131b2e] border border-[#1F2E4D] focus:outline-none focus:ring-2 focus:ring-orange-500/30 text-white placeholder-slate-500 w-44 sm:w-56 shadow-xs"
             />
           </div>
 
@@ -104,44 +110,59 @@ const ServeDashboard: React.FC = () => {
               <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status:</span>
               <span className="text-xs font-bold text-white capitalize">
                 {filter === "ALL"
-                  ? `All (${tables.length})`
+                  ? `All (${totalCount})`
                   : filter === "AVAILABLE"
-                  ? `Available (${tables.filter((t) => t.status === "AVAILABLE").length})`
-                  : `Occupied (${tables.filter((t) => t.status === "OCCUPIED").length})`}
+                  ? `Available (${availableCount})`
+                  : filter === "OCCUPIED"
+                  ? `Occupied (${occupiedCount})`
+                  : `Reserved (${reservedCount})`}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-400 transition-colors ml-1" />
             </div>
             <select
               value={filter}
-              onChange={(e) => setFilter(e.target.value as "ALL" | "AVAILABLE" | "OCCUPIED")}
+              onChange={(e) => setFilter(e.target.value as "ALL" | "AVAILABLE" | "OCCUPIED" | "RESERVED")}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
             >
-              <option value="ALL" className="bg-[#131b2e] text-white">All ({tables.length})</option>
-              <option value="AVAILABLE" className="bg-[#131b2e] text-white">Available ({tables.filter((t) => t.status === "AVAILABLE").length})</option>
-              <option value="OCCUPIED" className="bg-[#131b2e] text-white">Occupied ({tables.filter((t) => t.status === "OCCUPIED").length})</option>
+              <option value="ALL" className="bg-[#131b2e] text-white">All Tables ({totalCount})</option>
+              <option value="AVAILABLE" className="bg-[#131b2e] text-white">Available ({availableCount})</option>
+              <option value="OCCUPIED" className="bg-[#131b2e] text-white">Occupied ({occupiedCount})</option>
+              <option value="RESERVED" className="bg-[#131b2e] text-white">Reserved ({reservedCount})</option>
             </select>
           </div>
         </div>
       </div>
 
       {/* Grid of Table Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
-        {filteredTables.map((table) => (
-          <TableCard
-            key={table.id}
-            table={table}
-            onSelectTable={handleSelectTable}
-            onStatusChange={handleStatusChange}
-          />
-        ))}
-      </div>
+      {isLoading || isFetching ? (
+        <div className="py-24 text-center text-slate-400">
+          <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-orange-400" />
+          <p className="text-sm">Loading floor table map...</p>
+        </div>
+      ) : filteredTables.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+          {filteredTables.map((table) => (
+            <TableCard
+              key={table.id}
+              table={table}
+              onSelectTable={handleSelectTable}
+              onStatusChange={handleStatusChange}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="py-24 text-center text-slate-400 bg-[#131b2e] rounded-3xl border border-[#1F2E4D]">
+          <Utensils className="w-10 h-10 mx-auto mb-3 opacity-30 text-slate-400" />
+          <p className="text-sm font-semibold text-slate-300">No tables match your filter</p>
+          <p className="text-xs text-slate-500 mt-1">Try clearing your search query or status filter</p>
+        </div>
+      )}
 
       {/* Table Menu Modal */}
       <TableMenu
         table={selectedTable}
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onSendToKitchen={handleSendToKitchen}
       />
     </div>
   );

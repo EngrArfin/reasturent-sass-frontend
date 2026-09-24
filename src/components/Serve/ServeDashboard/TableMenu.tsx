@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { X, Plus, Minus, Send } from "lucide-react";
+import { X, Plus, Minus, Send, Loader2, Utensils, Search } from "lucide-react";
 import { toast } from "sonner";
 import { TableData } from "./TableCard";
+import {
+  useGetServeMenuQuery,
+  useSendOrderToKitchenMutation,
+} from "@/redux/features/server/serverTableAndStatusApi";
+import { IServeMenuItem } from "@/redux/features/server/serverTableAndStatusType";
 
-export interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
+export interface MenuItem extends IServeMenuItem {
+  image?: string;
 }
 
 export interface OrderCustomization {
-  item: MenuItem;
+  item: IServeMenuItem;
   quantity: number;
   selectedTags: string[];
 }
@@ -21,57 +22,69 @@ interface TableMenuProps {
   table: TableData | null;
   isOpen: boolean;
   onClose: () => void;
-  onSendToKitchen: (tableId: number, orderItems: OrderCustomization[], total: number) => void;
+  onSendToKitchen?: (tableId: string, orderItems: OrderCustomization[], total: number) => void;
 }
 
-const defaultMenuItems: MenuItem[] = [
+const defaultFallbackMenuItems: IServeMenuItem[] = [
   {
     id: "item-1",
     name: "Chicken Biriyani",
     description: "Fragrant basmati rice with spiced chicken",
+    category: "Main Course",
     price: 12.99,
-    image:
+    imageUrl:
       "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=800&auto=format&fit=crop",
+    isAvailable: true,
   },
   {
     id: "item-2",
     name: "Paneer Tikka",
     description: "Grilled cottage cheese with spices",
+    category: "Appetizer",
     price: 9.99,
-    image:
+    imageUrl:
       "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?q=80&w=800&auto=format&fit=crop",
+    isAvailable: true,
   },
   {
     id: "item-3",
     name: "Garlic Naan",
     description: "Soft leavened bread with garlic",
+    category: "Appetizer",
     price: 3.5,
-    image:
+    imageUrl:
       "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800&auto=format&fit=crop",
+    isAvailable: true,
   },
   {
     id: "item-4",
     name: "Mango Lassi",
     description: "Sweet yogurt drink with mango",
+    category: "Beverage",
     price: 4.5,
-    image:
+    imageUrl:
       "https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=800&auto=format&fit=crop",
+    isAvailable: true,
   },
   {
     id: "item-5",
     name: "Lamb Curry",
     description: "Tender lamb in rich gravy",
+    category: "Main Course",
     price: 15.99,
-    image:
+    imageUrl:
       "https://images.unsplash.com/photo-1545247181-516773cae754?q=80&w=800&auto=format&fit=crop",
+    isAvailable: true,
   },
   {
     id: "item-6",
     name: "Samosa",
     description: "Crispy pastry with potato filling",
+    category: "Appetizer",
     price: 5.99,
-    image:
+    imageUrl:
       "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800&auto=format&fit=crop",
+    isAvailable: true,
   },
 ];
 
@@ -89,25 +102,26 @@ const TableMenu: React.FC<TableMenuProps> = ({
   onClose,
   onSendToKitchen,
 }) => {
-  const [currentOrder, setCurrentOrder] = useState<OrderCustomization[]>([
-    {
-      item: defaultMenuItems[0],
-      quantity: 1,
-      selectedTags: ["Extra Spicy", "No Onion"],
-    },
-    {
-      item: defaultMenuItems[3],
-      quantity: 1,
-      selectedTags: ["Extra Spicy"],
-    },
-  ]);
+  const { data: menuData, isLoading: isMenuLoading } = useGetServeMenuQuery(undefined, {
+    skip: !isOpen,
+  });
+  const [sendOrder, { isLoading: isSendingOrder }] = useSendOrderToKitchenMutation();
+
+  const menuItems =
+    menuData?.data && menuData.data.length > 0
+      ? menuData.data
+      : defaultFallbackMenuItems;
+
+  const [currentOrder, setCurrentOrder] = useState<OrderCustomization[]>([]);
+  const [orderNotes, setOrderNotes] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (!isOpen || !table) return null;
 
-  const formattedTableNumber =
-    table.tableNumber < 10 ? `0${table.tableNumber}` : `${table.tableNumber}`;
+  const formattedTableNumber = table.tableNumber;
 
-  const handleAddItem = (item: MenuItem) => {
+  const handleAddItem = (item: IServeMenuItem) => {
     setCurrentOrder((prev) => {
       const existingIndex = prev.findIndex((o) => o.item.id === item.id);
       if (existingIndex > -1) {
@@ -120,227 +134,383 @@ const TableMenu: React.FC<TableMenuProps> = ({
         {
           item,
           quantity: 1,
-          selectedTags: ["Extra Spicy"],
+          selectedTags: [],
         },
       ];
     });
-    toast.success(`Added ${item.name} to order`);
   };
 
-  const handleUpdateQuantity = (index: number, delta: number) => {
-    setCurrentOrder((prev) => {
-      const updated = [...prev];
-      const newQty = updated[index].quantity + delta;
-      if (newQty <= 0) {
-        return updated.filter((_, i) => i !== index);
-      }
-      updated[index].quantity = newQty;
-      return updated;
-    });
+  const handleRemoveItem = (itemId: string) => {
+    setCurrentOrder((prev) => prev.filter((o) => o.item.id !== itemId));
   };
 
-  const handleRemoveItem = (index: number) => {
-    setCurrentOrder((prev) => prev.filter((_, i) => i !== index));
+  const handleUpdateQuantity = (itemId: string, delta: number) => {
+    setCurrentOrder((prev) =>
+      prev
+        .map((o) => {
+          if (o.item.id === itemId) {
+            const newQty = o.quantity + delta;
+            return newQty > 0 ? { ...o, quantity: newQty } : null;
+          }
+          return o;
+        })
+        .filter(Boolean) as OrderCustomization[]
+    );
   };
 
-  const handleToggleTag = (orderIndex: number, tag: string) => {
-    setCurrentOrder((prev) => {
-      const updated = [...prev];
-      const currentTags = updated[orderIndex].selectedTags;
-      if (currentTags.includes(tag)) {
-        updated[orderIndex].selectedTags = currentTags.filter((t) => t !== tag);
-      } else {
-        updated[orderIndex].selectedTags = [...currentTags, tag];
-      }
-      return updated;
-    });
+  const handleToggleTag = (itemId: string, tag: string) => {
+    setCurrentOrder((prev) =>
+      prev.map((o) => {
+        if (o.item.id === itemId) {
+          const tags = o.selectedTags.includes(tag)
+            ? o.selectedTags.filter((t) => t !== tag)
+            : [...o.selectedTags, tag];
+          return { ...o, selectedTags: tags };
+        }
+        return o;
+      })
+    );
   };
 
   const subtotal = currentOrder.reduce(
-    (sum, order) => sum + order.item.price * order.quantity,
+    (acc, curr) => acc + curr.item.price * curr.quantity,
     0
   );
 
-  const handleSend = () => {
+  const handleSendToKitchenClick = async () => {
     if (currentOrder.length === 0) {
-      toast.error("Please add at least one item to current order");
+      toast.error("Please select at least one item!");
       return;
     }
-    onSendToKitchen(table.id, currentOrder, subtotal);
-    toast.success(
-      `Order sent to Kitchen for Table ${table.tableNumber}! Total: $${subtotal.toFixed(2)}`
-    );
-    onClose();
+
+    const payload = {
+      tableNumber: table.tableNumber.toString(),
+      tableId: table.id,
+      notes: orderNotes.trim() || undefined,
+      items: currentOrder.map((order) => ({
+        menuItemId: order.item.id,
+        name: order.item.name,
+        quantity: order.quantity,
+        unitPrice: order.item.price,
+        notes: order.selectedTags.length > 0 ? order.selectedTags.join(", ") : undefined,
+      })),
+    };
+
+    try {
+      const response = await sendOrder(payload).unwrap();
+      toast.success(
+        response.message || `Order sent to kitchen for Table #${table.tableNumber}!`
+      );
+      if (onSendToKitchen) {
+        onSendToKitchen(table.id, currentOrder, subtotal);
+      }
+      setCurrentOrder([]);
+      setOrderNotes("");
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to send order to kitchen");
+    }
   };
 
+  // Filter Dishes
+  const categories = ["ALL", ...Array.from(new Set(menuItems.map((m) => m.category)))];
+
+  const filteredDishes = menuItems.filter((dish) => {
+    const matchesSearch =
+      dish.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (dish.description && dish.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory =
+      selectedCategory === "ALL" || dish.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-fadeIn text-white">
-      <div
-        className="relative bg-[#121826] w-full max-w-5xl max-h-[92vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-[#1F2E4D]"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-[#101827] rounded-[28px] max-w-5xl w-full h-[90vh] max-h-[800px] shadow-2xl border border-[#1F2E4D] flex flex-col text-white overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1F2E4D]">
-          <h2 className="text-xl font-bold text-white tracking-tight">
-            Table {formattedTableNumber} Menu
-          </h2>
+        <div className="px-6 py-4 border-b border-[#1F2E4D] bg-[#131b2e] flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold text-sm flex items-center justify-center">
+              #{formattedTableNumber}
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white tracking-tight">
+                Table #{formattedTableNumber} Order Menu
+              </h2>
+              <p className="text-xs text-slate-400 font-medium">
+                {table.section ? `${table.section.trim()} • ` : ""}
+                {table.capacity || "4 Seats"} • Status: {table.status}
+              </p>
+            </div>
+          </div>
+
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#1b253d] transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#18233c] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content Body */}
-        <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto p-4 sm:p-6 gap-6">
-          {/* Left: Food Menu Grid */}
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
-            {defaultMenuItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleAddItem(item)}
-                className="group relative rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-[4/4.2] bg-slate-900 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-end border border-[#1F2E4D]/80"
-              >
-                {/* Background Food Image */}
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        {/* Content Split: Left (Menu Selection), Right (Cart & Customization) */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+          {/* LEFT 7 COLS: Menu Catalog */}
+          <div className="lg:col-span-7 p-4 sm:p-5 flex flex-col border-b lg:border-b-0 lg:border-r border-[#1F2E4D] overflow-hidden bg-[#131b2e]/50">
+            {/* Search and Category Filter */}
+            <div className="space-y-3 shrink-0 mb-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search menu dishes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-[#131b2e] border border-[#1F2E4D] rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/30"
                 />
-
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-
-                {/* Bottom Content Info */}
-                <div className="relative p-4 sm:p-5 flex items-end justify-between gap-2 z-10">
-                  <div className="flex-1 min-w-0 pr-2">
-                    <h4 className="text-base sm:text-lg font-bold text-amber-100 group-hover:text-amber-300 transition-colors leading-snug">
-                      {item.name}
-                    </h4>
-                    <p className="text-xs text-slate-300 line-clamp-2 mt-0.5 leading-relaxed font-normal">
-                      {item.description}
-                    </p>
-                  </div>
-                  <div className="text-right whitespace-nowrap">
-                    <span className="text-base sm:text-xl font-black text-[#FFB800] tracking-tight">
-                      ${item.price.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Hover Quick Add Badge */}
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 backdrop-blur-md rounded-full px-2.5 py-1 text-[11px] font-bold text-white flex items-center gap-1 border border-white/20">
-                  <Plus className="w-3.5 h-3.5 text-orange-400" />
-                  <span>Add</span>
-                </div>
               </div>
-            ))}
-          </div>
 
-          {/* Right: CURRENT ORDER Panel */}
-          <div className="w-full lg:w-[360px] bg-[#131b2e] rounded-[28px] p-4 sm:p-5 flex flex-col justify-between border border-[#1F2E4D]">
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase mb-3.5">
-                CURRENT ORDER
-              </h3>
+              {/* Category Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      selectedCategory === cat
+                        ? "bg-orange-500 text-white shadow-xs"
+                        : "bg-[#131b2e] text-slate-400 hover:text-white border border-[#1F2E4D]"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-              {/* Order Items List */}
-              {currentOrder.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center text-slate-500">
-                  <p className="text-sm font-medium">No items in current order</p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Click any menu item on the left to add
-                  </p>
+            {/* Menu Grid */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
+              {isMenuLoading ? (
+                <div className="py-16 text-center text-slate-400">
+                  <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-orange-400" />
+                  <p className="text-xs">Loading available menu...</p>
                 </div>
-              ) : (
-                <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                  {currentOrder.map((order, idx) => (
-                    <div
-                      key={`${order.item.id}-${idx}`}
-                      className="bg-[#1b253d] rounded-2xl p-3.5 shadow-xs border border-[#26375c]"
-                    >
-                      {/* Name, Price and Quantity Bar */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <h4 className="text-sm font-bold text-white leading-tight">
-                            {order.item.name}
-                          </h4>
-                          <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                            ${order.item.price.toFixed(2)}
-                          </p>
+              ) : filteredDishes.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {filteredDishes.map((item) => {
+                    const inCart = currentOrder.find((o) => o.item.id === item.id);
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => item.isAvailable && handleAddItem(item)}
+                        className={`p-3 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                          !item.isAvailable
+                            ? "bg-[#131b2e]/30 border-[#1F2E4D]/40 opacity-40 cursor-not-allowed"
+                            : inCart
+                            ? "bg-[#18233c] border-orange-500/50 shadow-xs"
+                            : "bg-[#131b2e] hover:bg-[#18233c] border-[#1F2E4D]"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <div>
+                            <h4 className="text-xs font-bold text-white line-clamp-1">
+                              {item.name}
+                            </h4>
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {item.category}
+                            </span>
+                          </div>
+                          <span className="text-xs font-bold text-orange-400 font-mono">
+                            ${item.price.toFixed(2)}
+                          </span>
                         </div>
 
-                        {/* Quantity controls */}
-                        <div className="flex items-center gap-2">
+                        {item.description && (
+                          <p className="text-[11px] text-slate-400 line-clamp-1 mb-2">
+                            {item.description}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-[#1F2E4D]/60">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                              item.isAvailable
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : "bg-red-500/10 text-red-400 border border-red-500/20"
+                            }`}
+                          >
+                            {item.isAvailable ? "In Stock" : "Unavailable"}
+                          </span>
+                          <span className="text-xs text-orange-400 font-semibold hover:underline flex items-center gap-1">
+                            <Plus className="w-3 h-3" /> Add
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-16 text-center text-slate-400">
+                  <Utensils className="w-8 h-8 mx-auto mb-2 opacity-30 text-slate-400" />
+                  <p className="text-xs font-semibold text-slate-300">No dishes found</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT 5 COLS: Current Order Ticket & Modifiers */}
+          <div className="lg:col-span-5 p-4 sm:p-5 flex flex-col justify-between bg-[#101827] overflow-y-auto">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[#1F2E4D] pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">
+                    Current Order Ticket
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    {currentOrder.reduce((a, b) => a + b.quantity, 0)} items selected
+                  </p>
+                </div>
+                {currentOrder.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentOrder([])}
+                    className="text-xs text-red-400 hover:text-red-300 font-medium cursor-pointer"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+                {currentOrder.length > 0 ? (
+                  currentOrder.map((order) => (
+                    <div
+                      key={order.item.id}
+                      className="bg-[#131b2e] p-3 rounded-2xl border border-[#1F2E4D] space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold text-white truncate">
+                            {order.item.name}
+                          </h4>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            ${order.item.price.toFixed(2)} each
+                          </span>
+                        </div>
+
+                        {/* Quantity Counter */}
+                        <div className="flex items-center gap-1.5">
                           <button
-                            onClick={() => handleUpdateQuantity(idx, -1)}
-                            className="w-6 h-6 rounded-full border border-[#26375c] bg-[#131b2e] text-slate-300 flex items-center justify-center hover:bg-[#26375c] hover:text-white transition-colors cursor-pointer"
+                            type="button"
+                            onClick={() => handleUpdateQuantity(order.item.id, -1)}
+                            className="w-6 h-6 rounded-md bg-[#18233c] hover:bg-[#202c4b] text-slate-300 flex items-center justify-center cursor-pointer border border-[#1F2E4D]"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="text-sm font-bold text-white min-w-4 text-center">
+                          <span className="w-5 text-center font-bold text-white text-xs font-mono">
                             {order.quantity}
                           </span>
                           <button
-                            onClick={() => handleUpdateQuantity(idx, 1)}
-                            className="w-6 h-6 rounded-full border border-[#26375c] bg-[#131b2e] text-slate-300 flex items-center justify-center hover:bg-[#26375c] hover:text-white transition-colors cursor-pointer"
+                            type="button"
+                            onClick={() => handleUpdateQuantity(order.item.id, 1)}
+                            className="w-6 h-6 rounded-md bg-[#18233c] hover:bg-[#202c4b] text-slate-300 flex items-center justify-center cursor-pointer border border-[#1F2E4D]"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                           <button
-                            onClick={() => handleRemoveItem(idx)}
-                            className="w-6 h-6 rounded-full text-red-400 hover:bg-red-500/20 flex items-center justify-center ml-1 transition-colors cursor-pointer"
+                            type="button"
+                            onClick={() => handleRemoveItem(order.item.id)}
+                            className="w-6 h-6 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center cursor-pointer border border-red-500/20 ml-1"
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="w-3 h-3" />
                           </button>
                         </div>
                       </div>
 
-                      {/* Modifier Tag Pills */}
-                      <div className="flex flex-wrap gap-1.5 mt-2.5">
-                        {availableModifierTags.map((tag) => {
-                          const isSelected = order.selectedTags.includes(tag);
-                          return (
-                            <button
-                              key={tag}
-                              type="button"
-                              onClick={() => handleToggleTag(idx, tag)}
-                              className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors cursor-pointer border ${isSelected
-                                  ? "bg-orange-500/20 text-orange-400 border-orange-500/40 font-semibold"
-                                  : "bg-[#131b2e] text-slate-400 border-[#1F2E4D] hover:bg-white/5"
+                      {/* Dietary Modifier Tags */}
+                      <div>
+                        <span className="text-[10px] font-semibold text-slate-400 block mb-1">
+                          Dietary Tags / Modifiers:
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {availableModifierTags.map((tag) => {
+                            const isSelected = order.selectedTags.includes(tag);
+                            return (
+                              <button
+                                key={tag}
+                                type="button"
+                                onClick={() => handleToggleTag(order.item.id, tag)}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
+                                  isSelected
+                                    ? "bg-orange-500/20 text-orange-400 border border-orange-500/40"
+                                    : "bg-[#18233c] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
                                 }`}
-                            >
-                              {tag}
-                            </button>
-                          );
-                        })}
+                              >
+                                {tag}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                ) : (
+                  <div className="py-12 text-center text-slate-400">
+                    <p className="text-xs">No dishes added yet.</p>
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Click items on the left catalog to add to order.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Order Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+                  Kitchen Notes / Special Requests
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Serve appetizers first, extra spicy..."
+                  value={orderNotes}
+                  onChange={(e) => setOrderNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#131b2e] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                />
+              </div>
             </div>
 
-            {/* Bottom Total and Send Button */}
-            <div className="mt-5 pt-4 border-t border-[#1F2E4D]">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-semibold text-slate-400">
-                  Total:
-                </span>
-                <span className="text-xl font-black text-white">
+            {/* Bottom Total & Actions */}
+            <div className="pt-4 border-t border-[#1F2E4D] space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold text-slate-400">Total Order Bill:</span>
+                <span className="text-xl font-bold text-orange-400 font-mono">
                   ${subtotal.toFixed(2)}
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={handleSend}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs uppercase tracking-wider py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-orange-600/30 transition-all active:scale-[0.99] cursor-pointer"
-              >
-                <span>SEND TO KITCHEN</span>
-                <Send className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 py-2.5 bg-[#131b2e] hover:bg-[#18233c] border border-[#1F2E4D] text-slate-300 hover:text-white text-xs font-semibold rounded-2xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendToKitchenClick}
+                  disabled={isSendingOrder || currentOrder.length === 0}
+                  className="flex-2 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-bold rounded-2xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {isSendingOrder ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  <span>Send to Kitchen</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

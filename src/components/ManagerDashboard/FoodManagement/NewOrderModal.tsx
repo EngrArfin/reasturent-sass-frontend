@@ -8,26 +8,33 @@ import {
   Utensils,
   User,
   Phone,
-  Users,
   Clock,
-  Receipt,
-  Flame,
-  Tag,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { MenuItem, LiveOrder } from "./FoodManagement";
+import {
+  useGetMenuItemsQuery,
+  useGetTablesQuery,
+  useCreateOrderMutation,
+} from "@/redux/features/manager/ManageFood/manageFoodApi";
+import {
+  IMenuItem,
+  IOrder,
+  OrderStatus,
+} from "@/redux/features/manager/ManageFood/manageFoodType";
 
 interface NewOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  menuItems: MenuItem[];
-  onOrderCreated: (order: LiveOrder) => void;
-  defaultTableId?: number | string;
+  menuItems?: IMenuItem[];
+  onOrderCreated?: (order: IOrder) => void;
+  defaultTableId?: string;
 }
 
 interface CartItem {
   id: string;
+  menuItemId?: string;
   name: string;
   price: number;
   quantity: number;
@@ -35,27 +42,99 @@ interface CartItem {
   notes?: string;
 }
 
+const fallbackMenuCatalog: IMenuItem[] = [
+  {
+    id: "M-1",
+    name: "Grilled Salmon Steak",
+    category: "Main Course",
+    price: 24.5,
+    isAvailable: true,
+    prepTime: "20-25 mins",
+    description: "Atlantic salmon with herbs butter and fresh asparagus",
+  },
+  {
+    id: "M-2",
+    name: "Classic Beef Burger",
+    category: "Main Course",
+    price: 18.0,
+    isAvailable: true,
+    prepTime: "15 mins",
+    description: "Angus beef patty with cheddar cheese and crisp fries",
+  },
+  {
+    id: "M-3",
+    name: "Margherita Pizza",
+    category: "Main Course",
+    price: 19.0,
+    isAvailable: true,
+    prepTime: "15-20 mins",
+    description: "San Marzano tomatoes, fresh buffalo mozzarella, basil",
+  },
+  {
+    id: "M-4",
+    name: "Caesar Salad",
+    category: "Appetizer",
+    price: 12.0,
+    isAvailable: true,
+    prepTime: "10 mins",
+    description: "Crispy romaine, parmesan shavings, garlic croutons",
+  },
+  {
+    id: "M-5",
+    name: "Truffle Mushroom Pasta",
+    category: "Main Course",
+    price: 22.5,
+    isAvailable: true,
+    prepTime: "18 mins",
+    description: "Fettuccine in creamy black truffle and wild mushroom sauce",
+  },
+  {
+    id: "M-6",
+    name: "Lemon Mint Mocktail",
+    category: "Beverage",
+    price: 6.75,
+    isAvailable: true,
+    prepTime: "5 mins",
+    description: "Refreshing crushed ice beverage with fresh mint and lime",
+  },
+];
+
 export const NewOrderModal: React.FC<NewOrderModalProps> = ({
   isOpen,
   onClose,
-  menuItems,
+  menuItems: propMenuItems,
   onOrderCreated,
-  defaultTableId = 1,
+  defaultTableId,
 }) => {
+  // API Queries & Mutations
+  const { data: menuApiData, isLoading: isMenuLoading } = useGetMenuItemsQuery(undefined, {
+    skip: !isOpen,
+  });
+  const { data: tablesApiData } = useGetTablesQuery(undefined, {
+    skip: !isOpen,
+  });
+  const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation();
+
+  const availableTables = tablesApiData?.data || [];
+  const menuCatalog =
+    menuApiData?.data && menuApiData.data.length > 0
+      ? menuApiData.data
+      : propMenuItems && propMenuItems.length > 0
+      ? propMenuItems
+      : fallbackMenuCatalog;
+
   // Order Configuration Inputs (Manager Controls)
   const [orderType, setOrderType] = useState<"Dine In" | "Takeaway" | "Delivery">("Dine In");
-  const [tableId, setTableId] = useState<number | string>(defaultTableId);
+  const [selectedTableId, setSelectedTableId] = useState<string>(
+    defaultTableId || (availableTables[0]?.id ? availableTables[0].id : "1")
+  );
+  const [customTableNumber, setCustomTableNumber] = useState<string>("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [guestCount, setGuestCount] = useState<number>(2);
-  const [serverName, setServerName] = useState("Sarah Jenkins");
-  const [paymentMethod, setPaymentMethod] = useState<"Cash" | "Card" | "Digital" | "Pay Later">("Pay Later");
-  const [orderStatus, setOrderStatus] = useState<LiveOrder["status"]>("PENDING");
-  const [isRushOrder, setIsRushOrder] = useState(false);
   const [orderNotes, setOrderNotes] = useState("");
   const [discountAmount, setDiscountAmount] = useState<number>(0);
 
-  // Custom Item Modal/Inputs inside Dialog
+  // Custom Item Drawer inside Dialog
   const [showCustomItemForm, setShowCustomItemForm] = useState(false);
   const [customItemName, setCustomItemName] = useState("");
   const [customItemPrice, setCustomItemPrice] = useState<number>(10);
@@ -71,18 +150,21 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
   if (!isOpen) return null;
 
   // Add Item from Catalog
-  const handleAddItem = (dish: MenuItem) => {
+  const handleAddItem = (dish: IMenuItem) => {
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === dish.id);
+      const existing = prev.find((item) => (item.menuItemId || item.id) === dish.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === dish.id ? { ...item, quantity: item.quantity + 1 } : item
+          (item.menuItemId || item.id) === dish.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
       return [
         ...prev,
         {
-          id: dish.id,
+          id: `cart-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+          menuItemId: dish.id,
           name: dish.name,
           price: dish.price,
           quantity: 1,
@@ -107,7 +189,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
       category: "Special",
     };
     setCartItems((prev) => [...prev, customItem]);
-    toast.success(`Added custom item "${customItem.name}"`);
+    toast.success(`Added "${customItem.name}" to cart`);
     setCustomItemName("");
     setCustomItemPrice(10);
     setCustomItemQty(1);
@@ -136,12 +218,12 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
 
   // Calculations
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = subtotal * 0.05; // 5% VAT / Tax
+  const tax = subtotal * 0.05; // 5% Tax
   const finalDiscount = Math.min(discountAmount, subtotal + tax);
   const totalAmount = Math.max(0, subtotal + tax - finalDiscount);
 
   // Filter Dishes
-  const filteredDishes = menuItems.filter((dish) => {
+  const filteredDishes = menuCatalog.filter((dish) => {
     const matchesSearch =
       dish.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       dish.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -150,40 +232,63 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
     return matchesSearch && matchesCategory;
   });
 
+  // Categories list
+  const categoriesList = [
+    "ALL",
+    ...Array.from(new Set(menuCatalog.map((d) => d.category))).filter((c) => c !== "ALL"),
+  ];
+
   // Submit Order
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) {
       toast.error("Please add at least one dish to the order!");
       return;
     }
-    if (!customerName.trim()) {
-      toast.error("Please enter guest name!");
-      return;
-    }
+
+    const matchedTable = availableTables.find((t) => t.id === selectedTableId);
+    const resolvedTableNumber =
+      orderType === "Dine In"
+        ? matchedTable
+          ? `Table #${matchedTable.tableNumber || matchedTable.id}`
+          : customTableNumber.trim()
+          ? `Table #${customTableNumber.trim()}`
+          : `Table #${selectedTableId}`
+        : orderType;
 
     const orderNumber = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-    const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const finalTable = orderType === "Dine In" ? tableId : orderType;
 
-    const newOrder: LiveOrder = {
-      id: `ORD-${Date.now()}`,
+    const payload = {
       orderNumber,
-      tableId: finalTable,
-      customerName: customerName.trim(),
+      tableId: orderType === "Dine In" && matchedTable ? matchedTable.id : undefined,
+      tableNumber: resolvedTableNumber,
+      status: "PENDING" as OrderStatus,
+      notes: [
+        customerName ? `Guest: ${customerName}` : "",
+        customerPhone ? `Phone: ${customerPhone}` : "",
+        orderNotes ? `Notes: ${orderNotes}` : "",
+      ]
+        .filter(Boolean)
+        .join(" | "),
       items: cartItems.map((c) => ({
+        menuItemId: c.menuItemId,
         name: c.name,
         quantity: c.quantity,
-        price: c.price,
+        unitPrice: c.price,
+        notes: c.notes,
       })),
-      totalAmount,
-      status: orderStatus,
-      orderTime: currentTime,
     };
 
-    onOrderCreated(newOrder);
-    toast.success(`Order ${orderNumber} created for Table #${finalTable}!`);
-    onClose();
+    try {
+      const response = await createOrder(payload).unwrap();
+      toast.success(response.message || `Order ${orderNumber} created successfully!`);
+      if (onOrderCreated && response.data) {
+        onOrderCreated(response.data);
+      }
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to create order");
+    }
   };
 
   return (
@@ -205,7 +310,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Input table details, staff assignment, payment method, and menu items
+                Select table, pick dishes, customize options, and dispatch to kitchen
               </p>
             </div>
           </div>
@@ -240,10 +345,11 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCustomItemForm(!showCustomItemForm)}
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${showCustomItemForm
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
+                    showCustomItemForm
                       ? "bg-[#052350] text-white border-blue-500/40"
                       : "bg-[#1a243d] text-slate-300 hover:text-white border-[#1F2E4D]"
-                    }`}
+                  }`}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                   <span>+ Custom Dish</span>
@@ -292,15 +398,16 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
 
               {/* Categories */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                {["ALL", "Main Course", "Appetizer", "Dessert", "Beverage"].map((cat) => (
+                {categoriesList.map((cat) => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${selectedCategory === cat
+                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      selectedCategory === cat
                         ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
                         : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
-                      }`}
+                    }`}
                   >
                     {cat}
                   </button>
@@ -310,20 +417,28 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
 
             {/* Menu Items List */}
             <div className="flex-1 overflow-y-auto pr-1 space-y-2">
-              {filteredDishes.length > 0 ? (
+              {isMenuLoading ? (
+                <div className="py-12 text-center text-slate-400">
+                  <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-blue-400" />
+                  <p className="text-xs">Loading menu catalog...</p>
+                </div>
+              ) : filteredDishes.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {filteredDishes.map((dish) => {
-                    const inCart = cartItems.find((c) => c.id === dish.id);
+                    const inCart = cartItems.find(
+                      (c) => (c.menuItemId || c.id) === dish.id
+                    );
                     return (
                       <div
                         key={dish.id}
                         onClick={() => dish.isAvailable && handleAddItem(dish)}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${!dish.isAvailable
+                        className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                          !dish.isAvailable
                             ? "bg-[#1a243d]/30 border-[#1F2E4D]/40 opacity-50 cursor-not-allowed"
                             : inCart
-                              ? "bg-[#052350]/40 border-blue-500/50 shadow-sm"
-                              : "bg-[#1a243d] hover:bg-[#1a243d]/80 border-[#1F2E4D]"
-                          }`}
+                            ? "bg-[#052350]/40 border-blue-500/50 shadow-sm"
+                            : "bg-[#1a243d] hover:bg-[#1a243d]/80 border-[#1F2E4D]"
+                        }`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <div>
@@ -346,340 +461,248 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                         <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1.5 border-t border-[#1F2E4D]/60">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-slate-400" />
-                            {dish.preparationTime}
+                            {dish.prepTime || "15 mins"}
                           </span>
-
-                          {dish.isAvailable ? (
-                            inCart ? (
-                              <span className="text-blue-400 font-bold bg-blue-500/20 px-2 py-0.5 rounded-full text-[10px]">
-                                {inCart.quantity} added
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                className="px-2.5 py-0.5 rounded-lg bg-[#052350] hover:bg-[#041a3d] text-white text-[11px] font-semibold flex items-center gap-1"
-                              >
-                                <Plus className="w-3 h-3" /> Add
-                              </button>
-                            )
-                          ) : (
-                            <span className="text-red-400 text-[10px]">Out of Stock</span>
-                          )}
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                              dish.isAvailable
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : "bg-red-500/10 text-red-400 border border-red-500/20"
+                            }`}
+                          >
+                            {dish.isAvailable ? "In Stock" : "Out of Stock"}
+                          </span>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="h-40 flex flex-col items-center justify-center text-slate-400 text-center">
-                  <Utensils className="w-8 h-8 mb-2 opacity-30 text-slate-400" />
-                  <p className="text-xs font-semibold text-slate-300">No dishes matched</p>
+                <div className="py-12 text-center text-slate-400">
+                  <Utensils className="w-8 h-8 mx-auto mb-2 opacity-30 text-slate-400" />
+                  <p className="text-xs font-semibold text-slate-300">No dishes match filter</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* RIGHT 5 COLS: Manager Order Form & Cart Basket */}
-          <form
-            onSubmit={handleSubmitOrder}
-            className="lg:col-span-5 p-4 sm:p-5 flex flex-col justify-between overflow-hidden bg-[#131b2e]"
-          >
-            {/* Manager Inputs (Order Header, Guests, Table, Staff, Payment) */}
-            <div className="space-y-3 shrink-0 overflow-y-auto max-h-[46%] pr-1">
-              {/* Type Switcher & Rush Flag */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="grid grid-cols-3 gap-1 bg-[#1a243d] p-1 rounded-xl border border-[#1F2E4D] flex-1">
+          {/* RIGHT 5 COLS: Order Configuration, Cart & Checkout */}
+          <div className="lg:col-span-5 p-4 sm:p-5 flex flex-col justify-between bg-[#131b2e] overflow-y-auto">
+            <form onSubmit={handleSubmitOrder} className="flex-1 flex flex-col justify-between space-y-4">
+              <div className="space-y-3.5">
+                {/* Order Type Switch */}
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#1a243d] rounded-xl border border-[#1F2E4D]">
                   {(["Dine In", "Takeaway", "Delivery"] as const).map((type) => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setOrderType(type)}
-                      className={`py-1 text-xs font-bold rounded-lg transition-all cursor-pointer text-center ${orderType === type
-                          ? "bg-[#052350] text-white shadow-sm border border-[#1F2E4D]"
+                      className={`py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                        orderType === type
+                          ? "bg-[#052350] text-white shadow-xs border border-blue-500/30"
                           : "text-slate-400 hover:text-white"
-                        }`}
+                      }`}
                     >
                       {type}
                     </button>
                   ))}
                 </div>
 
-                {/* Rush Toggle */}
-                <label className="flex items-center gap-1.5 text-xs text-amber-400 font-semibold cursor-pointer bg-amber-500/10 px-2.5 py-1.5 rounded-xl border border-amber-500/20 shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={isRushOrder}
-                    onChange={(e) => setIsRushOrder(e.target.checked)}
-                    className="rounded text-amber-500"
-                  />
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>Rush</span>
-                </label>
-              </div>
-
-              {/* Table & Guests */}
-              {orderType === "Dine In" && (
-                <div className="grid grid-cols-2 gap-2">
+                {/* Table Assignment (if Dine In) */}
+                {orderType === "Dine In" && (
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                      Table Number
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Dining Table
                     </label>
-                    <select
-                      value={tableId}
-                      onChange={(e) => setTableId(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8].map((t) => (
-                        <option key={t} value={t} className="bg-[#131b2e] text-white">
-                          Table #{t} (Hall)
-                        </option>
-                      ))}
-                    </select>
+                    {availableTables.length > 0 ? (
+                      <select
+                        value={selectedTableId}
+                        onChange={(e) => setSelectedTableId(e.target.value)}
+                        className="w-full px-3.5 py-2 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
+                      >
+                        {availableTables.map((tbl) => (
+                          <option key={tbl.id} value={tbl.id} className="bg-[#131b2e] text-white">
+                            Table #{tbl.tableNumber || tbl.id} ({tbl.capacity} - {tbl.section || "Floor"}) [{tbl.status}]
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="Table Number (e.g. 1)"
+                        value={customTableNumber}
+                        onChange={(e) => setCustomTableNumber(e.target.value)}
+                        className="w-full px-3.5 py-2 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#052350]"
+                      />
+                    )}
                   </div>
+                )}
 
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                      <Users className="w-3 h-3 text-slate-400" /> Guest Count
-                    </label>
+                {/* Guest Details */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative">
+                    <User className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
-                      type="number"
-                      min={1}
-                      max={30}
-                      value={guestCount}
-                      onChange={(e) => setGuestCount(Number(e.target.value) || 1)}
-                      className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
+                      type="text"
+                      placeholder="Guest Name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="w-full pl-9 pr-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350]"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Phone / Contact"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      className="w-full pl-9 pr-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350]"
                     />
                   </div>
                 </div>
-              )}
 
-              {/* Customer Name & Phone */}
-              <div className="grid grid-cols-2 gap-2">
+                {/* Cart Items List */}
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <User className="w-3 h-3 text-slate-400" /> Customer Name *
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1.5">
+                    <span>Order Items ({cartItems.reduce((a, b) => a + b.quantity, 0)})</span>
+                    {cartItems.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setCartItems([])}
+                        className="text-red-400 hover:text-red-300 text-[11px] cursor-pointer"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="bg-[#1a243d] rounded-xl p-2.5 max-h-44 overflow-y-auto space-y-2 border border-[#1F2E4D]">
+                    {cartItems.length > 0 ? (
+                      cartItems.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between gap-2 text-xs bg-[#131b2e] p-2 rounded-lg border border-[#1F2E4D]"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <span className="font-semibold text-white block truncate">
+                              {item.name}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              ${item.price.toFixed(2)} each
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(item.id, -1)}
+                              className="w-6 h-6 rounded-md bg-[#1a243d] hover:bg-[#202c4b] text-slate-300 flex items-center justify-center cursor-pointer border border-[#1F2E4D]"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="w-5 text-center font-bold text-white font-mono">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(item.id, 1)}
+                              className="w-6 h-6 rounded-md bg-[#1a243d] hover:bg-[#202c4b] text-slate-300 flex items-center justify-center cursor-pointer border border-[#1F2E4D]"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(item.id)}
+                              className="w-6 h-6 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center cursor-pointer border border-red-500/20 ml-1"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-6 text-center text-slate-400">
+                        <p className="text-xs">Cart is empty. Click dishes on the left to add.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Special Instructions */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Special Instructions / Notes
                   </label>
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. Alex Morgan"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#052350]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <Phone className="w-3 h-3 text-slate-400" /> Phone (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 555-0192"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#052350]"
+                    placeholder="e.g. Extra cutlery, no spicy sauce..."
+                    value={orderNotes}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#052350]"
                   />
                 </div>
               </div>
 
-              {/* Assigned Waiter & Initial Status */}
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                    Assigned Server / Staff
-                  </label>
-                  <select
-                    value={serverName}
-                    onChange={(e) => setServerName(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
-                  >
-                    <option value="Sarah Jenkins" className="bg-[#131b2e] text-white">Sarah Jenkins</option>
-                    <option value="John Doe" className="bg-[#131b2e] text-white">John Doe</option>
-                    <option value="Emily Watson" className="bg-[#131b2e] text-white">Emily Watson</option>
-                    <option value="David Khan" className="bg-[#131b2e] text-white">David Khan</option>
-                    <option value="Manager Desk" className="bg-[#131b2e] text-white">Manager Desk</option>
-                  </select>
+              {/* Bill Calculations & Action Button */}
+              <div className="pt-3 border-t border-[#1F2E4D] space-y-2.5">
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Subtotal:</span>
+                    <span className="font-mono text-white">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Tax (5%):</span>
+                    <span className="font-mono text-white">${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-400">
+                    <span>Discount ($):</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      placeholder="0.00"
+                      value={discountAmount === 0 ? "" : discountAmount}
+                      onChange={(e) =>
+                        setDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))
+                      }
+                      className="w-20 px-2 py-0.5 bg-[#1a243d] border border-[#1F2E4D] rounded text-right text-xs text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-400">
+                      <span>Discount Applied:</span>
+                      <span className="font-mono">-${finalDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm font-bold text-white pt-1 border-t border-[#1F2E4D]/80">
+                    <span>Total Bill:</span>
+                    <span className="font-mono text-blue-400 text-base">
+                      ${totalAmount.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                    Initial Status
-                  </label>
-                  <select
-                    value={orderStatus}
-                    onChange={(e) => setOrderStatus(e.target.value as LiveOrder["status"])}
-                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
-                  >
-                    <option value="PENDING" className="bg-[#131b2e] text-white">PENDING (New)</option>
-                    <option value="PREPARING" className="bg-[#131b2e] text-white">PREPARING (Kitchen)</option>
-                    <option value="SERVED" className="bg-[#131b2e] text-white">SERVED (Dining)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Payment Method & Discount ($) */}
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                    Payment Method
-                  </label>
-                  <select
-                    value={paymentMethod}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value as "Cash" | "Card" | "Digital" | "Pay Later")
-                    }
-                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#052350]"
-                  >
-                    <option value="Pay Later" className="bg-[#131b2e] text-white">Pay Later (Post-dine)</option>
-                    <option value="Cash" className="bg-[#131b2e] text-white">Cash Paid</option>
-                    <option value="Card" className="bg-[#131b2e] text-white">Card / POS</option>
-                    <option value="Digital" className="bg-[#131b2e] text-white">Digital / UPI</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <Tag className="w-3 h-3 text-slate-400" /> Discount ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    placeholder="0.00"
-                    value={discountAmount || ""}
-                    onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#052350] font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Order Notes */}
-              <div>
-                <input
-                  type="text"
-                  placeholder="Special instructions / Kitchen note (e.g. less spicy)..."
-                  value={orderNotes}
-                  onChange={(e) => setOrderNotes(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-[#1a243d] border border-[#1F2E4D] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#052350]"
-                />
-              </div>
-            </div>
-
-            {/* Cart Items Basket */}
-            <div className="flex-1 overflow-y-auto my-2 p-2.5 bg-[#1a243d]/60 rounded-xl border border-[#1F2E4D] space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-300 pb-1 border-b border-[#1F2E4D]">
-                <span>Order Basket ({cartItems.reduce((s, i) => s + i.quantity, 0)})</span>
-                {cartItems.length > 0 && (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setCartItems([])}
-                    className="text-[11px] text-red-400 hover:underline cursor-pointer"
+                    onClick={onClose}
+                    className="flex-1 py-2.5 bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] text-slate-300 hover:text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer"
                   >
-                    Clear All
+                    Cancel
                   </button>
-                )}
-              </div>
-
-              {cartItems.length > 0 ? (
-                <div className="space-y-1.5">
-                  {cartItems.map((ci) => (
-                    <div
-                      key={ci.id}
-                      className="flex items-center justify-between bg-[#131b2e] p-2 rounded-lg border border-[#1F2E4D]/80 text-xs"
-                    >
-                      <div className="flex-1 min-w-0 pr-2">
-                        <div className="font-semibold text-white truncate">{ci.name}</div>
-                        <div className="text-[10px] text-slate-400">
-                          ${ci.price.toFixed(2)} each
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex items-center gap-1 bg-[#1a243d] px-1.5 py-0.5 rounded-md border border-[#1F2E4D]">
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateQuantity(ci.id, -1)}
-                            className="text-slate-400 hover:text-white p-0.5"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="font-bold text-white px-1 text-xs">{ci.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateQuantity(ci.id, 1)}
-                            className="text-slate-400 hover:text-white p-0.5"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-
-                        <span className="font-bold text-white w-12 text-right font-mono text-xs">
-                          ${(ci.price * ci.quantity).toFixed(2)}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItem(ci.id)}
-                          className="text-red-400 hover:text-red-300 p-1"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-5 text-center text-slate-500 text-xs">
-                  Select dishes from left or add custom item
-                </div>
-              )}
-            </div>
-
-            {/* Bill Summary & Submit Button */}
-            <div className="shrink-0 space-y-2 pt-2 border-t border-[#1F2E4D]">
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between text-slate-400">
-                  <span>Subtotal</span>
-                  <span className="font-mono">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Tax (5% VAT)</span>
-                  <span className="font-mono">${tax.toFixed(2)}</span>
-                </div>
-                {finalDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-400 font-semibold">
-                    <span>Discount</span>
-                    <span className="font-mono">-${finalDiscount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm font-bold text-white pt-1 border-t border-[#1F2E4D]/80">
-                  <span>Total Amount</span>
-                  <span className="text-emerald-400 font-mono text-base">
-                    ${totalAmount.toFixed(2)}
-                  </span>
+                  <button
+                    type="submit"
+                    disabled={isCreatingOrder || cartItems.length === 0}
+                    className="flex-2 py-2.5 bg-[#052350] hover:bg-[#041a3d] border border-blue-500/40 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isCreatingOrder && <Loader2 className="w-4 h-4 animate-spin" />}
+                    <span>Dispatch Order (${totalAmount.toFixed(2)})</span>
+                  </button>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2 pt-1.5">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 py-2.5 rounded-xl bg-[#1a243d] hover:bg-[#1a243d]/80 text-xs font-semibold text-slate-300 border border-[#1F2E4D] transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={cartItems.length === 0}
-                  className="flex-2 py-2.5 bg-[#052350] hover:bg-[#041a3d] disabled:opacity-50 disabled:cursor-not-allowed border border-[#1F2E4D] text-white text-xs font-bold rounded-full shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Receipt className="w-4 h-4" />
-                  <span>Confirm & Send to Kitchen</span>
-                </button>
-              </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
