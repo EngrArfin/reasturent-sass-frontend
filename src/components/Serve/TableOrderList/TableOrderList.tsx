@@ -105,7 +105,10 @@ const TableOrderList: React.FC = () => {
     isLoading,
     isFetching,
   } = useGetServeOrdersQuery(
-    filter !== "ALL" ? { status: filter } : undefined
+    filter !== "ALL" ? { status: filter } : undefined,
+    {
+      pollingInterval: 3000,
+    }
   );
 
   const [updateOrderStatus, { isLoading: isUpdatingStatus }] =
@@ -148,9 +151,17 @@ const TableOrderList: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Table Order Status
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Table Order Status
+            </h1>
+            {isFetching && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-ping"></span>
+                Live
+              </span>
+            )}
+          </div>
           <p className="text-xs sm:text-sm font-medium text-slate-400 tracking-wider uppercase mt-1">
             Live waiter & kitchen service tickets
           </p>
@@ -196,10 +207,30 @@ const TableOrderList: React.FC = () => {
       </div>
 
       {/* Orders Grid */}
-      {isLoading || isFetching ? (
-        <div className="py-24 text-center text-slate-400">
-          <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-orange-400" />
-          <p className="text-sm">Loading order tickets...</p>
+      {isLoading && !ordersData ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+            <div
+              key={n}
+              className="bg-[#131b2e] rounded-[28px] p-6 border border-[#1F2E4D] min-h-[460px] animate-pulse flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="w-9 h-9 rounded-full bg-slate-800" />
+                  <div className="w-20 h-5 rounded-full bg-slate-800" />
+                </div>
+                <div className="h-4 w-28 bg-slate-800 rounded" />
+                <div className="h-5 w-20 bg-slate-800 rounded" />
+                <div className="h-9 w-full bg-slate-800 rounded-xl" />
+                <div className="border-b border-[#1F2E4D] my-4" />
+                <div className="space-y-2">
+                  <div className="h-4 w-full bg-slate-800 rounded" />
+                  <div className="h-4 w-3/4 bg-slate-800 rounded" />
+                </div>
+              </div>
+              <div className="h-10 w-full bg-slate-800 rounded-full" />
+            </div>
+          ))}
         </div>
       ) : filteredOrders.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
@@ -219,9 +250,9 @@ const TableOrderList: React.FC = () => {
               order.time ||
               (order.createdAt
                 ? new Date(order.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
                 : "Just now");
 
             return (
@@ -242,17 +273,16 @@ const TableOrderList: React.FC = () => {
                         IN: {displayTime}
                       </span>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider capitalize border ${
-                          isCancelled
-                            ? "bg-red-500/10 text-red-400 border-red-500/20"
-                            : isReady
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider capitalize border ${isCancelled
+                          ? "bg-red-500/10 text-red-400 border-red-500/20"
+                          : isReady
                             ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
                             : isServed
-                            ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                            : isKitchen
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        }`}
+                              ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                              : isKitchen
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          }`}
                       >
                         {order.status}
                       </span>

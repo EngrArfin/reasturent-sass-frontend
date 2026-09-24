@@ -25,7 +25,9 @@ const fallbackTables: TableData[] = [
 ];
 
 const ServeDashboard: React.FC = () => {
-  const { data: tablesData, isLoading, isFetching } = useGetServeTablesQuery();
+  const { data: tablesData, isLoading, isFetching } = useGetServeTablesQuery(undefined, {
+    pollingInterval: 3000,
+  });
   const [updateTableStatus] = useUpdateServeTableStatusMutation();
 
   const [selectedTable, setSelectedTable] = useState<TableData | null>(null);
@@ -82,9 +84,17 @@ const ServeDashboard: React.FC = () => {
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Floor Table Map
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Floor Table Map
+            </h1>
+            {isFetching && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-ping"></span>
+                Live
+              </span>
+            )}
+          </div>
           <p className="text-xs sm:text-sm font-medium text-slate-400 tracking-wider uppercase mt-1">
             Real-time table seating & instant ordering terminal
           </p>
@@ -134,10 +144,24 @@ const ServeDashboard: React.FC = () => {
       </div>
 
       {/* Grid of Table Cards */}
-      {isLoading || isFetching ? (
-        <div className="py-24 text-center text-slate-400">
-          <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-orange-400" />
-          <p className="text-sm">Loading floor table map...</p>
+      {isLoading && !tablesData ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+            <div
+              key={n}
+              className="bg-[#131b2e] rounded-[28px] p-5 border border-[#1F2E4D] min-h-[220px] animate-pulse flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <div className="w-10 h-10 rounded-full bg-slate-800" />
+                  <div className="w-20 h-5 rounded-full bg-slate-800" />
+                </div>
+                <div className="h-4 w-24 bg-slate-800 rounded" />
+                <div className="h-4 w-32 bg-slate-800 rounded" />
+              </div>
+              <div className="h-8 w-full bg-slate-800 rounded-xl" />
+            </div>
+          ))}
         </div>
       ) : filteredTables.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">

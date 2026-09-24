@@ -1,3 +1,4 @@
+// src/components/Kitchen/KitchenDashboard/KitchenCard.tsx
 import React, { useState } from "react";
 import {
   TrendingUp,
@@ -5,37 +6,44 @@ import {
   Flame,
   Activity,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useGetKitchenSummaryQuery } from "@/redux/features/kitchen/kitchenProductionApi";
+import { IKitchenSummaryData } from "@/redux/features/kitchen/kitchenProductionType";
 
 export interface KitchenStatsProps {
-  completedCount?: number;
-  avgPrepTime?: string;
-  stationAlert?: {
-    stationName: string;
-    capacity: number;
-    description: string;
-  };
+  initialData?: IKitchenSummaryData;
 }
 
-const KitchenCard: React.FC<KitchenStatsProps> = ({
-  completedCount = 42,
-  avgPrepTime = "14m",
-  stationAlert = {
-    stationName: "Grill station",
-    capacity: 92,
-    description: "Grill station operating at 92% capacity.",
-  },
-}) => {
+const KitchenCard: React.FC<KitchenStatsProps> = () => {
   const [isHeatmapOpen, setIsHeatmapOpen] = useState(false);
 
+  // Fetch live KPI summary with auto-polling every 10 seconds
+  const { data: summaryResponse, isLoading, isFetching, refetch } = useGetKitchenSummaryQuery(undefined, {
+    pollingInterval: 10000,
+  });
+
+  const summary = summaryResponse?.data;
+
+  // Station Thermal Load breakdown for Heatmap
+  const activeStation = summary?.stationAlert?.station || "Grill";
+  const activeStationLoad = summary?.stationAlert?.capacityPercent ?? 68;
+
   const stationData = [
-    { name: "Grill Station", load: 92, status: "Critical", chef: "Chef Alex", tickets: 8, color: "bg-red-500" },
-    { name: "Fryer Station", load: 68, status: "Normal", chef: "Chef Maria", tickets: 5, color: "bg-amber-500" },
-    { name: "Bakery / Tandoor", load: 84, status: "High", chef: "Chef Rahul", tickets: 7, color: "bg-orange-500" },
-    { name: "Salad & Cold Bar", load: 35, status: "Optimal", chef: "Chef Elena", tickets: 2, color: "bg-emerald-500" },
-    { name: "Beverage & Bar", load: 45, status: "Optimal", chef: "Chef Liam", tickets: 4, color: "bg-blue-500" },
-    { name: "Plating & Expo", load: 78, status: "Elevated", chef: "Expo Lead", tickets: 6, color: "bg-purple-500" },
+    {
+      name: `${activeStation} Station`,
+      load: activeStationLoad,
+      status: activeStationLoad >= 85 ? "Critical" : activeStationLoad >= 60 ? "Elevated" : "Optimal",
+      chef: "Head Chef",
+      tickets: Math.ceil(activeStationLoad / 10),
+      color: activeStationLoad >= 85 ? "bg-red-500" : activeStationLoad >= 60 ? "bg-orange-500" : "bg-emerald-500",
+    },
+    { name: "Tandoor & Bakery", load: 74, status: "Normal", chef: "Chef Rahul", tickets: 6, color: "bg-amber-500" },
+    { name: "Fryer Station", load: 55, status: "Optimal", chef: "Chef Maria", tickets: 4, color: "bg-amber-400" },
+    { name: "Beverage & Bar", load: 40, status: "Optimal", chef: "Chef Liam", tickets: 3, color: "bg-blue-500" },
+    { name: "Salad & Cold Bar", load: 30, status: "Optimal", chef: "Chef Elena", tickets: 2, color: "bg-emerald-500" },
+    { name: "Plating & Expo", load: 65, status: "Normal", chef: "Expo Lead", tickets: 5, color: "bg-purple-500" },
   ];
 
   return (
@@ -49,9 +57,13 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
               <span className="text-sm font-medium text-slate-400 tracking-wider">
                 Completed Today
               </span>
-              <h3 className="text-3xl font-bold text-emerald-400 tracking-tight mt-3">
-                {completedCount}
-              </h3>
+              {isLoading ? (
+                <div className="h-9 w-20 bg-slate-800 animate-pulse rounded mt-3" />
+              ) : (
+                <h3 className="text-3xl font-bold text-emerald-400 tracking-tight mt-3">
+                  {summary?.completedToday?.count ?? 0}
+                </h3>
+              )}
             </div>
             <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
               <TrendingUp className="w-5 h-5" />
@@ -59,7 +71,7 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
           </div>
           <div className="flex items-center mt-4 pt-3 border-t border-[#1F2E4D]/50">
             <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">
-              +12% from avg
+              {summary?.completedToday?.growth || "+12% from avg"}
             </span>
           </div>
         </div>
@@ -71,9 +83,13 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
               <span className="text-sm font-medium text-slate-400 tracking-wider">
                 Avg. Prep Time
               </span>
-              <h3 className="text-3xl font-bold text-blue-400 tracking-tight mt-3">
-                {avgPrepTime}
-              </h3>
+              {isLoading ? (
+                <div className="h-9 w-20 bg-slate-800 animate-pulse rounded mt-3" />
+              ) : (
+                <h3 className="text-3xl font-bold text-blue-400 tracking-tight mt-3">
+                  {summary?.avgPrepTime?.time ?? "14m"}
+                </h3>
+              )}
             </div>
             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
               <Timer className="w-5 h-5" />
@@ -81,7 +97,7 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
           </div>
           <div className="flex items-center mt-4 pt-3 border-t border-[#1F2E4D]/50">
             <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400">
-              Target: 15m (Optimal)
+              {summary?.avgPrepTime?.target || "Target: 15m (Optimal)"}
             </span>
           </div>
         </div>
@@ -98,13 +114,17 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
                   Station Alert
                 </span>
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${summary?.stationAlert?.isAlert ? "bg-red-400" : "bg-orange-400"}`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${summary?.stationAlert?.isAlert ? "bg-red-500" : "bg-orange-500"}`} />
                 </span>
               </div>
-              <h3 className="text-base font-bold text-white tracking-tight mt-2 leading-snug">
-                {stationAlert.description}
-              </h3>
+              {isLoading ? (
+                <div className="h-6 w-48 bg-slate-800 animate-pulse rounded mt-2" />
+              ) : (
+                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight mt-2 leading-snug">
+                  {summary?.stationAlert?.message || `${activeStation} station operating at ${activeStationLoad}% capacity.`}
+                </h3>
+              )}
             </div>
             <div className="p-3 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shrink-0">
               <Flame className="w-5 h-5" />
@@ -112,25 +132,42 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
           </div>
 
           <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#1F2E4D]/50">
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400">
-              {stationAlert.capacity}% Capacity
+            <span
+              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
+                (summary?.stationAlert?.capacityPercent ?? 68) >= 80
+                  ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                  : "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+              }`}
+            >
+              {summary?.stationAlert?.capacityPercent ?? 68}% Capacity
             </span>
 
-            <button
-              type="button"
-              onClick={() => setIsHeatmapOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-200 bg-[#1a243d] hover:bg-[#232f4c] hover:text-white rounded-lg border border-[#1F2E4D] transition-colors cursor-pointer"
-            >
-              <Activity className="w-3.5 h-3.5 text-orange-400" />
-              <span>View Heatmap</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-[#1a243d] transition-colors"
+                title="Refresh metrics"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-orange-400" : ""}`} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsHeatmapOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-200 bg-[#1a243d] hover:bg-[#232f4c] hover:text-white rounded-lg border border-[#1F2E4D] transition-colors cursor-pointer"
+              >
+                <Activity className="w-3.5 h-3.5 text-orange-400" />
+                <span>View Heatmap</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Station Capacity Heatmap Dialog */}
       <Dialog open={isHeatmapOpen} onOpenChange={setIsHeatmapOpen}>
-        <DialogContent className="max-w-2xl bg-[#131b2e] border border-[#1F2E4D] text-white p-6 rounded-2xl">
+        <DialogContent className="max-w-2xl bg-[#131b2e] border border-[#1F2E4D] text-white p-6 rounded-2xl shadow-2xl">
           <DialogHeader>
             <div className="flex items-center justify-between pb-2 border-b border-[#1F2E4D]">
               <div className="flex items-center gap-2">
@@ -159,9 +196,9 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
                     </span>
                     <span
                       className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                        station.load >= 90
+                        station.load >= 85
                           ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                          : station.load >= 70
+                          : station.load >= 60
                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                           : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                       }`}
@@ -189,7 +226,7 @@ const KitchenCard: React.FC<KitchenStatsProps> = ({
             <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-xl flex items-start gap-2 text-xs text-red-300">
               <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <span>
-                <strong className="text-red-200">Action Recommended:</strong> Rebalance cold side or assist Grill Line #1 to avoid ticket bottlenecks exceeding 15m.
+                <strong className="text-red-200">Action Recommended:</strong> Rebalance ticket flow to avoid station bottlenecks exceeding 15m target prep time.
               </span>
             </div>
           </div>

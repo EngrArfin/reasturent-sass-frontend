@@ -31,7 +31,7 @@ export const serverTableAndStatusApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: { status, subStatus },
       }),
-      invalidatesTags: ["ServeTables", "ServeOrders", "Tables", "Orders"],
+      invalidatesTags: ["ServeTables", "ServeOrders", "KitchenTickets", "KitchenSummary", "Tables", "Orders"],
     }),
 
     // 3. Get Menu Dishes For Ordering
@@ -50,7 +50,7 @@ export const serverTableAndStatusApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["ServeOrders", "ServeTables", "Orders", "Tables"],
+      invalidatesTags: ["ServeOrders", "ServeTables", "KitchenTickets", "KitchenSummary", "Orders", "Tables"],
     }),
 
     // 5. Get Table Order Status List
@@ -76,7 +76,7 @@ export const serverTableAndStatusApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: { status },
       }),
-      invalidatesTags: ["ServeOrders", "ServeTables", "Orders", "Tables"],
+      invalidatesTags: ["ServeOrders", "ServeTables", "KitchenTickets", "KitchenSummary", "Orders", "Tables"],
     }),
   }),
 });
