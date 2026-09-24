@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Send, Filter, Loader2, Receipt } from "lucide-react";
+import { ChevronDown, Send, Filter, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import {
   useGetServeOrdersQuery,

@@ -1,3 +1,4 @@
+// src/components/CashierDashboard/Dashboard/Checkout.tsx
 import React, { useState } from "react";
 import {
   X,
@@ -10,15 +11,18 @@ import {
   Printer,
   QrCode,
   Tag,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { TableItem } from "./CashierCard";
+import { ICashierPosTable, PaymentMethod, OnlineProvider, CardType, ICashierCheckoutPayload } from "@/redux/features/cashier/cashierHubAndOrderMenuType";
+import { useProcessCashierCheckoutMutation } from "@/redux/features/cashier/cashierHubAndOrderMenuApi";
 
 interface CheckoutProps {
-  table: TableItem | null;
+  table: ICashierPosTable | null;
   isOpen: boolean;
   onClose: () => void;
-  onPaymentComplete: (tableId: number) => void;
+  onPaymentComplete: (tableId: string | number) => void;
 }
 
 interface DiscountOption {
@@ -27,9 +31,9 @@ interface DiscountOption {
   percentage: number;
 }
 
-type PaymentMethodType = "card" | "cash" | "online";
+type PaymentMethodType = "online" | "card" | "cash";
 type OnlineProviderType = "bkash" | "nagad" | "rocket" | "upay";
-type CardType = "visa" | "mastercard" | "amex" | "pos";
+type CardTypeUi = "visa" | "mastercard" | "amex" | "pos";
 
 const discountOptions: DiscountOption[] = [
   { id: "none", name: "No Discount (0%)", percentage: 0 },
@@ -45,30 +49,12 @@ const discountOptions: DiscountOption[] = [
 const BkashLogo: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
   <svg viewBox="0 0 120 120" className={className} fill="none">
     <rect width="120" height="120" rx="24" fill="#E2136E" />
-    <path
-      d="M71.5 28L43 49.5L62 76.5L71.5 28Z"
-      fill="#FFFFFF"
-    />
-    <path
-      d="M43 49.5L25 43.5L34.5 67L43 49.5Z"
-      fill="#F587AB"
-    />
-    <path
-      d="M62 76.5L34.5 67L39 88L62 76.5Z"
-      fill="#FFFFFF"
-    />
-    <path
-      d="M71.5 28L95 38L62 76.5L71.5 28Z"
-      fill="#FFAFD0"
-    />
-    <path
-      d="M62 76.5L88 72L79 92L62 76.5Z"
-      fill="#FFFFFF"
-    />
-    <path
-      d="M62 76.5L79 92L57 95L62 76.5Z"
-      fill="#F587AB"
-    />
+    <path d="M71.5 28L43 49.5L62 76.5L71.5 28Z" fill="#FFFFFF" />
+    <path d="M43 49.5L25 43.5L34.5 67L43 49.5Z" fill="#F587AB" />
+    <path d="M62 76.5L34.5 67L39 88L62 76.5Z" fill="#FFFFFF" />
+    <path d="M71.5 28L95 38L62 76.5L71.5 28Z" fill="#FFAFD0" />
+    <path d="M62 76.5L88 72L79 92L62 76.5Z" fill="#FFFFFF" />
+    <path d="M62 76.5L79 92L57 95L62 76.5Z" fill="#F587AB" />
   </svg>
 );
 
@@ -91,28 +77,14 @@ const NagadLogo: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) 
 const RocketLogo: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
   <svg viewBox="0 0 120 120" className={className} fill="none">
     <rect width="120" height="120" rx="24" fill="#8C3494" />
-    {/* Rocket body */}
     <path
       d="M60 26C52 38 46 54 46 72L60 67L74 72C74 54 68 38 60 26Z"
       fill="#FFFFFF"
     />
-    {/* Left fin */}
-    <path
-      d="M46 64L32 74L46 78V64Z"
-      fill="#FF4081"
-    />
-    {/* Right fin */}
-    <path
-      d="M74 64L88 74L74 78V64Z"
-      fill="#FF4081"
-    />
-    {/* Window */}
+    <path d="M46 64L32 74L46 78V64Z" fill="#FF4081" />
+    <path d="M74 64L88 74L74 78V64Z" fill="#FF4081" />
     <circle cx="60" cy="48" r="6" fill="#8C3494" />
-    {/* Rocket thrust */}
-    <path
-      d="M54 75L60 94L66 75H54Z"
-      fill="#FFD54F"
-    />
+    <path d="M54 75L60 94L66 75H54Z" fill="#FFD54F" />
   </svg>
 );
 
@@ -174,7 +146,7 @@ const AmexLogo: React.FC<{ className?: string }> = ({ className = "w-10 h-6" }) 
 );
 
 /* -------------------------------------------------------------------------- */
-/* MAIN COMPONENT                                                             */
+/* MAIN CHECKOUT COMPONENT                                                    */
 /* -------------------------------------------------------------------------- */
 
 const Checkout: React.FC<CheckoutProps> = ({
@@ -183,9 +155,11 @@ const Checkout: React.FC<CheckoutProps> = ({
   onClose,
   onPaymentComplete,
 }) => {
+  const [processCheckout, { isLoading: isProcessing }] = useProcessCashierCheckoutMutation();
+
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>("online");
   const [selectedOnline, setSelectedOnline] = useState<OnlineProviderType>("bkash");
-  const [selectedCard, setSelectedCard] = useState<CardType>("visa");
+  const [selectedCard, setSelectedCard] = useState<CardTypeUi>("visa");
   const [selectedDiscount, setSelectedDiscount] = useState<DiscountOption>(
     discountOptions[0]
   );
@@ -195,7 +169,6 @@ const Checkout: React.FC<CheckoutProps> = ({
   const [transactionId, setTransactionId] = useState("");
   const [showQrCode, setShowQrCode] = useState(false);
   const [printReceipt, setPrintReceipt] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   if (!isOpen || !table) return null;
 
@@ -204,14 +177,14 @@ const Checkout: React.FC<CheckoutProps> = ({
     table.items && table.items.length > 0
       ? table.items
       : [
-        { name: "Chicken Biryani", quantity: 2, price: 12.99 },
-        { name: "Mango Lassi", quantity: 2, price: 4.5 },
-      ];
+          { name: "Order Items", quantity: 1, price: table.totalAmount || 0 },
+        ];
 
-  const subtotal = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const subtotal =
+    table.totalAmount !== undefined && table.totalAmount > 0
+      ? table.totalAmount
+      : items.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 1), 0);
+
   const discountAmount = (subtotal * selectedDiscount.percentage) / 100;
   const finalTotal = Math.max(0, subtotal - discountAmount);
 
@@ -232,37 +205,51 @@ const Checkout: React.FC<CheckoutProps> = ({
     toast.success(`${label} copied to clipboard!`);
   };
 
-  const handleCompletePayment = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
+  const handleCompletePayment = async () => {
+    const methodEnum: PaymentMethod =
+      paymentMethod === "online" ? "ONLINE" : paymentMethod === "card" ? "CARD" : "CASH";
 
-      let methodLabel = "";
-      if (paymentMethod === "online") {
-        const brandNames: Record<OnlineProviderType, string> = {
-          bkash: "bKash",
-          nagad: "Nagad",
-          rocket: "Rocket",
-          upay: "Upay",
-        };
-        methodLabel = `${brandNames[selectedOnline]}${transactionId ? ` (TrxID: ${transactionId})` : ""
-          }`;
-      } else if (paymentMethod === "card") {
-        methodLabel = `Card (${selectedCard.toUpperCase()})`;
-      } else {
-        methodLabel = `Cash (Received: $${(parsedTendered || finalTotal).toFixed(2)})`;
-      }
+    const payload: ICashierCheckoutPayload = {
+      tableId: String(table.id),
+      orderId: table.orderId || undefined,
+      paymentMethod: methodEnum,
+      onlineProvider:
+        paymentMethod === "online"
+          ? (selectedOnline.toUpperCase() as OnlineProvider)
+          : undefined,
+      cardType:
+        paymentMethod === "card"
+          ? (selectedCard.toUpperCase() as CardType)
+          : undefined,
+      trxId: paymentMethod === "online" && transactionId.trim() ? transactionId.trim() : undefined,
+      totalAmount: Number(finalTotal.toFixed(2)),
+      discountPercent: selectedDiscount.percentage,
+      tenderedCash:
+        paymentMethod === "cash"
+          ? Number((parsedTendered || finalTotal).toFixed(2))
+          : undefined,
+      changeDue: paymentMethod === "cash" ? Number(changeDue.toFixed(2)) : undefined,
+      printReceipt: printReceipt,
+    };
 
+    try {
+      const res = await processCheckout(payload).unwrap();
       toast.success(
-        `Payment of $${finalTotal.toFixed(2)} received via ${methodLabel}!`
+        res.message || `Payment of $${finalTotal.toFixed(2)} completed successfully!`
       );
+      if (res.receiptNumber) {
+        toast.info(`Receipt: #${res.receiptNumber}`);
+      }
       onPaymentComplete(table.id);
       onClose();
 
       // Reset
       setTransactionId("");
       setTenderedCash("");
-    }, 600);
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { message?: string } };
+      toast.error(errorObj?.data?.message || "Failed to process payment checkout");
+    }
   };
 
   return (
@@ -279,10 +266,10 @@ const Checkout: React.FC<CheckoutProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
-                Checkout &amp; Payment
+                Checkout &amp; Payment Settlement
               </h2>
               <p className="text-[10px] sm:text-[11px] text-slate-400">
-                {table.label || "Table"} {table.tableNumber} &bull; Bill Payment
+                {table.label || (table.type === "bar" ? "Bar Seat" : "Table")} {table.tableNumber} &bull; POS Billing
               </p>
             </div>
           </div>
@@ -297,7 +284,7 @@ const Checkout: React.FC<CheckoutProps> = ({
 
         {/* Modal Body (Scrollable) */}
         <div className="p-3.5 sm:p-5 space-y-3 sm:space-y-4 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-slate-700">
-          {/* Items Summary (Clean Minimalist) */}
+          {/* Items Summary */}
           <div className="bg-[#0b0f19] border border-[#1e293b] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 space-y-1.5 sm:space-y-2">
             {items.map((item, idx) => (
               <div
@@ -308,7 +295,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                   {item.quantity}x {item.name}
                 </span>
                 <span className="font-semibold text-white shrink-0">
-                  ${(item.price * item.quantity).toFixed(2)}
+                  ${((item.price || 0) * (item.quantity || 1)).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -356,39 +343,42 @@ const Checkout: React.FC<CheckoutProps> = ({
             </div>
           </div>
 
-          {/* Primary Payment Selector (Clean 3-Tab Segmented Controls) */}
+          {/* Primary Payment Selector (3-Tab Segmented Controls) */}
           <div className="grid grid-cols-3 gap-1 sm:gap-1.5 p-1 bg-[#0b0f19] border border-[#1e293b] rounded-xl sm:rounded-2xl">
             <button
               type="button"
               onClick={() => setPaymentMethod("online")}
-              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${paymentMethod === "online"
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                paymentMethod === "online"
                   ? "bg-orange-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
-                }`}
+              }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Online</span>
+              <span>Online (MFS)</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPaymentMethod("card")}
-              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${paymentMethod === "card"
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                paymentMethod === "card"
                   ? "bg-orange-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
-                }`}
+              }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
-              <span>Card</span>
+              <span>Card / POS</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPaymentMethod("cash")}
-              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${paymentMethod === "cash"
+              className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                paymentMethod === "cash"
                   ? "bg-orange-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
-                }`}
+              }`}
             >
               <Banknote className="w-3.5 h-3.5" />
               <span>Cash</span>
@@ -396,20 +386,20 @@ const Checkout: React.FC<CheckoutProps> = ({
           </div>
 
           {/* ========================================================================= */}
-          {/* TAB 1: ONLINE / MFS (bKash, Nagad, Rocket, Upay with Real Logos)        */}
+          {/* TAB 1: ONLINE / MFS (bKash, Nagad, Rocket, Upay)                         */}
           {/* ========================================================================= */}
           {paymentMethod === "online" && (
             <div className="space-y-3 sm:space-y-3.5 animate-in fade-in duration-150">
-              {/* Provider Logo Cards: 2 cols on mobile, 4 cols on tablet/desktop */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
                 {/* bKash */}
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("bkash")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "bkash"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedOnline === "bkash"
                       ? "bg-[#E2136E]/15 border-[#E2136E] ring-1 ring-[#E2136E] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <BkashLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">bKash</span>
@@ -419,10 +409,11 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("nagad")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "nagad"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedOnline === "nagad"
                       ? "bg-[#F7941D]/15 border-[#F7941D] ring-1 ring-[#F7941D] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <NagadLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">Nagad</span>
@@ -432,10 +423,11 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("rocket")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "rocket"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedOnline === "rocket"
                       ? "bg-[#8C3494]/15 border-[#8C3494] ring-1 ring-[#8C3494] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <RocketLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">Rocket</span>
@@ -445,10 +437,11 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedOnline("upay")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedOnline === "upay"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedOnline === "upay"
                       ? "bg-[#0057A0]/15 border-[#0057A0] ring-1 ring-[#0057A0] shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] hover:border-slate-600 opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <UpayLogo className="w-7 h-7 sm:w-8 sm:h-8 mb-1 sm:mb-1.5 shadow-xs" />
                   <span className="text-[11px] sm:text-xs font-bold text-white">Upay</span>
@@ -459,7 +452,7 @@ const Checkout: React.FC<CheckoutProps> = ({
               <div className="bg-[#0b0f19] border border-[#1e293b] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 flex flex-col xs:flex-row xs:items-center justify-between gap-2">
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">
-                    Merchant Number
+                    Merchant Account
                   </span>
                   <span className="text-xs sm:text-sm font-mono font-bold text-white">
                     {merchantNumbers[selectedOnline]}
@@ -488,7 +481,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                 </div>
               </div>
 
-              {/* Collapsible QR Code View */}
+              {/* Collapsible QR Code */}
               {showQrCode && (
                 <div className="p-3 bg-white rounded-xl sm:rounded-2xl flex flex-col items-center justify-center text-slate-900 animate-in zoom-in-95 duration-100">
                   <span className="text-xs font-bold mb-1">
@@ -535,7 +528,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                   placeholder="e.g. 9J7A8K2"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 bg-[#0b0f19] rounded-xl border border-[#1e293b] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 font-mono"
+                  className="w-full px-3 py-2 bg-[#0b0f19] rounded-xl border border-[#1e293b] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 font-mono font-bold"
                 />
               </div>
             </div>
@@ -550,10 +543,11 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCard("visa")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedCard === "visa"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedCard === "visa"
                       ? "bg-blue-600/15 border-blue-500 ring-1 ring-blue-500 shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <VisaLogo className="w-9 h-5 sm:w-12 sm:h-7 mb-1" />
                   <span className="text-[10px] sm:text-xs font-bold text-white">Visa</span>
@@ -562,10 +556,11 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCard("mastercard")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedCard === "mastercard"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedCard === "mastercard"
                       ? "bg-amber-600/15 border-amber-500 ring-1 ring-amber-500 shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <MastercardLogo className="w-9 h-5 sm:w-12 sm:h-7 mb-1" />
                   <span className="text-[10px] sm:text-xs font-bold text-white">Mastercard</span>
@@ -574,10 +569,11 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCard("amex")}
-                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${selectedCard === "amex"
+                  className={`flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    selectedCard === "amex"
                       ? "bg-sky-600/15 border-sky-500 ring-1 ring-sky-500 shadow-sm"
                       : "bg-[#0b0f19] border-[#1e293b] opacity-75 hover:opacity-100"
-                    }`}
+                  }`}
                 >
                   <AmexLogo className="w-9 h-5 sm:w-12 sm:h-7 mb-1" />
                   <span className="text-[10px] sm:text-xs font-bold text-white">Amex</span>
@@ -588,7 +584,7 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <div className="flex items-center gap-2 sm:gap-2.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
                   <span className="text-[11px] sm:text-xs font-semibold text-slate-300">
-                    POS Terminal (Swipe / Tap)
+                    POS Terminal Ready (Swipe / Tap)
                   </span>
                 </div>
                 <span className="text-xs sm:text-sm font-bold text-emerald-400">
@@ -681,14 +677,15 @@ const Checkout: React.FC<CheckoutProps> = ({
             className="w-full py-2.5 sm:py-3 rounded-full bg-orange-600 hover:bg-orange-500 active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-md shadow-orange-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-75"
           >
             {isProcessing ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <Loader2 className="w-4 h-4 animate-spin text-white" />
             ) : (
-              <span className="truncate">
+              <span className="truncate flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4" />
                 {paymentMethod === "cash" && parsedTendered >= finalTotal && changeDue > 0
-                  ? `Confirm & Return $${changeDue.toFixed(2)} Change`
+                  ? `Settle & Return $${changeDue.toFixed(2)} Change`
                   : paymentMethod === "online"
-                    ? `Pay $${finalTotal.toFixed(2)} with ${selectedOnline.toUpperCase()}`
-                    : `Complete Payment ($${finalTotal.toFixed(2)})`}
+                  ? `Complete $${finalTotal.toFixed(2)} with ${selectedOnline.toUpperCase()}`
+                  : `Complete Payment ($${finalTotal.toFixed(2)})`}
               </span>
             )}
           </button>

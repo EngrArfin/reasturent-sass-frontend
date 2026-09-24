@@ -1,3 +1,4 @@
+// src/components/CashierDashboard/TableMenu/TableMenu.tsx
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -11,146 +12,72 @@ import {
   CreditCard,
   Filter,
   ChevronDown,
+  Utensils,
 } from "lucide-react";
 import { toast } from "sonner";
 import Checkout from "../Dashboard/Checkout";
-import { TableItem } from "../Dashboard/CashierCard";
-
-export interface MenuItem {
-  id: string;
-  name: string;
-  category: "all" | "mains" | "starters" | "breads" | "drinks" | "desserts";
-  description: string;
-  price: number;
-  image: string;
-  isVeg?: boolean;
-}
-
-const menuItemsData: MenuItem[] = [
-  {
-    id: "item-1",
-    name: "Chicken Biryani",
-    category: "mains",
-    description: "Fragrant basmati rice with spiced chicken",
-    price: 12.99,
-    image:
-      "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=600&auto=format&fit=crop",
-    isVeg: false,
-  },
-  {
-    id: "item-2",
-    name: "Paneer Tikka",
-    category: "starters",
-    description: "Grilled cottage cheese with spices",
-    price: 9.99,
-    image:
-      "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?q=80&w=600&auto=format&fit=crop",
-    isVeg: true,
-  },
-  {
-    id: "item-3",
-    name: "Garlic Naan",
-    category: "breads",
-    description: "Soft leavened bread with garlic",
-    price: 3.5,
-    image:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=600&auto=format&fit=crop",
-    isVeg: true,
-  },
-  {
-    id: "item-4",
-    name: "Mango Lassi",
-    category: "drinks",
-    description: "Sweet yogurt drink with mango",
-    price: 4.5,
-    image:
-      "https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=600&auto=format&fit=crop",
-    isVeg: true,
-  },
-  {
-    id: "item-5",
-    name: "Butter Chicken",
-    category: "mains",
-    description: "Tender chicken cooked in creamy tomato gravy",
-    price: 13.99,
-    image:
-      "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?q=80&w=600&auto=format&fit=crop",
-    isVeg: false,
-  },
-  {
-    id: "item-6",
-    name: "Crispy Samosa (2 pcs)",
-    category: "starters",
-    description: "Crispy pastry stuffed with spiced potato and peas",
-    price: 4.99,
-    image:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=600&auto=format&fit=crop",
-    isVeg: true,
-  },
-  {
-    id: "item-7",
-    name: "Bottled Mineral Water",
-    category: "drinks",
-    description: "Chilled fresh natural spring water (500ml)",
-    price: 1.5,
-    image:
-      "https://images.unsplash.com/photo-1559839914-ba2a9390234a?q=80&w=600&auto=format&fit=crop",
-    isVeg: true,
-  },
-  {
-    id: "item-8",
-    name: "Gulab Jamun (2 pcs)",
-    category: "desserts",
-    description: "Warm milk dough balls soaked in rose flavored syrup",
-    price: 4.0,
-    image:
-      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=600&auto=format&fit=crop",
-    isVeg: true,
-  },
-];
+import {
+  useGetCashierMenuQuery,
+  useGetCashierTablesQuery,
+} from "@/redux/features/cashier/cashierHubAndOrderMenuApi";
+import {
+  ICashierMenuItem,
+  ICashierPosTable,
+} from "@/redux/features/cashier/cashierHubAndOrderMenuType";
 
 interface CartItem {
-  item: MenuItem;
+  item: ICashierMenuItem;
   quantity: number;
 }
+
+const CATEGORIES = [
+  { id: "all", label: "All Dishes" },
+  { id: "Main Course", label: "Main Course" },
+  { id: "Starters", label: "Starters" },
+  { id: "Breads", label: "Breads" },
+  { id: "Beverages", label: "Beverages" },
+  { id: "Desserts", label: "Desserts" },
+];
+
+const fallbackFoodImage =
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&auto=format&fit=crop&q=80";
 
 const TableMenu: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const tableParam = searchParams.get("table") || "1";
-  const typeParam = searchParams.get("type") || "table";
+  const typeParam = (searchParams.get("type") || "table") as "table" | "bar";
+  const tableIdParam = searchParams.get("tableId") || tableParam;
 
-  const [selectedTableNumber, setSelectedTableNumber] = useState(
-    Number(tableParam) || 1
+  const [selectedTableNumber, setSelectedTableNumber] = useState<string | number>(
+    tableParam
   );
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [cart, setCart] = useState<CartItem[]>([
-    { item: menuItemsData[0], quantity: 4 }, // 4x Chicken Biryani
-    { item: menuItemsData[3], quantity: 4 }, // 4x Mango Lassi
-    { item: menuItemsData[6], quantity: 2 }, // 2x Bottled Water
-  ]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // Filter items
-  const filteredItems = menuItemsData.filter((item) => {
-    const matchesCat =
-      selectedCategory === "all" || item.category === selectedCategory;
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+  // Fetch live menu items
+  const { data: menuData, isLoading: isMenuLoading } = useGetCashierMenuQuery({
+    category: selectedCategory !== "all" ? selectedCategory : undefined,
+    search: searchQuery.trim() || undefined,
   });
 
-  const handleAddToCart = (item: MenuItem) => {
+  // Fetch available tables for table switcher
+  const { data: tablesData } = useGetCashierTablesQuery({
+    type: typeParam,
+  });
+
+  const menuItems: ICashierMenuItem[] = menuData || [];
+  const availableTables = tablesData || [];
+
+  const handleAddToCart = (item: ICashierMenuItem) => {
     setCart((prev) => {
       const existing = prev.find((ci) => ci.item.id === item.id);
       if (existing) {
         return prev.map((ci) =>
-          ci.item.id === item.id
-            ? { ...ci, quantity: ci.quantity + 1 }
-            : ci
+          ci.item.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
         );
       }
       return [...prev, { item, quantity: 1 }];
@@ -177,14 +104,14 @@ const TableMenu: React.FC = () => {
   };
 
   const subtotal = cart.reduce(
-    (acc, ci) => acc + ci.item.price * ci.quantity,
+    (acc, ci) => acc + (ci.item.price || 0) * ci.quantity,
     0
   );
 
-  const activeTableObject: TableItem = {
-    id: selectedTableNumber,
+  const activeTableObject: ICashierPosTable = {
+    id: tableIdParam,
     tableNumber: selectedTableNumber,
-    type: typeParam as "table" | "bar",
+    type: typeParam,
     label: `${typeParam === "bar" ? "Bar Seat" : "Table"} ${selectedTableNumber}`,
     status: "occupied",
     totalAmount: subtotal,
@@ -210,10 +137,10 @@ const TableMenu: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Order Menu
+              Order Menu Dishes
             </h1>
             <p className="text-sm font-medium text-slate-400">
-              Select items for Table / Bar Stations
+              Live menu selection &amp; instant POS ticket dispatch
             </p>
           </div>
         </div>
@@ -231,15 +158,24 @@ const TableMenu: React.FC = () => {
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-400 transition-colors ml-1" />
             </div>
             <select
+              aria-label="Select Serving Table"
               value={selectedTableNumber}
-              onChange={(e) => setSelectedTableNumber(Number(e.target.value))}
+              onChange={(e) => setSelectedTableNumber(e.target.value)}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm"
             >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
-                <option key={num} value={num} className="bg-[#131b2e] text-white">
-                  Table {num}
-                </option>
-              ))}
+              {availableTables.length > 0 ? (
+                availableTables.map((t) => (
+                  <option key={t.id} value={t.tableNumber} className="bg-[#131b2e] text-white">
+                    {t.label || (t.type === "bar" ? `Bar Seat ${t.tableNumber}` : `Table ${t.tableNumber}`)} ({t.status})
+                  </option>
+                ))
+              ) : (
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                  <option key={num} value={num} className="bg-[#131b2e] text-white">
+                    Table {num}
+                  </option>
+                ))
+              )}
             </select>
           </div>
         </div>
@@ -249,23 +185,22 @@ const TableMenu: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Menu Items List */}
         <div className="lg:col-span-8 space-y-5">
-          {/* Search Bar & Dropdown Filter Toolbar */}
+          {/* Search Bar & Category Filter Toolbar */}
           <div className="bg-[#131b2e] p-3.5 sm:p-4 rounded-2xl border border-[#1F2E4D] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[220px]">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search food items..."
+                placeholder="Search menu dishes by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-[#1a243d] rounded-xl border border-[#1F2E4D] text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/30 transition-all shadow-inner"
               />
             </div>
 
-            {/* Right Side Dropdown Filter (Category Only) */}
+            {/* Category Dropdown Filter */}
             <div className="flex items-center">
-              {/* Category Dropdown Filter */}
               <div className="relative flex items-center bg-[#1a243d] hover:bg-[#202c4b] border border-[#1F2E4D] hover:border-orange-500/50 rounded-xl px-3.5 py-2 transition-all shadow-xs cursor-pointer group min-w-[170px]">
                 <div className="flex items-center justify-between w-full gap-2 pointer-events-none">
                   <div className="flex items-center gap-2">
@@ -276,87 +211,105 @@ const TableMenu: React.FC = () => {
                       Category:
                     </span>
                     <span className="text-xs font-bold text-white capitalize">
-                      {selectedCategory === "all" ? "All Dishes" : selectedCategory}
+                      {CATEGORIES.find((c) => c.id === selectedCategory)?.label || selectedCategory}
                     </span>
                   </div>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-400 transition-colors shrink-0" />
                 </div>
                 <select
+                  aria-label="Filter food by category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-xs"
                 >
-                  <option value="all" className="bg-[#131b2e] text-white">All Dishes</option>
-                  <option value="mains" className="bg-[#131b2e] text-white">Mains</option>
-                  <option value="starters" className="bg-[#131b2e] text-white">Starters</option>
-                  <option value="breads" className="bg-[#131b2e] text-white">Breads</option>
-                  <option value="drinks" className="bg-[#131b2e] text-white">Drinks</option>
-                  <option value="desserts" className="bg-[#131b2e] text-white">Desserts</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.id} className="bg-[#131b2e] text-white">
+                      {cat.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Food Cards Grid matching Manager / Admin aesthetic */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className="bg-[#131b2e] rounded-2xl p-3.5 border border-[#1F2E4D] shadow-sm hover:shadow-md hover:border-slate-600 transition-all duration-200 flex items-center gap-4 group"
-              >
-                {/* Square Food Image */}
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-[#0b1220] border border-[#1F2E4D]">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none";
-                    }}
-                  />
+          {/* Food Cards Grid */}
+          {isMenuLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((n) => (
+                <div
+                  key={n}
+                  className="bg-[#131b2e] rounded-2xl p-4 border border-[#1F2E4D] animate-pulse flex items-center gap-4 h-32"
+                >
+                  <div className="w-24 h-24 rounded-xl bg-slate-800 shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-slate-800 rounded" />
+                    <div className="h-3 w-48 bg-slate-800 rounded" />
+                    <div className="h-5 w-16 bg-slate-800 rounded" />
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : menuItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {menuItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-[#131b2e] rounded-2xl p-3.5 border border-[#1F2E4D] shadow-sm hover:shadow-md hover:border-slate-600 transition-all duration-200 flex items-center gap-4 group"
+                >
+                  {/* Food Image */}
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-[#0b1220] border border-[#1F2E4D]">
+                    <img
+                      src={item.image || fallbackFoodImage}
+                      alt={item.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = fallbackFoodImage;
+                      }}
+                    />
+                  </div>
 
-                {/* Details */}
-                <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
-                        {item.name}
-                      </h3>
-                      {item.isVeg && (
-                        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-1.5 py-0.5 rounded-xs leading-none">
-                          VEG
-                        </span>
-                      )}
+                  {/* Details */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
+                          {item.name}
+                        </h3>
+                        {item.isVeg && (
+                          <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-1.5 py-0.5 rounded-xs leading-none">
+                            VEG
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                        {item.description || item.category}
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
 
-                  {/* Price & Add Button */}
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-base sm:text-lg font-black text-emerald-400">
-                      ${item.price.toFixed(2)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(item)}
-                      className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-md shadow-orange-600/20 transition-all active:scale-95 cursor-pointer"
-                    >
-                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                      <span>Add</span>
-                    </button>
+                    {/* Price & Add Button */}
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-base sm:text-lg font-black text-emerald-400">
+                        ${Number(item.price || 0).toFixed(2)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleAddToCart(item)}
+                        className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-md shadow-orange-600/20 transition-all active:scale-95 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>Add</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredItems.length === 0 && (
-            <div className="text-center py-16 bg-[#131b2e] rounded-2xl border border-[#1F2E4D] text-slate-400 font-medium">
-              No menu items match your search.
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-[#131b2e] rounded-3xl border border-[#1F2E4D] text-slate-400 font-medium">
+              <Utensils className="w-10 h-10 mx-auto mb-3 opacity-30 text-slate-400" />
+              <p className="text-sm font-bold text-white">No menu dishes found</p>
+              <p className="text-xs text-slate-500 mt-1">Try another category or clear search keyword.</p>
             </div>
           )}
         </div>
@@ -372,7 +325,7 @@ const TableMenu: React.FC = () => {
                 </h2>
               </div>
               <span className="bg-orange-600/20 text-orange-400 border border-orange-500/30 text-xs font-bold px-2.5 py-1 rounded-full">
-                Table {selectedTableNumber}
+                {typeParam === "bar" ? `Bar ${selectedTableNumber}` : `Table ${selectedTableNumber}`}
               </span>
             </div>
 
@@ -393,7 +346,7 @@ const TableMenu: React.FC = () => {
                         {ci.item.name}
                       </p>
                       <p className="text-slate-400 text-xs">
-                        ${ci.item.price.toFixed(2)} each
+                        ${Number(ci.item.price || 0).toFixed(2)} each
                       </p>
                     </div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TableCard, { TableData } from "./TableCard";
 import TableMenu from "./TableMenu";
-import { Search, Filter, ChevronDown, Loader2, Utensils } from "lucide-react";
+import { Search, Filter, ChevronDown, Utensils } from "lucide-react";
 import { toast } from "sonner";
 import {
   useGetServeTablesQuery,
