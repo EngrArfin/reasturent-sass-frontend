@@ -9,71 +9,21 @@ import {
   Sparkles,
   Ticket,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useLocation } from "react-router-dom";
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  type: "order" | "ticket" | "system" | "warning" | "success";
-  isRead: boolean;
-  link?: string;
-}
-
-export const initialNotifications: NotificationItem[] = [
-  {
-    id: "notif-1",
-    title: "New Support Ticket #8821",
-    message: "Hardware/Printer timeout error reported on Terminal 2.",
-    time: "2 mins ago",
-    type: "ticket",
-    isRead: false,
-    link: "/admin-dashboard/submit-ticket",
-  },
-  {
-    id: "notif-2",
-    title: "New Subscription Upgraded",
-    message: "Foodies Hub Restaurant renewed Annual Enterprise POS Plan.",
-    time: "15 mins ago",
-    type: "success",
-    isRead: false,
-    link: "/admin-dashboard/subscription",
-  },
-  {
-    id: "notif-3",
-    title: "POS Inventory Auto-Sync Alert",
-    message: "Daily barcode and raw ingredient ledger synced with cloud database.",
-    time: "1 hour ago",
-    type: "system",
-    isRead: false,
-    link: "/manager-dashboard/inventory",
-  },
-  {
-    id: "notif-4",
-    title: "High Table Demand on Floor",
-    message: "Table #4 and Table #5 requested instant invoice printout.",
-    time: "3 hours ago",
-    type: "order",
-    isRead: true,
-    link: "/serve-dashboard/orders",
-  },
-  {
-    id: "notif-5",
-    title: "Low Ingredient Threshold",
-    message: "Whole Milk and Farm Chicken stock is running below 15 units.",
-    time: "5 hours ago",
-    type: "warning",
-    isRead: true,
-    link: "/manager-dashboard/inventory",
-  },
-];
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  useGetNotificationsQuery,
+  useGetUnreadCountQuery,
+  useMarkAllNotificationsAsReadMutation,
+  useMarkNotificationAsReadMutation,
+} from "@/redux/features/manager/Notifications/notificationsApi";
+import { NotificationItem } from "@/redux/features/manager/Notifications/notificationsType";
 
 interface NotificationPanelProps {
   notificationsUrl?: string;
@@ -83,10 +33,32 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
   notificationsUrl,
 }) => {
   const location = useLocation();
-  const [notifications, setNotifications] = useState<NotificationItem[]>(
-    initialNotifications
-  );
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Fetch unread count for badge (polls every 30s or refetches on invalidation)
+  const { data: countData } = useGetUnreadCountQuery(undefined, {
+    pollingInterval: 30000,
+  });
+
+  // Fetch recent notifications for dropdown
+  const {
+    data: notifData,
+    isLoading,
+    isFetching,
+  } = useGetNotificationsQuery(
+    { page: 1, limit: 5 },
+    {
+      pollingInterval: 30000,
+    }
+  );
+
+  const [markAllAsRead, { isLoading: isMarkingAll }] =
+    useMarkAllNotificationsAsReadMutation();
+  const [markAsRead] = useMarkNotificationAsReadMutation();
+
+  const notifications = notifData?.items || [];
+  const unreadCount = countData?.unreadCount ?? notifData?.unreadCount ?? 0;
 
   // Determine current dashboard base URL for all-notifications link
   const currentPath = location.pathname;
@@ -105,48 +77,83 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
 
   const targetViewAllUrl = notificationsUrl || defaultViewAllUrl;
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+  const handleMarkAllAsRead = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await markAllAsRead().unwrap();
+    } catch (err) {
+      console.error("Failed to mark all as read:", err);
+    }
   };
 
-  const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+  const handleNotificationClick = async (item: NotificationItem) => {
+    if (!item.isRead) {
+      try {
+        await markAsRead(item.id).unwrap();
+      } catch (err) {
+        console.error("Failed to mark notification as read:", err);
+      }
+    }
+    if (item.link) {
+      setIsOpen(false);
+      navigate(item.link);
+    }
   };
 
-  const getIcon = (type: NotificationItem["type"]) => {
-    switch (type) {
-      case "order":
+  const getIcon = (type: string) => {
+    const normalizedType = type?.toUpperCase() || "";
+    switch (normalizedType) {
+      case "ORDERS":
+      case "ORDER":
         return <ShoppingBag className="w-4 h-4 text-emerald-400" />;
-      case "ticket":
+      case "TICKETS":
+      case "TICKET":
         return <Ticket className="w-4 h-4 text-blue-400" />;
-      case "warning":
+      case "WARNING":
         return <AlertTriangle className="w-4 h-4 text-amber-400" />;
-      case "success":
+      case "SUCCESS":
         return <Sparkles className="w-4 h-4 text-purple-400" />;
-      case "system":
+      case "SYSTEM":
       default:
         return <Info className="w-4 h-4 text-cyan-400" />;
     }
   };
 
-  const getIconBg = (type: NotificationItem["type"]) => {
-    switch (type) {
-      case "order":
+  const getIconBg = (type: string) => {
+    const normalizedType = type?.toUpperCase() || "";
+    switch (normalizedType) {
+      case "ORDERS":
+      case "ORDER":
         return "bg-emerald-500/10 border-emerald-500/20";
-      case "ticket":
+      case "TICKETS":
+      case "TICKET":
         return "bg-blue-500/10 border-blue-500/20";
-      case "warning":
+      case "WARNING":
         return "bg-amber-500/10 border-amber-500/20";
-      case "success":
+      case "SUCCESS":
         return "bg-purple-500/10 border-purple-500/20";
-      case "system":
+      case "SYSTEM":
       default:
         return "bg-cyan-500/10 border-cyan-500/20";
     }
+  };
+
+  const formatDisplayTime = (item: NotificationItem) => {
+    if (item.relativeTime) return item.relativeTime;
+    if (item.createdAt) {
+      try {
+        const date = new Date(item.createdAt);
+        return date.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch {
+        return item.createdAt;
+      }
+    }
+    return "Recently";
   };
 
   return (
@@ -160,7 +167,7 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
           <Bell className="w-4 h-4 text-slate-200" />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-[#131b2e] animate-pulse">
-              {unreadCount}
+              {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </button>
@@ -182,15 +189,23 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
                 {unreadCount} New
               </span>
             )}
+            {isFetching && !isLoading && (
+              <Loader2 className="w-3 h-3 text-blue-400 animate-spin ml-1" />
+            )}
           </div>
 
           {unreadCount > 0 && (
             <button
               type="button"
+              disabled={isMarkingAll}
               onClick={handleMarkAllAsRead}
-              className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
             >
-              <CheckCheck className="w-3.5 h-3.5" />
+              {isMarkingAll ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <CheckCheck className="w-3.5 h-3.5" />
+              )}
               <span>Mark all read</span>
             </button>
           )}
@@ -198,11 +213,16 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
 
         {/* Notifications List */}
         <div className="max-h-[360px] overflow-y-auto divide-y divide-[#1F2E4D]/60 scrollbar-thin">
-          {notifications.length > 0 ? (
-            notifications.slice(0, 5).map((item) => (
+          {isLoading ? (
+            <div className="py-12 flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
+              <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+              <span>Loading notifications...</span>
+            </div>
+          ) : notifications.length > 0 ? (
+            notifications.map((item) => (
               <div
                 key={item.id}
-                onClick={() => handleMarkAsRead(item.id)}
+                onClick={() => handleNotificationClick(item)}
                 className={`p-3.5 sm:p-4 hover:bg-[#1a243d]/60 transition-colors flex items-start gap-3 cursor-pointer relative ${
                   !item.isRead ? "bg-[#0b1220]/50" : ""
                 }`}
@@ -237,7 +257,15 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
 
                   <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-500 font-medium">
                     <Clock className="w-3 h-3" />
-                    <span>{item.time}</span>
+                    <span>{formatDisplayTime(item)}</span>
+                    {item.category && (
+                      <>
+                        <span className="text-slate-600">•</span>
+                        <span className="text-blue-400/80 font-medium">
+                          {item.category}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

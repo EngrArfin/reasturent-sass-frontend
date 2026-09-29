@@ -122,3 +122,40 @@ export type ChangeRolePayload = {
 export type ChangeStatusPayload = {
   status: "ACTIVE" | "INACTIVE" | string;
 };
+
+export type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  role: Role | string;
+  businessId?: string;
+  avatar?: string | null;
+  notificationPreferences?: Record<string, any> | null;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  business?: {
+    id: string;
+    name: string;
+    businessName: string;
+    isActive: boolean;
+  };
+  pin?: string;
+};
+
+export type UpdateProfileRequest = {
+  name?: string;
+  avatar?: string | null;
+};
+
+export type ChangePasswordRequest = {
+  currentPassword?: string;
+  oldPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+};
+
+export type ChangePasswordResponse = {
+  success: boolean;
+  message: string;
+};

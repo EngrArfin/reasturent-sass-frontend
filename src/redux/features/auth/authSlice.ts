@@ -157,6 +157,39 @@ const authSlice = createSlice({
         state.isLoading = false;
       },
     );
+
+    // Profile matchers
+    builder.addMatcher(
+      authApi.endpoints.getProfile.matchFulfilled,
+      (state, { payload }) => {
+        if (state.user) {
+          state.user = {
+            ...state.user,
+            name: payload.name || state.user.name,
+            email: payload.email || state.user.email,
+            role: payload.role || state.user.role,
+            avatar: payload.avatar !== undefined ? payload.avatar : state.user.avatar,
+            businessId: payload.businessId || state.user.businessId,
+            business: payload.business || state.user.business,
+          };
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
+      },
+    );
+
+    builder.addMatcher(
+      authApi.endpoints.updateProfile.matchFulfilled,
+      (state, { payload }) => {
+        if (state.user) {
+          state.user = {
+            ...state.user,
+            name: payload.name || state.user.name,
+            avatar: payload.avatar !== undefined ? payload.avatar : state.user.avatar,
+          };
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
+      },
+    );
   },
 });
 

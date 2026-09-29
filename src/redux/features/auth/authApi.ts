@@ -7,6 +7,10 @@ import {
   PinLoginResponse,
   SignupRequest,
   SignupResponse,
+  UserProfile,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from "@/redux/features/auth/auth.type";
 
 export const authApi = baseApi.injectEndpoints({
@@ -46,6 +50,34 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // GET /auth/profile - Get Logged-in User Profile & Account Details
+    getProfile: builder.query<UserProfile, void>({
+      query: () => ({
+        url: "/auth/profile",
+        method: "GET",
+      }),
+      providesTags: ["User"],
+    }),
+
+    // PATCH /auth/profile - Update User Profile / Identity Details
+    updateProfile: builder.mutation<UserProfile, UpdateProfileRequest>({
+      query: (body) => ({
+        url: "/auth/profile",
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    // PATCH /auth/change-password - Change User Password
+    changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordRequest>({
+      query: (body) => ({
+        url: "/auth/change-password",
+        method: "PATCH",
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -55,4 +87,8 @@ export const {
   useSignupMutation,
   useLogoutMutation,
   usePinLoginMutation,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
 } = authApi;
+

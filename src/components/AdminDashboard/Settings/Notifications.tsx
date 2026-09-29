@@ -1,4 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import {
+  useGetNotificationPreferencesQuery,
+  useUpdateNotificationPreferencesMutation,
+} from "@/redux/features/manager/Notifications/notificationsApi";
 
 interface NotificationsProps {
   onPreferencesChange?: (preferences: {
@@ -11,54 +17,83 @@ interface NotificationsProps {
 const Notifications: React.FC<NotificationsProps> = ({
   onPreferencesChange,
 }) => {
+  const { data: preferences, isLoading } = useGetNotificationPreferencesQuery();
+  const [updatePreferences, { isLoading: isUpdating }] =
+    useUpdateNotificationPreferencesMutation();
+
   const [emailAlerts, setEmailAlerts] = useState(true);
-  const [inventoryAlerts, setInventoryAlerts] = useState(true);
-  const [syncAlerts, setSyncAlerts] = useState(false);
+  const [lowStockAlerts, setLowStockAlerts] = useState(true);
+  const [syncErrorAlerts, setSyncErrorAlerts] = useState(false);
+
+  useEffect(() => {
+    if (preferences) {
+      setEmailAlerts(preferences.emailAlerts ?? true);
+      setLowStockAlerts(preferences.lowStockAlerts ?? true);
+      setSyncErrorAlerts(preferences.syncErrorAlerts ?? false);
+    }
+  }, [preferences]);
+
+  const handleUpdate = async (patch: {
+    emailAlerts?: boolean;
+    lowStockAlerts?: boolean;
+    syncErrorAlerts?: boolean;
+  }) => {
+    try {
+      const res = await updatePreferences(patch).unwrap();
+      toast.success(res?.message || "Notification preferences updated");
+      if (onPreferencesChange) {
+        onPreferencesChange({
+          emailAlerts: patch.emailAlerts ?? emailAlerts,
+          inventoryAlerts: patch.lowStockAlerts ?? lowStockAlerts,
+          syncAlerts: patch.syncErrorAlerts ?? syncErrorAlerts,
+        });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update preferences");
+    }
+  };
 
   const toggleEmail = () => {
     const updated = !emailAlerts;
     setEmailAlerts(updated);
-    if (onPreferencesChange) {
-      onPreferencesChange({
-        emailAlerts: updated,
-        inventoryAlerts,
-        syncAlerts,
-      });
-    }
+    handleUpdate({ emailAlerts: updated });
   };
 
-  const toggleInventory = () => {
-    const updated = !inventoryAlerts;
-    setInventoryAlerts(updated);
-    if (onPreferencesChange) {
-      onPreferencesChange({
-        emailAlerts,
-        inventoryAlerts: updated,
-        syncAlerts,
-      });
-    }
+  const toggleLowStock = () => {
+    const updated = !lowStockAlerts;
+    setLowStockAlerts(updated);
+    handleUpdate({ lowStockAlerts: updated });
   };
 
   const toggleSync = () => {
-    const updated = !syncAlerts;
-    setSyncAlerts(updated);
-    if (onPreferencesChange) {
-      onPreferencesChange({
-        emailAlerts,
-        inventoryAlerts,
-        syncAlerts: updated,
-      });
-    }
+    const updated = !syncErrorAlerts;
+    setSyncErrorAlerts(updated);
+    handleUpdate({ syncErrorAlerts: updated });
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full bg-[#131b2e] rounded-3xl p-12 border border-[#1F2E4D] shadow-sm flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
+        <p className="text-xs text-slate-400">Loading preferences...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-[#131b2e] rounded-3xl p-6 sm:p-8 border border-[#1F2E4D] shadow-sm text-slate-300 animate-in fade-in duration-300 space-y-6">
-      <div>
+      <div className="flex items-center justify-between">
         <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
           Notification Preferences
         </h2>
-        <div className="w-full h-px bg-[#1F2E4D] mt-3" />
+        {isUpdating && (
+          <div className="flex items-center gap-1.5 text-xs text-blue-400">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Saving...</span>
+          </div>
+        )}
       </div>
+      <div className="w-full h-px bg-[#1F2E4D]" />
 
       <div className="space-y-4 max-w-2xl">
         {/* Email Alerts */}
@@ -86,7 +121,7 @@ const Notifications: React.FC<NotificationsProps> = ({
           </button>
         </div>
 
-        {/* Inventory Alerts */}
+        {/* Inventory / Low Stock Alerts */}
         <div className="flex items-center justify-between p-4 rounded-2xl bg-[#0b1220] border border-[#1F2E4D]">
           <div>
             <h4 className="text-sm font-semibold text-white">
@@ -98,20 +133,20 @@ const Notifications: React.FC<NotificationsProps> = ({
           </div>
           <button
             type="button"
-            onClick={toggleInventory}
+            onClick={toggleLowStock}
             className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-              inventoryAlerts ? "bg-orange-500" : "bg-slate-700"
+              lowStockAlerts ? "bg-orange-500" : "bg-slate-700"
             }`}
           >
             <div
               className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-                inventoryAlerts ? "right-0.5" : "left-0.5"
+                lowStockAlerts ? "right-0.5" : "left-0.5"
               }`}
             />
           </button>
         </div>
 
-        {/* Sync Alerts */}
+        {/* POS Sync Alerts */}
         <div className="flex items-center justify-between p-4 rounded-2xl bg-[#0b1220] border border-[#1F2E4D]">
           <div>
             <h4 className="text-sm font-semibold text-white">
@@ -125,12 +160,12 @@ const Notifications: React.FC<NotificationsProps> = ({
             type="button"
             onClick={toggleSync}
             className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-              syncAlerts ? "bg-orange-500" : "bg-slate-700"
+              syncErrorAlerts ? "bg-orange-500" : "bg-slate-700"
             }`}
           >
             <div
               className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-                syncAlerts ? "right-0.5" : "left-0.5"
+                syncErrorAlerts ? "right-0.5" : "left-0.5"
               }`}
             />
           </button>

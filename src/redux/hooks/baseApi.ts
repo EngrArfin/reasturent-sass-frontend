@@ -76,6 +76,8 @@ export const baseApi = createApi({
     "KitchenTickets",
     "CashierTables",
     "CashierMenu",
+    "Notifications",
+    "NotificationPreferences",
   ],
   endpoints: () => ({}),
 });
