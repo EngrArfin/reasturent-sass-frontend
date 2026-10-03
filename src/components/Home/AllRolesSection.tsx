@@ -98,7 +98,7 @@ export default function AllRolesSection() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 -mt-14">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 35 }}
@@ -141,11 +141,10 @@ export default function AllRolesSection() {
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActive(i)}
-                className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
-                  isActive
+                className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${isActive
                     ? "border-transparent bg-white/[0.06]"
                     : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
-                }`}
+                  }`}
                 style={{
                   boxShadow: isActive
                     ? "0 10px 40px rgba(232,108,23,0.18)"
@@ -154,26 +153,23 @@ export default function AllRolesSection() {
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-lg ${
-                      isActive ? "bg-[#E86C17]/15" : "bg-white/[0.05]"
-                    }`}
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-lg ${isActive ? "bg-[#E86C17]/15" : "bg-white/[0.05]"
+                      }`}
                   >
                     {r.emoji}
                   </div>
 
                   <div className="text-left">
                     <p
-                      className={`text-sm font-semibold ${
-                        isActive ? "text-white" : "text-white/70"
-                      }`}
+                      className={`text-sm font-semibold ${isActive ? "text-white" : "text-white/70"
+                        }`}
                     >
                       {r.label}
                     </p>
 
                     <span
-                      className={`text-xs ${
-                        isActive ? "text-[#E86C17]" : "text-white/35"
-                      }`}
+                      className={`text-xs ${isActive ? "text-[#E86C17]" : "text-white/35"
+                        }`}
                     >
                       {r.tag}
                     </span>

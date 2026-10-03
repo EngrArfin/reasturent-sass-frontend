@@ -9,6 +9,7 @@ const About = () => {
         title="About Us"
         route="Home / About us"
         bgImage={bannerImg}
+        description="Modern restaurants with smart cloud solutions streamlining daily operations, kitchen workflows, and customer dining experiences ."
       />
       <FAQSection />
     </div>

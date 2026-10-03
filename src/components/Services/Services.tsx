@@ -126,7 +126,7 @@ const Services = () => {
   );
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-[#07090D] via-[#0B0F17] to-[#07090D] py-20 md:py-28 text-white">
+    <div className="relative overflow-hidden bg-gradient-to-b from-[#07090D] via-[#0B0F17] to-[#07090D] py-14 md:py-18 text-white">
       {/* Ambient Background Glows */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-orange-500/10 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-blue-500/10 blur-[130px] rounded-full pointer-events-none" />
@@ -154,11 +154,10 @@ const Services = () => {
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer border ${
-                activeCategory === category
+              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer border ${activeCategory === category
                   ? "bg-gradient-to-r from-orange-500 to-[#F54900] text-white border-orange-500/50 shadow-lg shadow-orange-500/25 scale-105"
                   : "bg-white/[0.04] text-slate-300 border-white/10 hover:border-orange-500/30 hover:bg-white/[0.08]"
-              }`}
+                }`}
             >
               {category}
             </button>

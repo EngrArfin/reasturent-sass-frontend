@@ -38,7 +38,7 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#07090D] via-[#0B0F17] to-[#07090D] py-24 md:py-32 text-white">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#07090D] via-[#0B0F17] to-[#07090D] text-white">
       {/* Background Decorative Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[350px] bg-orange-500/10 blur-[140px] pointer-events-none rounded-full" />
       <div className="absolute bottom-10 right-10 w-72 h-72 bg-blue-500/10 blur-[130px] pointer-events-none rounded-full" />

@@ -194,9 +194,9 @@ const PricingCard = ({ plan, yearly }: PricingCardProps) => {
       <motion.button
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.02 }}
-        className={`w-full py-4 rounded-xl font-semibold transition-all duration-300 relative z-10 ${plan.popular
-            ? "bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90 text-white"
-            : "border border-white/10 hover:border-orange-500 hover:bg-orange-500/10"
+        className={`w-full py-4 rounded-xl font-semibold cursor-pointer transition-all duration-300 relative z-10 ${plan.popular
+            ? "bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90 text-white shadow-lg shadow-orange-500/25"
+            : "border border-white/10 hover:border-orange-500 hover:bg-orange-500/10 text-white"
           }`}
       >
         {price ? "Start Free Trial" : "Contact Sales"}
@@ -251,7 +251,8 @@ const PricingSection = () => {
           {/* Toggle */}
           <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
             <span
-              className={`text-sm transition-colors duration-300 ${!yearly ? "text-white" : "text-gray-500"
+              onClick={() => setYearly(false)}
+              className={`text-sm cursor-pointer select-none transition-colors duration-300 ${!yearly ? "text-white font-medium" : "text-gray-500 hover:text-gray-300"
                 }`}
             >
               Monthly
@@ -262,7 +263,7 @@ const PricingSection = () => {
               aria-label="Toggle pricing plan"
               aria-pressed={yearly}
               onClick={() => setYearly((prev) => !prev)}
-              className={`relative w-14 h-7 rounded-full flex items-center px-1 transition-all duration-300 ${yearly ? "bg-orange-500" : "bg-gray-700"
+              className={`relative w-14 h-7 rounded-full flex items-center px-1 cursor-pointer transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500/50 ${yearly ? "bg-orange-500" : "bg-gray-700"
                 }`}
             >
               <motion.div
@@ -280,13 +281,17 @@ const PricingSection = () => {
             </button>
 
             <span
-              className={`text-sm transition-colors duration-300 ${yearly ? "text-white" : "text-gray-500"
+              onClick={() => setYearly(true)}
+              className={`text-sm cursor-pointer select-none transition-colors duration-300 ${yearly ? "text-white font-medium" : "text-gray-500 hover:text-gray-300"
                 }`}
             >
               Yearly
             </span>
 
-            <span className="bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs px-3 py-1 rounded-full font-semibold">
+            <span
+              onClick={() => setYearly(true)}
+              className="bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs px-3 py-1 rounded-full font-semibold cursor-pointer select-none hover:bg-orange-500/20 transition-colors"
+            >
               Save 25%
             </span>
           </div>
@@ -313,187 +318,3 @@ const PricingSection = () => {
 
 export default PricingSection;
 
-// import { useState } from "react";
-// import { Check } from "lucide-react";
-
-// const plans = [
-//   {
-//     name: "Starter",
-//     monthly: 29,
-//     yearly: 19,
-//     description: "Perfect for small restaurants starting digital operations.",
-//     features: [
-//       "1 Restaurant Branch",
-//       "POS Integration",
-//       "Basic Analytics",
-//       "Menu Management",
-//       "Email Support",
-//     ],
-//     popular: false,
-//   },
-//   {
-//     name: "Professional",
-//     monthly: 79,
-//     yearly: 59,
-//     description: "Best for growing restaurants needing advanced management.",
-//     features: [
-//       "Up to 5 Branches",
-//       "AI Sales Analytics",
-//       "Inventory Tracking",
-//       "Priority Support",
-//       "Custom Reports",
-//       "Unlimited Staff Roles",
-//     ],
-//     popular: true,
-//   },
-//   {
-//     name: "Enterprise",
-//     monthly: null,
-//     yearly: null,
-//     description: "Advanced solution for large restaurant chains & franchises.",
-//     features: [
-//       "Unlimited Branches",
-//       "Dedicated Manager",
-//       "Custom Integrations",
-//       "White Label Solution",
-//       "24/7 Premium Support",
-//       "Advanced Security",
-//     ],
-//     popular: false,
-//   },
-// ];
-
-// const PricingSection = () => {
-//   const [yearly, setYearly] = useState(true);
-
-//   return (
-//     <section id="pricing" className="bg-[#0A0A0A] py-24 px-5 text-white">
-//       <div className="max-w-7xl mx-auto">
-//         {/* Heading */}
-//         <div className="text-center mb-16">
-//           <span className="px-4 py-2 rounded-full text-sm font-semibold bg-orange-500/10 border border-orange-500/20 text-orange-400">
-//             PRICING PLAN
-//           </span>
-
-//           <h2 className="text-4xl md:text-6xl font-black mt-6 leading-tight">
-//             Flexible Pricing <br /> For Every Restaurant
-//           </h2>
-
-//           <p className="text-gray-400 mt-5 max-w-2xl mx-auto text-lg">
-//             Choose a plan that fits your restaurant business. No hidden fees,
-//             cancel anytime.
-//           </p>
-
-//           {/* Toggle */}
-//           <div className="mt-8 flex items-center justify-center gap-4">
-//             <span
-//               className={`text-sm ${!yearly ? "text-white" : "text-gray-500"}`}
-//             >
-//               Monthly
-//             </span>
-
-//             <button
-//               onClick={() => setYearly(!yearly)}
-//               className={`w-14 h-7 rounded-full flex items-center px-1 transition-all duration-300 ${
-//                 yearly ? "bg-orange-500" : "bg-gray-700"
-//               }`}
-//             >
-//               <div
-//                 className={`w-5 h-5 bg-white rounded-full transition-all duration-300 ${
-//                   yearly ? "translate-x-7" : ""
-//                 }`}
-//               />
-//             </button>
-
-//             <span
-//               className={`text-sm ${yearly ? "text-white" : "text-gray-500"}`}
-//             >
-//               Yearly
-//             </span>
-
-//             <span className="bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs px-3 py-1 rounded-full font-semibold">
-//               Save 25%
-//             </span>
-//           </div>
-//         </div>
-
-//         {/* Pricing Cards */}
-//         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-//           {plans.map((plan, index) => (
-//             <div
-//               key={index}
-//               className={`relative rounded-3xl p-8 border transition-all duration-300 hover:-translate-y-2 ${
-//                 plan.popular
-//                   ? "border-orange-500 bg-gradient-to-b from-orange-500/10 to-transparent shadow-[0_0_40px_rgba(249,115,22,0.25)]"
-//                   : "border-white/10 bg-white/5 hover:border-orange-500/30"
-//               }`}
-//             >
-//               {/* Popular Badge */}
-//               {plan.popular && (
-//                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-//                   <span className="bg-gradient-to-r from-orange-500 to-red-500 px-5 py-2 rounded-full text-xs font-bold tracking-wide">
-//                     MOST POPULAR
-//                   </span>
-//                 </div>
-//               )}
-
-//               {/* Plan Info */}
-//               <div className="mb-8">
-//                 <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-
-//                 <div className="flex items-end gap-2 mb-4">
-//                   {plan.monthly ? (
-//                     <>
-//                       <span className="text-5xl font-black">
-//                         ${yearly ? plan.yearly : plan.monthly}
-//                       </span>
-//                       <span className="text-gray-400 mb-1">/month</span>
-//                     </>
-//                   ) : (
-//                     <span className="text-4xl font-black">Custom</span>
-//                   )}
-//                 </div>
-
-//                 <p className="text-gray-400 leading-relaxed">
-//                   {plan.description}
-//                 </p>
-//               </div>
-
-//               {/* Features */}
-//               <ul className="space-y-4 mb-8">
-//                 {plan.features.map((feature, i) => (
-//                   <li key={i} className="flex items-center gap-3 text-gray-300">
-//                     <div
-//                       className={`w-5 h-5 rounded-full flex items-center justify-center ${
-//                         plan.popular
-//                           ? "bg-orange-500/20 text-orange-400"
-//                           : "bg-white/10 text-green-400"
-//                       }`}
-//                     >
-//                       <Check size={14} />
-//                     </div>
-
-//                     {feature}
-//                   </li>
-//                 ))}
-//               </ul>
-
-//               {/* Button */}
-//               <button
-//                 className={`w-full py-4 rounded-xl font-semibold transition-all duration-300 ${
-//                   plan.popular
-//                     ? "bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90"
-//                     : "border border-white/10 hover:border-orange-500 hover:bg-orange-500/10"
-//                 }`}
-//               >
-//                 {plan.monthly ? "Start Free Trial" : "Contact Sales"}
-//               </button>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default PricingSection;

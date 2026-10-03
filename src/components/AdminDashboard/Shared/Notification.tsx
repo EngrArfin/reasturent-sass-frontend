@@ -15,7 +15,6 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-  Eye,
   EyeOff,
   X,
 } from "lucide-react";
@@ -61,7 +60,6 @@ const Notification: React.FC = () => {
     data: notifData,
     isLoading,
     isFetching,
-    refetch,
   } = useGetNotificationsQuery(
     {
       filter: activeTab,
@@ -78,12 +76,9 @@ const Notification: React.FC = () => {
     useMarkAllNotificationsAsReadMutation();
   const [clearAll, { isLoading: isClearingAll }] =
     useClearAllNotificationsMutation();
-  const [markAsRead, { isLoading: isMarkingSingle }] =
-    useMarkNotificationAsReadMutation();
-  const [toggleRead, { isLoading: isTogglingRead }] =
-    useToggleNotificationReadMutation();
-  const [deleteNotification, { isLoading: isDeleting }] =
-    useDeleteNotificationMutation();
+  const [markAsRead] = useMarkNotificationAsReadMutation();
+  const [toggleRead] = useToggleNotificationReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
 
   const notifications = notifData?.items || [];
   const total = notifData?.total || 0;
@@ -105,7 +100,7 @@ const Notification: React.FC = () => {
       const res = await toggleRead(id).unwrap();
       toast.success(
         res?.message ||
-          (res.isRead ? "Marked as read" : "Marked as unread")
+        (res.isRead ? "Marked as read" : "Marked as unread")
       );
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to toggle read status");
@@ -269,11 +264,10 @@ const Notification: React.FC = () => {
                   key={tab}
                   type="button"
                   onClick={() => handleTabChange(tab)}
-                  className={`py-1.5 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
-                    isActive
-                      ? "bg-[#052350] text-white border-blue-500/60 shadow-sm"
-                      : "bg-[#0b1220] hover:bg-[#1a243d] text-slate-400 hover:text-white border-[#1F2E4D]"
-                  }`}
+                  className={`py-1.5 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${isActive
+                    ? "bg-[#052350] text-white border-blue-500/60 shadow-sm"
+                    : "bg-[#0b1220] hover:bg-[#1a243d] text-slate-400 hover:text-white border-[#1F2E4D]"
+                    }`}
                 >
                   {tab}
                 </button>
@@ -317,11 +311,10 @@ const Notification: React.FC = () => {
           notifications.map((item) => (
             <div
               key={item.id}
-              className={`w-full bg-[#131b2e] rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                !item.isRead
-                  ? "border-blue-500/40 bg-[#131b2e] shadow-md shadow-blue-500/5 ring-1 ring-blue-500/20"
-                  : "border-[#1F2E4D] hover:border-slate-700 opacity-90"
-              }`}
+              className={`w-full bg-[#131b2e] rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${!item.isRead
+                ? "border-blue-500/40 bg-[#131b2e] shadow-md shadow-blue-500/5 ring-1 ring-blue-500/20"
+                : "border-[#1F2E4D] hover:border-slate-700 opacity-90"
+                }`}
             >
               {/* Left Side: Icon & Details */}
               <div className="flex items-start gap-4 flex-1 min-w-0">
@@ -338,9 +331,8 @@ const Notification: React.FC = () => {
                 <div className="space-y-1 flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3
-                      className={`text-sm font-bold truncate ${
-                        !item.isRead ? "text-white" : "text-slate-300"
-                      }`}
+                      className={`text-sm font-bold truncate ${!item.isRead ? "text-white" : "text-slate-300"
+                        }`}
                     >
                       {item.title}
                     </h3>
@@ -387,11 +379,10 @@ const Notification: React.FC = () => {
                   type="button"
                   onClick={() => handleToggleRead(item.id)}
                   title={item.isRead ? "Mark as Unread" : "Mark as Read"}
-                  className={`p-2 rounded-xl bg-[#0b1220] border border-[#1F2E4D] transition-colors cursor-pointer ${
-                    item.isRead
-                      ? "hover:bg-[#1a243d] text-slate-400 hover:text-blue-400"
-                      : "hover:bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                  }`}
+                  className={`p-2 rounded-xl bg-[#0b1220] border border-[#1F2E4D] transition-colors cursor-pointer ${item.isRead
+                    ? "hover:bg-[#1a243d] text-slate-400 hover:text-blue-400"
+                    : "hover:bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                    }`}
                 >
                   {item.isRead ? (
                     <EyeOff className="w-4 h-4" />
