@@ -4,7 +4,7 @@ import {
   CheckCheck,
   Clock,
   Info,
-
+  AlertTriangle,
   ShoppingBag,
   Sparkles,
   Ticket,
