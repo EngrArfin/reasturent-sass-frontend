@@ -7,7 +7,7 @@ import {
   Check,
   ShoppingBag,
   Ticket,
-
+  AlertTriangle,
   Sparkles,
   Info,
   ExternalLink,

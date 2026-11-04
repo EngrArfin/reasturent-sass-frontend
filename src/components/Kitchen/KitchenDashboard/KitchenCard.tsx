@@ -5,7 +5,7 @@ import {
   Timer,
   Flame,
   Activity,
-
+  AlertTriangle,
   RefreshCw,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

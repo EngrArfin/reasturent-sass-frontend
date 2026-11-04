@@ -10,7 +10,6 @@ import {
   Filter,
   ChevronDown,
   Loader2,
-  AlertCircle,
   Receipt,
 } from "lucide-react";
 import { toast } from "sonner";

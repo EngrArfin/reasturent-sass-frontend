@@ -7,7 +7,6 @@ import {
   Search,
   Utensils,
   X,
-  AlertCircle,
   MapPin,
   Clock,
   Filter,
