@@ -93,7 +93,6 @@ const VoucherList = () => {
           </div>
         ) : vouchers.length > 0 ? (
           vouchers.map((voucher) => {
-            const isDeletingThis = deletingId === voucher.id;
             const originalFormatted =
               voucher.originalFormatted ||
               `$${(voucher.minimumPrice ?? voucher.originalPrice ?? 0).toFixed(2)}`;
