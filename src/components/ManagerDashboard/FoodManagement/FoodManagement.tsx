@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import FootTable from "./FootTable";
 import NewOrderModal from "./NewOrderModal";
+import FormalDeleteModal from "@/components/Reuseable/FormalDeleteModal";
 import {
   useGetMenuItemsQuery,
   useGetMenuCategoriesQuery,
@@ -33,127 +34,6 @@ import {
   IOrder,
   OrderStatus,
 } from "@/redux/features/manager/ManageFood/manageFoodType";
-
-// Fallbacks for offline / initial development
-const fallbackMenuItems: IMenuItem[] = [
-  {
-    id: "M-1",
-    name: "Grilled Salmon Steak",
-    category: "Main Course",
-    price: 24.5,
-    formattedPrice: "$24.50",
-    isAvailable: true,
-    prepTime: "20-25 mins",
-    description: "Atlantic salmon with herbs butter and fresh asparagus",
-  },
-  {
-    id: "M-2",
-    name: "Classic Beef Burger",
-    category: "Main Course",
-    price: 18.0,
-    formattedPrice: "$18.00",
-    isAvailable: true,
-    prepTime: "15 mins",
-    description: "Angus beef patty with cheddar cheese and crisp fries",
-  },
-  {
-    id: "M-3",
-    name: "Margherita Pizza",
-    category: "Main Course",
-    price: 19.0,
-    formattedPrice: "$19.00",
-    isAvailable: true,
-    prepTime: "15-20 mins",
-    description: "San Marzano tomatoes, fresh buffalo mozzarella, basil",
-  },
-  {
-    id: "M-4",
-    name: "Caesar Salad",
-    category: "Appetizer",
-    price: 12.0,
-    formattedPrice: "$12.00",
-    isAvailable: true,
-    prepTime: "10 mins",
-    description: "Crispy romaine, parmesan shavings, garlic croutons",
-  },
-  {
-    id: "M-5",
-    name: "Truffle Mushroom Pasta",
-    category: "Main Course",
-    price: 22.5,
-    formattedPrice: "$22.50",
-    isAvailable: true,
-    prepTime: "18 mins",
-    description: "Fettuccine in creamy black truffle and wild mushroom sauce",
-  },
-  {
-    id: "M-6",
-    name: "Lemon Mint Mocktail",
-    category: "Beverage",
-    price: 6.75,
-    formattedPrice: "$6.75",
-    isAvailable: true,
-    prepTime: "5 mins",
-    description: "Refreshing crushed ice beverage with fresh mint and lime",
-  },
-  {
-    id: "M-7",
-    name: "Chocolate Lava Cake",
-    category: "Dessert",
-    price: 9.5,
-    formattedPrice: "$9.50",
-    isAvailable: false,
-    prepTime: "12 mins",
-    description: "Warm Belgian chocolate cake with bourbon vanilla gelato",
-  },
-];
-
-const fallbackOrders: IOrder[] = [
-  {
-    id: "ORD-1",
-    orderNumber: "ORD-9021",
-    tableId: "1",
-    tableNumber: "Table #1",
-    status: "SERVED",
-    totalBill: 74.5,
-    actionButton: "Complete Bill",
-    nextStatus: "COMPLETED",
-    items: [
-      { name: "Grilled Salmon Steak", quantity: 2, unitPrice: 24.5, totalPrice: 49.0 },
-      { name: "Caesar Salad", quantity: 1, unitPrice: 12.0, totalPrice: 12.0 },
-      { name: "Lemon Mint Mocktail", quantity: 2, unitPrice: 6.75, totalPrice: 13.5 },
-    ],
-    notes: "No onions | Extra cutlery",
-  },
-  {
-    id: "ORD-2",
-    orderNumber: "ORD-9023",
-    tableId: "3",
-    tableNumber: "Table #3",
-    status: "PREPARING",
-    totalBill: 47.0,
-    actionButton: "Mark Served",
-    nextStatus: "SERVED",
-    items: [
-      { name: "Classic Beef Burger", quantity: 2, unitPrice: 18.0, totalPrice: 36.0 },
-      { name: "Iced Tea", quantity: 2, unitPrice: 5.5, totalPrice: 11.0 },
-    ],
-  },
-  {
-    id: "ORD-3",
-    orderNumber: "ORD-9025",
-    tableId: "4",
-    tableNumber: "Table #4",
-    status: "PENDING",
-    totalBill: 35.0,
-    actionButton: "Start Prep",
-    nextStatus: "PREPARING",
-    items: [
-      { name: "Margherita Pizza", quantity: 1, unitPrice: 19.0, totalPrice: 19.0 },
-      { name: "Craft Soda", quantity: 2, unitPrice: 8.0, totalPrice: 16.0 },
-    ],
-  },
-];
 
 const FoodManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"Tables" | "Menu" | "Orders">("Tables");
@@ -224,12 +104,9 @@ const FoodManagement: React.FC = () => {
   const [updateOrderStatus, { isLoading: isUpdatingOrderStatus }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeletingOrder }] = useDeleteOrderMutation();
 
-  // Resolved list of Menu Items & Orders
-  const menuItems: IMenuItem[] =
-    menuApiData?.data && menuApiData.data.length > 0 ? menuApiData.data : fallbackMenuItems;
-
-  const orders: IOrder[] =
-    ordersApiData?.data && ordersApiData.data.length > 0 ? ordersApiData.data : fallbackOrders;
+  // Resolved list of Menu Items & Orders (100% Dynamic from live API)
+  const menuItems: IMenuItem[] = menuApiData?.data || [];
+  const orders: IOrder[] = ordersApiData?.data || [];
 
   // Filtered Menu Items in memory for fallback
   const filteredMenuItems = menuItems.filter((item) => {
@@ -1101,67 +978,29 @@ const FoodManagement: React.FC = () => {
         </div>
       )}
 
-      {/* ================= DELETE MENU ITEM DIALOG ================= */}
-      {deleteMenuId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-[#131b2e] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-[#1F2E4D] text-center text-white">
-            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-1">Delete Dish?</h3>
-            <p className="text-xs text-slate-400 mb-6">
-              Are you sure you want to remove "{deleteMenuId.name}" from the menu catalog?
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={() => setDeleteMenuId(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-[#1a243d] rounded-xl transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDeleteMenuItem}
-                disabled={isDeletingMenu}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors cursor-pointer flex items-center gap-2"
-              >
-                {isDeletingMenu && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>Delete</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= FORMAL DELETE MENU ITEM DIALOG ================= */}
+      <FormalDeleteModal
+        isOpen={Boolean(deleteMenuId)}
+        title="Delete Dish?"
+        itemName={deleteMenuId?.name}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeletingMenu}
+        onConfirm={handleConfirmDeleteMenuItem}
+        onClose={() => setDeleteMenuId(null)}
+      />
 
-      {/* ================= DELETE ORDER DIALOG ================= */}
-      {deleteOrderId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-[#131b2e] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-[#1F2E4D] text-center text-white">
-            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-1">Cancel Order?</h3>
-            <p className="text-xs text-slate-400 mb-6">
-              Are you sure you want to cancel and remove this active order?
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={() => setDeleteOrderId(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-[#1a243d] rounded-xl transition-colors cursor-pointer"
-              >
-                Keep Order
-              </button>
-              <button
-                onClick={handleConfirmDeleteOrder}
-                disabled={isDeletingOrder}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors cursor-pointer flex items-center gap-2"
-              >
-                {isDeletingOrder && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>Cancel Order</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= FORMAL CANCEL ORDER DIALOG ================= */}
+      <FormalDeleteModal
+        isOpen={Boolean(deleteOrderId)}
+        title="Cancel Order?"
+        itemName={orders.find((o) => o.id === deleteOrderId)?.orderNumber || "Order Ticket"}
+        confirmText="Cancel Order"
+        cancelText="Keep Order"
+        isLoading={isDeletingOrder}
+        onConfirm={handleConfirmDeleteOrder}
+        onClose={() => setDeleteOrderId(null)}
+      />
 
       {/* ================= NEW ORDER MODAL ================= */}
       <NewOrderModal

@@ -92,7 +92,7 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
   };
   const handleLogout = () => {
     dispatch(logOut());
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -101,7 +101,7 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
       style={{ boxShadow: "3px 4px 42.3px 0px #131b2e" }}
     >
       {/* Logo */}
-      <Link to="/manager-dashboard/dashboard">
+      <Link to="/manager-dashboard/dashboard" className="cursor-pointer block">
         <div className="flex items-center justify-center p-2 sm:p-3 border-b border-[#1F2E4D] mt-3.5">
           <img src={logo} alt="Logo" className="h-8 w-35" />
         </div>
@@ -123,7 +123,7 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
                   <Link
                     to={item.href}
                     onClick={onItemClick}
-                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 ${isActive
+                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${isActive
                       ? "text-white bg-orange-600 rounded-xl shadow-md"
                       : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
                       }`}
@@ -173,7 +173,7 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
                           key={child.label}
                           to={child.href}
                           onClick={onItemClick}
-                          className={`block px-3 py-2 text-sm rounded-lg transition-all ${childActive
+                          className={`block px-3 py-2 text-sm rounded-lg transition-all cursor-pointer ${childActive
                             ? "text-white bg-orange-600"
                             : "text-gray-300 hover:text-white hover:bg-orange-600"
                             }`}
@@ -200,7 +200,7 @@ const ManagerSidebar: React.FC<SidebarProps> = ({
           onClick={handleLogout}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white 
                      bg-red-500/10 hover:bg-red-500/20 border border-red-400/30 
-                     rounded-xl transition-all duration-300"
+                     rounded-xl transition-all duration-300 cursor-pointer active:scale-[0.99]"
         >
           <LogOut className="w-4 h-4 text-red-400" />
           <span>Logout</span>

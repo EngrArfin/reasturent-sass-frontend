@@ -68,12 +68,12 @@ const GetInTouch = () => {
     {
       icon: Phone,
       title: "Direct Phone Support",
-      desc: "(+880) 1923-434574",
+      desc: "(+880) 1863606871",
     },
     {
       icon: Mail,
       title: "Email Inquiries",
-      desc: "support@restosync.io",
+      desc: "arfin.cse.green.edu.bd@gmail.com",
     },
     {
       icon: Clock,
@@ -171,11 +171,10 @@ const GetInTouch = () => {
                           {...register("name")}
                           type="text"
                           placeholder="Chef Gordon"
-                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${
-                            errors.name
-                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
-                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                          }`}
+                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${errors.name
+                            ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                            : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                            }`}
                         />
                         {errors.name && (
                           <p className="text-xs text-red-400 font-medium mt-0.5">{errors.name.message}</p>
@@ -191,11 +190,10 @@ const GetInTouch = () => {
                           {...register("email")}
                           type="email"
                           placeholder="gordon@restaurant.com"
-                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${
-                            errors.email
-                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
-                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                          }`}
+                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${errors.email
+                            ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                            : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                            }`}
                         />
                         {errors.email && (
                           <p className="text-xs text-red-400 font-medium mt-0.5">{errors.email.message}</p>
@@ -213,11 +211,10 @@ const GetInTouch = () => {
                           {...register("phone")}
                           type="tel"
                           placeholder="+880 1900-000000"
-                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${
-                            errors.phone
-                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
-                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                          }`}
+                          className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 ${errors.phone
+                            ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                            : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                            }`}
                         />
                         {errors.phone && (
                           <p className="text-xs text-red-400 font-medium mt-0.5">{errors.phone.message}</p>
@@ -231,11 +228,10 @@ const GetInTouch = () => {
                         </label>
                         <select
                           {...register("subject")}
-                          className={`w-full px-4 py-3 rounded-xl border bg-[#0B0F17] text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 cursor-pointer ${
-                            errors.subject
-                              ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
-                              : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                          }`}
+                          className={`w-full px-4 py-3 rounded-xl border bg-[#0B0F17] text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 cursor-pointer ${errors.subject
+                            ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                            : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                            }`}
                         >
                           <option value="" className="bg-[#0B0F17] text-slate-400">Select a topic</option>
                           <option value="General Inquiry" className="bg-[#0B0F17] text-white">General Inquiry</option>
@@ -259,11 +255,10 @@ const GetInTouch = () => {
                         {...register("message")}
                         rows={4}
                         placeholder="Tell us about your restaurant branches, current POS setup, or any specific requirements..."
-                        className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 resize-none ${
-                          errors.message
-                            ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
-                            : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                        }`}
+                        className={`w-full px-4 py-3 rounded-xl border bg-black/40 text-white placeholder-slate-500 text-sm focus:outline-none transition-all duration-300 resize-none ${errors.message
+                          ? "border-red-500/60 focus:ring-2 focus:ring-red-500/20"
+                          : "border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                          }`}
                       />
                       {errors.message && (
                         <p className="text-xs text-red-400 font-medium mt-0.5">{errors.message.message}</p>

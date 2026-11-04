@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   Search,
@@ -42,63 +42,6 @@ interface CartItem {
   notes?: string;
 }
 
-const fallbackMenuCatalog: IMenuItem[] = [
-  {
-    id: "M-1",
-    name: "Grilled Salmon Steak",
-    category: "Main Course",
-    price: 24.5,
-    isAvailable: true,
-    prepTime: "20-25 mins",
-    description: "Atlantic salmon with herbs butter and fresh asparagus",
-  },
-  {
-    id: "M-2",
-    name: "Classic Beef Burger",
-    category: "Main Course",
-    price: 18.0,
-    isAvailable: true,
-    prepTime: "15 mins",
-    description: "Angus beef patty with cheddar cheese and crisp fries",
-  },
-  {
-    id: "M-3",
-    name: "Margherita Pizza",
-    category: "Main Course",
-    price: 19.0,
-    isAvailable: true,
-    prepTime: "15-20 mins",
-    description: "San Marzano tomatoes, fresh buffalo mozzarella, basil",
-  },
-  {
-    id: "M-4",
-    name: "Caesar Salad",
-    category: "Appetizer",
-    price: 12.0,
-    isAvailable: true,
-    prepTime: "10 mins",
-    description: "Crispy romaine, parmesan shavings, garlic croutons",
-  },
-  {
-    id: "M-5",
-    name: "Truffle Mushroom Pasta",
-    category: "Main Course",
-    price: 22.5,
-    isAvailable: true,
-    prepTime: "18 mins",
-    description: "Fettuccine in creamy black truffle and wild mushroom sauce",
-  },
-  {
-    id: "M-6",
-    name: "Lemon Mint Mocktail",
-    category: "Beverage",
-    price: 6.75,
-    isAvailable: true,
-    prepTime: "5 mins",
-    description: "Refreshing crushed ice beverage with fresh mint and lime",
-  },
-];
-
 export const NewOrderModal: React.FC<NewOrderModalProps> = ({
   isOpen,
   onClose,
@@ -117,17 +60,22 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
 
   const availableTables = tablesApiData?.data || [];
   const menuCatalog =
-    menuApiData?.data && menuApiData.data.length > 0
+    (menuApiData?.data && menuApiData.data.length > 0
       ? menuApiData.data
-      : propMenuItems && propMenuItems.length > 0
-      ? propMenuItems
-      : fallbackMenuCatalog;
+      : propMenuItems) || [];
 
   // Order Configuration Inputs (Manager Controls)
   const [orderType, setOrderType] = useState<"Dine In" | "Takeaway" | "Delivery">("Dine In");
   const [selectedTableId, setSelectedTableId] = useState<string>(
-    defaultTableId || (availableTables[0]?.id ? availableTables[0].id : "1")
+    defaultTableId || (availableTables[0]?.id ? availableTables[0].id : "")
   );
+
+  // Sync selectedTableId once available tables are loaded from backend
+  useEffect(() => {
+    if (availableTables.length > 0 && (!selectedTableId || selectedTableId === "1" || !availableTables.some((t) => t.id === selectedTableId))) {
+      setSelectedTableId(availableTables[0].id);
+    }
+  }, [availableTables, selectedTableId]);
   const [customTableNumber, setCustomTableNumber] = useState<string>("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -247,13 +195,30 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
     }
 
     const matchedTable = availableTables.find((t) => t.id === selectedTableId);
+
+    if (orderType === "Dine In" && availableTables.length > 0 && !matchedTable) {
+      toast.error("Please select a valid dining table from the list.");
+      return;
+    }
+
+    // Check if items have a valid database ID (prevent Foreign Key P2003 violation)
+    const hasInvalidItem = cartItems.some(
+      (c) => !c.menuItemId || c.menuItemId.startsWith("M-") || c.menuItemId.startsWith("custom-")
+    );
+    if (hasInvalidItem) {
+      toast.error(
+        "Some items in the cart are not linked to a valid database menu ID. Please add dishes from the live database menu."
+      );
+      return;
+    }
+
     const resolvedTableNumber =
       orderType === "Dine In"
         ? matchedTable
           ? `Table #${matchedTable.tableNumber || matchedTable.id}`
           : customTableNumber.trim()
-          ? `Table #${customTableNumber.trim()}`
-          : `Table #${selectedTableId}`
+            ? `Table #${customTableNumber.trim()}`
+            : `Table #${selectedTableId}`
         : orderType;
 
     const orderNumber = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -345,11 +310,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCustomItemForm(!showCustomItemForm)}
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${
-                    showCustomItemForm
-                      ? "bg-[#052350] text-white border-blue-500/40"
-                      : "bg-[#1a243d] text-slate-300 hover:text-white border-[#1F2E4D]"
-                  }`}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap ${showCustomItemForm
+                    ? "bg-[#052350] text-white border-blue-500/40"
+                    : "bg-[#1a243d] text-slate-300 hover:text-white border-[#1F2E4D]"
+                    }`}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                   <span>+ Custom Dish</span>
@@ -403,11 +367,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                      selectedCategory === cat
-                        ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
-                        : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${selectedCategory === cat
+                      ? "bg-[#052350] text-white border border-[#1F2E4D] shadow-sm"
+                      : "bg-[#1a243d] text-slate-400 hover:text-white border border-[#1F2E4D]/60"
+                      }`}
                   >
                     {cat}
                   </button>
@@ -432,13 +395,12 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                       <div
                         key={dish.id}
                         onClick={() => dish.isAvailable && handleAddItem(dish)}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-                          !dish.isAvailable
-                            ? "bg-[#1a243d]/30 border-[#1F2E4D]/40 opacity-50 cursor-not-allowed"
-                            : inCart
+                        className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${!dish.isAvailable
+                          ? "bg-[#1a243d]/30 border-[#1F2E4D]/40 opacity-50 cursor-not-allowed"
+                          : inCart
                             ? "bg-[#052350]/40 border-blue-500/50 shadow-sm"
                             : "bg-[#1a243d] hover:bg-[#1a243d]/80 border-[#1F2E4D]"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <div>
@@ -464,11 +426,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                             {dish.prepTime || "15 mins"}
                           </span>
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                              dish.isAvailable
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : "bg-red-500/10 text-red-400 border border-red-500/20"
-                            }`}
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${dish.isAvailable
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-red-500/10 text-red-400 border border-red-500/20"
+                              }`}
                           >
                             {dish.isAvailable ? "In Stock" : "Out of Stock"}
                           </span>
@@ -497,11 +458,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                       key={type}
                       type="button"
                       onClick={() => setOrderType(type)}
-                      className={`py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                        orderType === type
-                          ? "bg-[#052350] text-white shadow-xs border border-blue-500/30"
-                          : "text-slate-400 hover:text-white"
-                      }`}
+                      className={`py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${orderType === type
+                        ? "bg-[#052350] text-white shadow-xs border border-blue-500/30"
+                        : "text-slate-400 hover:text-white"
+                        }`}
                     >
                       {type}
                     </button>

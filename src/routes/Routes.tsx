@@ -163,6 +163,7 @@ const routes = createBrowserRouter([
       { path: "subscription", element: <SubscriptionPage /> },
       { path: "submit-ticket", element: <SubmitTicketPage /> },
       { path: "business-create", element: <BusinessCreatePage /> },
+      { path: "settings", element: <SettingsPage /> },
       { path: "notifications", element: <NotificationPage /> },
     ],
   },
@@ -173,4 +174,3 @@ const routes = createBrowserRouter([
 ]);
 
 export default routes;
-

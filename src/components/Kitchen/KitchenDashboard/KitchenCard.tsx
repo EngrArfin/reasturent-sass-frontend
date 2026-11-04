@@ -5,7 +5,7 @@ import {
   Timer,
   Flame,
   Activity,
-  AlertTriangle,
+
   RefreshCw,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -133,11 +133,10 @@ const KitchenCard: React.FC<KitchenStatsProps> = () => {
 
           <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#1F2E4D]/50">
             <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
-                (summary?.stationAlert?.capacityPercent ?? 68) >= 80
+              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${(summary?.stationAlert?.capacityPercent ?? 68) >= 80
                   ? "bg-red-500/10 text-red-400 border border-red-500/20"
                   : "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-              }`}
+                }`}
             >
               {summary?.stationAlert?.capacityPercent ?? 68}% Capacity
             </span>
@@ -195,13 +194,12 @@ const KitchenCard: React.FC<KitchenStatsProps> = () => {
                       {station.name}
                     </span>
                     <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                        station.load >= 85
+                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${station.load >= 85
                           ? "bg-red-500/20 text-red-400 border border-red-500/30"
                           : station.load >= 60
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                          : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                      }`}
+                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                            : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                        }`}
                     >
                       {station.load}% Load
                     </span>

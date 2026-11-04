@@ -14,7 +14,7 @@ import { useAppSelector } from "@/redux/hooks/redux-hook";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 
-export const getRoleRedirectPath = (role?: string): string => {
+const getRoleRedirectPath = (role?: string): string => {
   if (!role) return "/admin-dashboard";
   const normalizedRole = role.toUpperCase().replace("-", "_").trim();
 
@@ -119,21 +119,14 @@ const Login: React.FC = () => {
             </p> */}
           </div>
 
-          {/* Bottom Highlight */}
-          <div className="relative z-10 pt-8">
-            <div className="flex items-center gap-2.5 text-xs text-slate-300 bg-black/40 backdrop-blur-sm px-3.5 py-2.5 rounded-xl border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Email & 4-Digit PIN Access</span>
 
-            </div>
-          </div>
         </div>
 
         {/* Right Side: Login Form */}
         <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
           <div className="mb-6">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Welcome <span className="text-[#F54900]">Back</span>
+              Welcome to <span className="text-[#F54900]">Login</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
               Sign in with your Email Address and 4-Digit PIN.
@@ -152,7 +145,7 @@ const Login: React.FC = () => {
             {/* Email Field */}
             <div>
               <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
-                Email Address
+                Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -162,7 +155,7 @@ const Login: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@restaurant.com"
+                  placeholder="Email"
                   disabled={isLoading}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#1b253d] text-white text-sm placeholder:text-slate-500 border border-[#26375c] focus:outline-none focus:border-[#F54900] focus:ring-1 focus:ring-[#F54900] transition disabled:opacity-50"
                   required

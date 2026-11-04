@@ -12,81 +12,6 @@ export interface SubscriptionVoucher {
   usage: "Used" | "Unused";
 }
 
-const INITIAL_VOUCHERS: SubscriptionVoucher[] = [
-  {
-    id: "1",
-    subscriptionCode: "ERG-DJKKHGHJ",
-    business: "hridoy 420",
-    amountOff: 81,
-    status: "Expired",
-    expiryDate: "Aug 7, 1972, 08:06 PM",
-    usage: "Unused",
-  },
-  {
-    id: "2",
-    subscriptionCode: "FREE",
-    business: "Roadhouse~PrimeLifeGroup",
-    amountOff: 99,
-    status: "Active",
-    expiryDate: "Jun 15, 2029, 06:27 AM",
-    usage: "Used",
-  },
-  {
-    id: "3",
-    subscriptionCode: "S21",
-    business: "business1",
-    amountOff: 10,
-    status: "Expired",
-    expiryDate: "Jun 15, 2026, 01:30 PM",
-    usage: "Used",
-  },
-  {
-    id: "4",
-    subscriptionCode: "SUMMER21",
-    business: "hridoy food",
-    amountOff: 20,
-    status: "Expired",
-    expiryDate: "Jun 15, 2026, 01:19 PM",
-    usage: "Unused",
-  },
-  {
-    id: "5",
-    subscriptionCode: "PGDHJHFJH",
-    business: "420 business",
-    amountOff: 59,
-    status: "Expired",
-    expiryDate: "Nov 6, 1978, 12:01 PM",
-    usage: "Unused",
-  },
-  {
-    id: "6",
-    subscriptionCode: "ADSHD-SEDD",
-    business: "420 business",
-    amountOff: 99,
-    status: "Expired",
-    expiryDate: "Jan 5, 1999, 12:08 AM",
-    usage: "Unused",
-  },
-  {
-    id: "7",
-    subscriptionCode: "SUDKJHJH-86HF",
-    business: "657657567",
-    amountOff: 30,
-    status: "Active",
-    expiryDate: "Jun 17, 2027, 08:05 AM",
-    usage: "Unused",
-  },
-  {
-    id: "8",
-    subscriptionCode: "SUDKJHJH-86H",
-    business: "657657567",
-    amountOff: 42,
-    status: "Expired",
-    expiryDate: "Apr 28, 2016, 03:52 PM",
-    usage: "Unused",
-  },
-];
-
 const SubscriptionTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,7 +21,7 @@ const SubscriptionTable = () => {
     search: searchQuery,
   });
 
-  // Map API data or fallback to demo data
+  // Map API data (100% Dynamic)
   const vouchers: SubscriptionVoucher[] = useMemo(() => {
     if (apiVouchers && apiVouchers.length > 0) {
       return apiVouchers.map((v: VoucherItem) => ({
@@ -109,7 +34,7 @@ const SubscriptionTable = () => {
         usage: v.usage as "Used" | "Unused" || (v.isUsed ? "Used" : "Unused"),
       }));
     }
-    return INITIAL_VOUCHERS;
+    return [];
   }, [apiVouchers]);
 
   // Filter based on search

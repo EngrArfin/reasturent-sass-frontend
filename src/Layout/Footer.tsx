@@ -128,7 +128,7 @@ const Footer: React.FC = () => {
                   <Mail className="h-4 w-4" />
                 </div>
                 <p className="text-slate-400 leading-snug break-all">
-                  support@restosync.io
+                  arfin.cse.green.edu.bd@gmail.com
                 </p>
               </div>
 
@@ -137,7 +137,7 @@ const Footer: React.FC = () => {
                   <Phone className="h-4 w-4" />
                 </div>
                 <p className="text-slate-400 leading-snug">
-                  (+880) 1923-434574
+                  (+880) 1863606871
                 </p>
               </div>
             </div>

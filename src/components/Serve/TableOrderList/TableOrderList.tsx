@@ -10,93 +10,6 @@ import {
   TicketStatus,
 } from "@/redux/features/server/serverTableAndStatusType";
 
-const fallbackOrders: IServeOrderTicket[] = [
-  {
-    id: "ord-1",
-    ticketId: "13691b6b",
-    tableNumber: "2",
-    time: "06:21",
-    status: "Confirmed",
-    rawStatus: "PENDING",
-    totalBill: 19.98,
-    items: [
-      {
-        quantity: 2,
-        name: "Paneer Tikka",
-        unitPrice: 9.99,
-        tags: ["Extra Spicy", "No Onion"],
-      },
-      {
-        quantity: 2,
-        name: "Garlic Naan",
-        unitPrice: 3.5,
-        tags: ["Less Salt"],
-      },
-    ],
-  },
-  {
-    id: "ord-2",
-    ticketId: "ORD-4321",
-    tableNumber: "Table #Table-23",
-    time: "06:14",
-    status: "In Kitchen",
-    rawStatus: "PREPARING",
-    totalBill: 42.0,
-    items: [
-      {
-        quantity: 1,
-        name: "Grilled Salmon Steak",
-        unitPrice: 24.5,
-        tags: ["Extra Lemon"],
-      },
-      {
-        quantity: 2,
-        name: "Mango Lassi",
-        unitPrice: 4.5,
-      },
-    ],
-  },
-  {
-    id: "ord-3",
-    ticketId: "ORD-1213",
-    tableNumber: "Table #1",
-    time: "05:47",
-    status: "Ready to Serve",
-    rawStatus: "READY",
-    readyNotice: true,
-    totalBill: 49.0,
-    items: [
-      {
-        quantity: 2,
-        name: "Grilled Salmon Steak",
-        unitPrice: 24.5,
-        tags: ["No onions"],
-      },
-    ],
-  },
-  {
-    id: "ord-4",
-    ticketId: "ORD-9025",
-    tableNumber: "Table #4",
-    time: "05:30",
-    status: "Served",
-    rawStatus: "SERVED",
-    totalBill: 35.0,
-    items: [
-      {
-        quantity: 1,
-        name: "Margherita Pizza",
-        unitPrice: 19.0,
-      },
-      {
-        quantity: 2,
-        name: "Craft Soda",
-        unitPrice: 8.0,
-      },
-    ],
-  },
-];
-
 const TableOrderList: React.FC = () => {
   const [filter, setFilter] = useState<string>("ALL");
 
@@ -115,8 +28,7 @@ const TableOrderList: React.FC = () => {
     useUpdateServeOrderStatusMutation();
 
   const apiOrders = ordersData?.data;
-  const orders: IServeOrderTicket[] =
-    apiOrders && apiOrders.length > 0 ? apiOrders : fallbackOrders;
+  const orders: IServeOrderTicket[] = apiOrders || [];
 
   const handleStatusChange = async (orderId: string, newStatus: TicketStatus | string) => {
     try {

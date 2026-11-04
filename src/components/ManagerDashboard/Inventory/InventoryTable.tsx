@@ -8,7 +8,7 @@ import {
   Edit,
   Package,
   CheckCircle2,
-  AlertTriangle,
+
   XCircle,
   DollarSign,
   Boxes,
@@ -19,6 +19,7 @@ import {
 import { CiSearch } from "react-icons/ci";
 import { toast } from "sonner";
 import NewInventory from "./NewInventory";
+import FormalDeleteModal from "@/components/Reuseable/FormalDeleteModal";
 import {
   useGetProductsQuery,
   useGetInventorySummaryQuery,
@@ -215,9 +216,8 @@ const InventoryTable: React.FC = () => {
             setStockStatus("ALL");
             setPage(1);
           }}
-          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-slate-500/50 ${
-            stockStatus === "ALL" ? "border-orange-500/60 bg-[#162138]" : "border-[#1F2E4D]"
-          }`}
+          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-slate-500/50 ${stockStatus === "ALL" ? "border-orange-500/60 bg-[#162138]" : "border-[#1F2E4D]"
+            }`}
         >
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-xs font-medium uppercase tracking-wider">Total Items</span>
@@ -235,9 +235,8 @@ const InventoryTable: React.FC = () => {
             setStockStatus("IN_STOCK");
             setPage(1);
           }}
-          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-emerald-500/50 ${
-            stockStatus === "IN_STOCK" ? "border-emerald-500/60 bg-emerald-950/10" : "border-[#1F2E4D]"
-          }`}
+          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-emerald-500/50 ${stockStatus === "IN_STOCK" ? "border-emerald-500/60 bg-emerald-950/10" : "border-[#1F2E4D]"
+            }`}
         >
           <div className="flex items-center justify-between text-emerald-400 mb-2">
             <span className="text-xs font-medium uppercase tracking-wider">In Stock</span>
@@ -255,9 +254,8 @@ const InventoryTable: React.FC = () => {
             setStockStatus("LOW_STOCK");
             setPage(1);
           }}
-          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-amber-500/50 ${
-            stockStatus === "LOW_STOCK" ? "border-amber-500/60 bg-amber-950/10" : "border-[#1F2E4D]"
-          }`}
+          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-amber-500/50 ${stockStatus === "LOW_STOCK" ? "border-amber-500/60 bg-amber-950/10" : "border-[#1F2E4D]"
+            }`}
         >
           <div className="flex items-center justify-between text-amber-400 mb-2">
             <span className="text-xs font-medium uppercase tracking-wider">Low Stock</span>
@@ -275,9 +273,8 @@ const InventoryTable: React.FC = () => {
             setStockStatus("OUT_OF_STOCK");
             setPage(1);
           }}
-          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-rose-500/50 ${
-            stockStatus === "OUT_OF_STOCK" ? "border-rose-500/60 bg-rose-950/10" : "border-[#1F2E4D]"
-          }`}
+          className={`p-4 rounded-2xl bg-[#131b2e] border transition-all cursor-pointer hover:border-rose-500/50 ${stockStatus === "OUT_OF_STOCK" ? "border-rose-500/60 bg-rose-950/10" : "border-[#1F2E4D]"
+            }`}
         >
           <div className="flex items-center justify-between text-rose-400 mb-2">
             <span className="text-xs font-medium uppercase tracking-wider">Out of Stock</span>
@@ -358,9 +355,8 @@ const InventoryTable: React.FC = () => {
               className="w-10 h-10 rounded-full bg-[#1a243d] hover:bg-[#232f4c] border border-[#1F2E4D] text-white flex items-center justify-center cursor-pointer shadow-sm flex-shrink-0 transition-all active:scale-95"
             >
               <RefreshCw
-                className={`w-4 h-4 text-slate-300 ${
-                  isProductsFetching ? "animate-spin text-orange-400" : ""
-                }`}
+                className={`w-4 h-4 text-slate-300 ${isProductsFetching ? "animate-spin text-orange-400" : ""
+                  }`}
               />
             </button>
           </div>
@@ -381,11 +377,10 @@ const InventoryTable: React.FC = () => {
                   setStockStatus(tab.value);
                   setPage(1);
                 }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  stockStatus === tab.value
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${stockStatus === tab.value
                     ? "bg-orange-600 text-white shadow-sm"
                     : "bg-[#1a243d] text-slate-300 hover:text-white hover:bg-[#243152] border border-[#1F2E4D]"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -502,13 +497,12 @@ const InventoryTable: React.FC = () => {
                           <td className="px-6 py-4 text-center">
                             <div className="inline-flex items-center gap-1.5">
                               <span
-                                className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold border ${
-                                  isOutOfStock
+                                className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold border ${isOutOfStock
                                     ? "bg-rose-500/10 text-rose-400 border-rose-500/30"
                                     : isLowStock
-                                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                                }`}
+                                      ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                      : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                  }`}
                               >
                                 {item.stock} {isOutOfStock ? "Out of Stock" : "In Stock"}
                               </span>
@@ -658,11 +652,10 @@ const InventoryTable: React.FC = () => {
                     key={t.value}
                     type="button"
                     onClick={() => setStockAdjustmentType(t.value)}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                      stockAdjustmentType === t.value
+                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${stockAdjustmentType === t.value
                         ? "bg-orange-600 text-white shadow"
                         : "text-slate-400 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {t.label}
                   </button>
@@ -675,8 +668,8 @@ const InventoryTable: React.FC = () => {
                   {stockAdjustmentType === "SET"
                     ? "New Total Quantity"
                     : stockAdjustmentType === "ADD"
-                    ? "Quantity to Add"
-                    : "Quantity to Deduct"}
+                      ? "Quantity to Add"
+                      : "Quantity to Deduct"}
                 </label>
                 <input
                   type="number"
@@ -795,42 +788,17 @@ const InventoryTable: React.FC = () => {
         </div>
       )}
 
-      {/* 3. Delete Confirmation Dialog */}
-      {productToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-sm bg-[#131b2e] rounded-3xl p-6 border border-[#1F2E4D] shadow-2xl space-y-4 text-center">
-            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
-              <Trash2 className="w-6 h-6" />
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-white">Delete Product?</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Are you sure you want to delete <span className="text-white font-semibold">"{productToDelete.name}"</span> ({productToDelete.barcode})? This action cannot be undone.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setProductToDelete(null)}
-                className="flex-1 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:text-white bg-[#1a243d] rounded-xl border border-[#1F2E4D]"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isDeleting}
-                onClick={handleDeleteConfirm}
-                className="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl flex items-center justify-center gap-1.5 disabled:opacity-50"
-              >
-                {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                <span>Delete</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 3. Formal Delete Confirmation Dialog */}
+      <FormalDeleteModal
+        isOpen={Boolean(productToDelete)}
+        title="Delete Product?"
+        itemName={productToDelete?.name}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setProductToDelete(null)}
+      />
     </div>
   );
 };

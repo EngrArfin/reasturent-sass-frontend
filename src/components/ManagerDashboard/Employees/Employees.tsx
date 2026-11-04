@@ -11,11 +11,12 @@ import {
   Shield,
   Loader2,
   KeyRound,
-  AlertTriangle,
+
   UserCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import NewEmployee from "./NewEmployee";
+import FormalDeleteModal from "@/components/Reuseable/FormalDeleteModal";
 import {
   useGetEmployeesQuery,
   useUpdateEmployeeMutation,
@@ -325,8 +326,8 @@ const Employees: React.FC = () => {
               type="button"
               onClick={() => setSelectedRole(role)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${selectedRole === role
-                  ? "bg-[#052350] text-blue-400 border border-blue-500/40 shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                ? "bg-[#052350] text-blue-400 border border-blue-500/40 shadow-sm"
+                : "text-slate-400 hover:text-white"
                 }`}
             >
               {role === "ALL" ? "All Roles" : role}
@@ -509,50 +510,22 @@ const Employees: React.FC = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-[#131b2e] rounded-2xl p-6 max-w-sm w-full border border-[#1F2E4D] shadow-2xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 mx-auto">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div className="text-center space-y-1">
-              <h3 className="text-base font-bold text-white">
-                Delete Employee Profile?
-              </h3>
-              <p className="text-xs text-slate-400">
-                This action is permanent and will remove access for this employee
-                from your restaurant.
-              </p>
-            </div>
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirmId(null)}
-                disabled={isDeleting}
-                className="flex-1 py-2.5 rounded-xl border border-[#1F2E4D] bg-[#1a243d] hover:bg-[#22304e] text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const emp = employees.find((e) => e.id === deleteConfirmId);
-                  handleDeleteEmployee(deleteConfirmId, emp?.name || "Employee");
-                }}
-                disabled={isDeleting}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                {isDeleting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <span>Delete</span>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Formal Delete Confirmation Modal */}
+      <FormalDeleteModal
+        isOpen={Boolean(deleteConfirmId)}
+        title="Delete Employee Profile?"
+        itemName={employees.find((e) => e.id === deleteConfirmId)?.name || "Employee"}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        onConfirm={() => {
+          if (deleteConfirmId) {
+            const emp = employees.find((e) => e.id === deleteConfirmId);
+            handleDeleteEmployee(deleteConfirmId, emp?.name || "Employee");
+          }
+        }}
+        onClose={() => setDeleteConfirmId(null)}
+      />
 
       {/* Edit Employee Modal */}
       {editingEmployee && (

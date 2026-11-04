@@ -25,69 +25,6 @@ interface TableMenuProps {
   onSendToKitchen?: (tableId: string, orderItems: OrderCustomization[], total: number) => void;
 }
 
-const defaultFallbackMenuItems: IServeMenuItem[] = [
-  {
-    id: "item-1",
-    name: "Chicken Biriyani",
-    description: "Fragrant basmati rice with spiced chicken",
-    category: "Main Course",
-    price: 12.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=800&auto=format&fit=crop",
-    isAvailable: true,
-  },
-  {
-    id: "item-2",
-    name: "Paneer Tikka",
-    description: "Grilled cottage cheese with spices",
-    category: "Appetizer",
-    price: 9.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?q=80&w=800&auto=format&fit=crop",
-    isAvailable: true,
-  },
-  {
-    id: "item-3",
-    name: "Garlic Naan",
-    description: "Soft leavened bread with garlic",
-    category: "Appetizer",
-    price: 3.5,
-    imageUrl:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800&auto=format&fit=crop",
-    isAvailable: true,
-  },
-  {
-    id: "item-4",
-    name: "Mango Lassi",
-    description: "Sweet yogurt drink with mango",
-    category: "Beverage",
-    price: 4.5,
-    imageUrl:
-      "https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=800&auto=format&fit=crop",
-    isAvailable: true,
-  },
-  {
-    id: "item-5",
-    name: "Lamb Curry",
-    description: "Tender lamb in rich gravy",
-    category: "Main Course",
-    price: 15.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1545247181-516773cae754?q=80&w=800&auto=format&fit=crop",
-    isAvailable: true,
-  },
-  {
-    id: "item-6",
-    name: "Samosa",
-    description: "Crispy pastry with potato filling",
-    category: "Appetizer",
-    price: 5.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800&auto=format&fit=crop",
-    isAvailable: true,
-  },
-];
-
 const availableModifierTags = [
   "Extra Spicy",
   "No Onion",
@@ -107,10 +44,7 @@ const TableMenu: React.FC<TableMenuProps> = ({
   });
   const [sendOrder, { isLoading: isSendingOrder }] = useSendOrderToKitchenMutation();
 
-  const menuItems =
-    menuData?.data && menuData.data.length > 0
-      ? menuData.data
-      : defaultFallbackMenuItems;
+  const menuItems = menuData?.data || [];
 
   const [currentOrder, setCurrentOrder] = useState<OrderCustomization[]>([]);
   const [orderNotes, setOrderNotes] = useState("");

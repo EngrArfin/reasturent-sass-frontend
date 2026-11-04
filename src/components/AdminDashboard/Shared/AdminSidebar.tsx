@@ -68,7 +68,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
   };
   const handleLogout = () => {
     dispatch(logOut());
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -77,7 +77,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
       style={{ boxShadow: "3px 4px 42.3px 0px #131b2e" }}
     >
       {/* Logo */}
-      <Link to="/admin-dashboard/dashboard">
+      <Link to="/admin-dashboard/dashboard" className="cursor-pointer block">
         <div className="flex items-center justify-center p-2 sm:p-3 border-b border-[#1F2E4D] mt-3.5">
           <img src={logo} alt="Logo" className="h-8 w-35" />
         </div>
@@ -99,11 +99,10 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                   <Link
                     to={item.href}
                     onClick={onItemClick}
-                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 ${
-                      isActive
-                        ? "text-white bg-orange-600 rounded-xl shadow-md"
-                        : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
-                    }`}
+                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${isActive
+                      ? "text-white bg-orange-600 rounded-xl shadow-md"
+                      : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
+                      }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
                       <item.icon className={`w-5 h-5 text-white`} />
@@ -113,11 +112,10 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                 ) : (
                   <button
                     onClick={() => toggleMenu(item.label)}
-                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${
-                      isActive
-                        ? "text-white bg-orange-600 rounded-xl shadow-md"
-                        : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
-                    }`}
+                    className={`group flex items-center justify-between w-full px-3 py-2 text-sm transition-all duration-300 cursor-pointer ${isActive
+                      ? "text-white bg-orange-600 rounded-xl shadow-md"
+                      : "text-white hover:text-white hover:bg-orange-600 hover:rounded-xl hover:shadow-md"
+                      }`}
                   >
                     <div className="flex items-center space-x-2 md:text-lg">
                       <item.icon className={`w-5 h-5 text-white`} />
@@ -126,9 +124,8 @@ const AdminSidebar: React.FC<SidebarProps> = ({
 
                     {item.children && (
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""
+                          }`}
                       />
                     )}
 
@@ -152,11 +149,10 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                           key={child.label}
                           to={child.href}
                           onClick={onItemClick}
-                          className={`block px-3 py-2 text-sm rounded-lg transition-all ${
-                            childActive
-                              ? "text-white bg-orange-600"
-                              : "text-gray-300 hover:text-white hover:bg-orange-600"
-                          }`}
+                          className={`block px-3 py-2 text-sm rounded-lg transition-all cursor-pointer ${childActive
+                            ? "text-white bg-orange-600"
+                            : "text-gray-300 hover:text-white hover:bg-orange-600"
+                            }`}
                         >
                           {child.label}
                         </Link>
@@ -178,9 +174,9 @@ const AdminSidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white 
+          className="w-full cursor-pointer flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white 
                      bg-red-500/10 hover:bg-red-500/20 border border-red-400/30 
-                     rounded-xl transition-all duration-300"
+                     rounded-xl transition-all duration-300 active:scale-[0.99]"
         >
           <RiShareBoxLine className="w-4 h-4 rotate-180 text-red-400" />
           <span>Logout</span>

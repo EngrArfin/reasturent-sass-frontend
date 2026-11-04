@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import NewVoucher from "./NewVoucher";
+import FormalDeleteModal from "@/components/Reuseable/FormalDeleteModal";
 import {
   useGetVouchersQuery,
   useDeleteVoucherMutation,
@@ -11,19 +12,22 @@ import {
 const VoucherList = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<IVoucher | null>(null);
+  const [voucherToDelete, setVoucherToDelete] = useState<IVoucher | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data: vouchers = [], isLoading } = useGetVouchersQuery();
   const [deleteVoucher] = useDeleteVoucherMutation();
 
-  const handleDelete = async (id: string, name: string) => {
-    setDeletingId(id);
+  const handleConfirmDelete = async () => {
+    if (!voucherToDelete) return;
+    setDeletingId(voucherToDelete.id);
     try {
-      await deleteVoucher(id).unwrap();
-      toast.success(`Removed voucher for "${name}"`);
+      await deleteVoucher(voucherToDelete.id).unwrap();
+      toast.success(`Removed voucher for "${voucherToDelete.name}"`);
+      setVoucherToDelete(null);
     } catch (err: any) {
       toast.error(
-        err?.data?.message || err?.error || `Failed to delete voucher "${name}"`
+        err?.data?.message || err?.error || `Failed to delete voucher "${voucherToDelete.name}"`
       );
     } finally {
       setDeletingId(null);
@@ -138,11 +142,9 @@ const VoucherList = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <button
                     type="button"
-                    disabled={isDeletingThis}
-                    onClick={() => handleDelete(voucher.id, voucher.name)}
+                    onClick={() => setVoucherToDelete(voucher)}
                     className="w-full py-2.5 rounded-full border border-[#1F2E4D] bg-[#1a243d] hover:bg-rose-500/10 hover:border-rose-500/30 text-slate-300 hover:text-rose-400 font-semibold text-sm transition-all duration-200 cursor-pointer text-center disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {isDeletingThis && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     <span>Delete</span>
                   </button>
                   <button
@@ -162,6 +164,18 @@ const VoucherList = () => {
           </div>
         )}
       </div>
+
+      {/* Formal Delete Confirmation Modal */}
+      <FormalDeleteModal
+        isOpen={Boolean(voucherToDelete)}
+        title="Delete Voucher?"
+        itemName={voucherToDelete?.name}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={Boolean(deletingId)}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setVoucherToDelete(null)}
+      />
     </div>
   );
 };

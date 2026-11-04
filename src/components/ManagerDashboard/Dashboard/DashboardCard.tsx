@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { TrendingUp, UserCheck, DollarSign, AlertTriangle } from "lucide-react";
+import { useGetOrdersQuery, useGetTablesQuery } from "@/redux/features/manager/ManageFood/manageFoodApi";
 
 export type CardColor = "green" | "blue" | "purple" | "red";
 
@@ -45,45 +46,62 @@ const colorStyles: Record<
   },
 };
 
-const defaultCards: CardData[] = [
-  {
-    title: "Daily Sales",
-    value: "$4280.50",
-    subtext: "+12",
-    icon: <TrendingUp className="w-5 h-5" />,
-    color: "green",
-  },
-  {
-    title: "Total Transactions",
-    value: "142",
-    subtext: "+5.2%",
-    icon: <UserCheck className="w-5 h-5" />,
-    color: "blue",
-  },
-  {
-    title: "Active Terminals",
-    value: "4",
-    subtext: "Stable",
-    icon: <DollarSign className="w-5 h-5" />,
-    color: "purple",
-  },
-  {
-    title: "Pending Orders",
-    value: "0",
-    subtext: "0 prev",
-    icon: <AlertTriangle className="w-5 h-5" />,
-    color: "red",
-  },
-];
-
 interface DashboardCardProps {
   cards?: CardData[];
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ cards = defaultCards }) => {
+const DashboardCard: React.FC<DashboardCardProps> = ({ cards }) => {
+  const { data: ordersData, isLoading: isLoadingOrders } = useGetOrdersQuery();
+  const { data: tablesData, isLoading: isLoadingTables } = useGetTablesQuery();
+
+  const orders = ordersData?.data || [];
+  const tables = tablesData?.data || [];
+
+  // Calculate live dynamic metrics
+  const totalSales = orders
+    .filter((o) => o.status !== "CANCELLED")
+    .reduce((sum, o) => sum + (Number(o.totalBill) || 0), 0);
+
+  const totalTransactions = orders.length;
+  const occupiedTables = tables.filter((t) => t.status === "OCCUPIED").length;
+  const pendingOrders = orders.filter((o) => o.status === "PENDING").length;
+
+  const dynamicCards: CardData[] = [
+    {
+      title: "Daily Sales",
+      value: isLoadingOrders ? "..." : `$${totalSales.toFixed(2)}`,
+      subtext: `${totalTransactions} orders`,
+      icon: <TrendingUp className="w-5 h-5" />,
+      color: "green",
+    },
+    {
+      title: "Total Transactions",
+      value: isLoadingOrders ? "..." : totalTransactions.toString(),
+      subtext: `${orders.filter((o) => o.status === "COMPLETED").length} completed`,
+      icon: <UserCheck className="w-5 h-5" />,
+      color: "blue",
+    },
+    {
+      title: "Active Tables",
+      value: isLoadingTables ? "..." : occupiedTables.toString(),
+      subtext: `${tables.length} total tables`,
+      icon: <DollarSign className="w-5 h-5" />,
+      color: "purple",
+    },
+    {
+      title: "Pending Orders",
+      value: isLoadingOrders ? "..." : pendingOrders.toString(),
+      subtext: pendingOrders > 0 ? "Requires action" : "All caught up",
+      icon: <AlertTriangle className="w-5 h-5" />,
+      color: "red",
+    },
+  ];
+
+  const displayCards = cards || dynamicCards;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-      {cards.map((card, index) => {
+      {displayCards.map((card, index) => {
         const styles = colorStyles[card.color];
 
         return (

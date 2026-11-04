@@ -23,6 +23,7 @@ import {
   useDeleteTableMutation,
 } from "@/redux/features/manager/ManageFood/manageFoodApi";
 import { ITable, TableStatus } from "@/redux/features/manager/ManageFood/manageFoodType";
+import FormalDeleteModal from "@/components/Reuseable/FormalDeleteModal";
 
 export interface RestaurantTable extends ITable {
   waiter?: string;
@@ -30,110 +31,6 @@ export interface RestaurantTable extends ITable {
   totalBill?: number;
   orderItems?: { name: string; quantity: number; price: number }[];
 }
-
-const fallbackTablesData: RestaurantTable[] = [
-  {
-    id: "1",
-    tableNumber: "1",
-    capacity: "4 Persons",
-    status: "OCCUPIED",
-    subStatus: "SERVED",
-    section: "Main Dining Hall",
-    waiter: "Sarah Jenkins",
-    seatedTime: "45 mins ago",
-    activeOrderNumber: "ORD-9021",
-    totalBill: 74.5,
-    orderItems: [
-      { name: "Grilled Salmon Steak", quantity: 2, price: 24.5 },
-      { name: "Caesar Salad", quantity: 1, price: 12.0 },
-      { name: "Lemon Mint Mocktail", quantity: 2, price: 6.75 },
-    ],
-  },
-  {
-    id: "2",
-    tableNumber: "2",
-    capacity: "4 Persons",
-    status: "AVAILABLE",
-    subStatus: "-",
-    section: "Main Dining Hall",
-  },
-  {
-    id: "3",
-    tableNumber: "3",
-    capacity: "4 Persons",
-    status: "OCCUPIED",
-    subStatus: "SERVED",
-    section: "Patio Terrace",
-    waiter: "John Doe",
-    seatedTime: "30 mins ago",
-    activeOrderNumber: "ORD-9023",
-    totalBill: 58.0,
-    orderItems: [
-      { name: "Classic Beef Burger", quantity: 2, price: 18.0 },
-      { name: "Crispy French Fries", quantity: 2, price: 5.5 },
-      { name: "Iced Tea", quantity: 2, price: 5.5 },
-    ],
-  },
-  {
-    id: "4",
-    tableNumber: "4",
-    capacity: "4 Persons",
-    status: "OCCUPIED",
-    subStatus: "SERVED",
-    section: "Patio Terrace",
-    waiter: "Emily Watson",
-    seatedTime: "15 mins ago",
-    activeOrderNumber: "ORD-9025",
-    totalBill: 42.0,
-    orderItems: [
-      { name: "Margherita Pizza", quantity: 1, price: 19.0 },
-      { name: "Garlic Bread", quantity: 1, price: 7.0 },
-      { name: "Craft Soda", quantity: 2, price: 8.0 },
-    ],
-  },
-  {
-    id: "5",
-    tableNumber: "5",
-    capacity: "2 Persons",
-    status: "OCCUPIED",
-    subStatus: "SERVED",
-    section: "Window Bay",
-    waiter: "Sarah Jenkins",
-    seatedTime: "25 mins ago",
-    activeOrderNumber: "ORD-9028",
-    totalBill: 36.5,
-    orderItems: [
-      { name: "Truffle Mushroom Pasta", quantity: 1, price: 22.5 },
-      { name: "Cappuccino", quantity: 2, price: 7.0 },
-    ],
-  },
-  {
-    id: "6",
-    tableNumber: "6",
-    capacity: "2 Persons",
-    status: "AVAILABLE",
-    subStatus: "-",
-    section: "Window Bay",
-  },
-  {
-    id: "7",
-    tableNumber: "7",
-    capacity: "6 Persons",
-    status: "RESERVED",
-    subStatus: "-",
-    section: "VIP Lounge",
-    waiter: "David Khan",
-    seatedTime: "Reserved for 8:30 PM",
-  },
-  {
-    id: "8",
-    tableNumber: "8",
-    capacity: "8 Persons",
-    status: "AVAILABLE",
-    subStatus: "-",
-    section: "VIP Lounge",
-  },
-];
 
 interface FootTableProps {
   isAddModalOpen?: boolean;
@@ -190,10 +87,9 @@ export const FootTable: React.FC<FootTableProps> = ({
     section: "Main Dining Hall",
   });
 
-  // Calculate live tables from API or fallback
+  // Calculate live tables from API (100% Dynamic)
   const apiTables = tablesData?.data;
-  const tables: RestaurantTable[] =
-    apiTables && apiTables.length > 0 ? (apiTables as RestaurantTable[]) : fallbackTablesData;
+  const tables: RestaurantTable[] = (apiTables as RestaurantTable[]) || [];
 
   // Add Table Submit
   const handleAddTableSubmit = async (e: React.FormEvent) => {
@@ -946,36 +842,21 @@ export const FootTable: React.FC<FootTableProps> = ({
         </div>
       )}
 
-      {/* ================= DELETE CONFIRMATION DIALOG ================= */}
-      {deleteTableId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-[#131b2e] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-[#1F2E4D] text-center text-white">
-            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-1">Delete Table?</h3>
-            <p className="text-xs text-slate-400 mb-6">
-              Are you sure you want to delete this floor table? This action cannot be undone.
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                onClick={() => setDeleteTableId(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-[#1a243d] rounded-xl transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={isDeleting}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors cursor-pointer flex items-center gap-2"
-              >
-                {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>Delete</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= FORMAL DELETE TABLE DIALOG ================= */}
+      <FormalDeleteModal
+        isOpen={Boolean(deleteTableId)}
+        title="Delete Table?"
+        itemName={
+          tables.find((t) => t.id === deleteTableId)
+            ? `Table #${tables.find((t) => t.id === deleteTableId)?.tableNumber || tables.find((t) => t.id === deleteTableId)?.id}`
+            : undefined
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteTableId(null)}
+      />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import {
   CheckCheck,
   Clock,
   Info,
-  AlertTriangle,
+
   ShoppingBag,
   Sparkles,
   Ticket,
@@ -223,9 +223,8 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
               <div
                 key={item.id}
                 onClick={() => handleNotificationClick(item)}
-                className={`p-3.5 sm:p-4 hover:bg-[#1a243d]/60 transition-colors flex items-start gap-3 cursor-pointer relative ${
-                  !item.isRead ? "bg-[#0b1220]/50" : ""
-                }`}
+                className={`p-3.5 sm:p-4 hover:bg-[#1a243d]/60 transition-colors flex items-start gap-3 cursor-pointer relative ${!item.isRead ? "bg-[#0b1220]/50" : ""
+                  }`}
               >
                 {/* Icon Box */}
                 <div
@@ -240,9 +239,8 @@ const NotificationPannel: React.FC<NotificationPanelProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1 mb-1">
                     <h4
-                      className={`text-xs font-bold truncate ${
-                        !item.isRead ? "text-white" : "text-slate-300"
-                      }`}
+                      className={`text-xs font-bold truncate ${!item.isRead ? "text-white" : "text-slate-300"
+                        }`}
                     >
                       {item.title}
                     </h4>

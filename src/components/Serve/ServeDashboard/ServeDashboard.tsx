@@ -9,21 +9,6 @@ import {
 } from "@/redux/features/server/serverTableAndStatusApi";
 import { ServeTableStatus } from "@/redux/features/server/serverTableAndStatusType";
 
-const fallbackTables: TableData[] = [
-  { id: "1", tableNumber: "1", capacity: "4 Persons", section: "Main Hall", status: "OCCUPIED", subStatus: "SERVED" },
-  { id: "2", tableNumber: "2", capacity: "4 Persons", section: "Bar Area", status: "AVAILABLE", subStatus: "-" },
-  { id: "3", tableNumber: "3", capacity: "4 Persons", section: "Patio Terrace", status: "OCCUPIED", subStatus: "SERVED" },
-  { id: "4", tableNumber: "4", capacity: "4 Persons", section: "Patio Terrace", status: "OCCUPIED", subStatus: "PREPARING" },
-  { id: "5", tableNumber: "5", capacity: "2 Persons", section: "Window Bay", status: "OCCUPIED", subStatus: "SERVED" },
-  { id: "6", tableNumber: "6", capacity: "2 Persons", section: "Window Bay", status: "AVAILABLE", subStatus: "-" },
-  { id: "7", tableNumber: "7", capacity: "4 Persons", section: "Main Hall", status: "AVAILABLE", subStatus: "-" },
-  { id: "8", tableNumber: "8", capacity: "4 Persons", section: "Main Hall", status: "AVAILABLE", subStatus: "-" },
-  { id: "9", tableNumber: "9", capacity: "4 Persons", section: "Main Hall", status: "AVAILABLE", subStatus: "-" },
-  { id: "10", tableNumber: "10", capacity: "4 Persons", section: "VIP Lounge", status: "OCCUPIED", subStatus: "PREPARING" },
-  { id: "11", tableNumber: "11", capacity: "2 Persons", section: "Window Bay", status: "AVAILABLE", subStatus: "-" },
-  { id: "12", tableNumber: "12", capacity: "8 Persons", section: "VIP Lounge", status: "AVAILABLE", subStatus: "-" },
-];
-
 const ServeDashboard: React.FC = () => {
   const { data: tablesData, isLoading, isFetching } = useGetServeTablesQuery(undefined, {
     pollingInterval: 3000,
@@ -36,8 +21,7 @@ const ServeDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const apiTables = tablesData?.data;
-  const tables: TableData[] =
-    apiTables && apiTables.length > 0 ? (apiTables as TableData[]) : fallbackTables;
+  const tables: TableData[] = (apiTables as TableData[]) || [];
 
   const handleSelectTable = (table: TableData) => {
     setSelectedTable(table);
